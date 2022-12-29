@@ -1,0 +1,28 @@
+.RecordModal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.RecordModal-recordBbutton {
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+}
+.RecordModal-recordBbutton:hover {
+  background-color: #3e8e41;
+}
+.RecordModal-modalPopup {
+  position: fixed;
+  top: 30%;
+  right: 0;
+  z-index: 999;
+  width: 100%;
+}
+
+/*# sourceMappingURL=RecordModal.css.map */

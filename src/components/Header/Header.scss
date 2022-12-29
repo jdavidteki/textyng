@@ -1,0 +1,78 @@
+@import '../../assets/sass/Common.scss';
+
+.Header{
+    display: flex;
+    z-index: 9999;
+    justify-content: space-between;
+    padding: 16px 12px;
+
+    @include bpgte(sm)
+    {
+        @include l-container;
+    }
+
+    &-logo
+    {
+        border-radius: 25%;
+        transition: border-radius 0.5s;
+        height: 50px;
+        width: 60px;
+        cursor: pointer;
+        border: 1px solid $brand-tertiary;
+    }
+
+    &-logoWrapper
+    {
+        width: 20%;
+    }
+
+    &-mainMenu
+    {
+        display: flex;
+        justify-content: flex-end;
+        width: 50%;
+        flex-grow: 1;
+        align-items: center;
+
+        &-item
+        {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+    }
+
+    &-icon
+    {
+        margin: 0 16px;
+
+        &:hover{
+            color: $brand-primary;
+        }
+
+
+        svg:hover{
+            fill: $brand-primary;
+        }
+    }
+
+    &-img
+    {
+        width: 24px;
+        height: 24px;
+
+        @include bpgte(sm){
+            width: 35px;
+            height: 35px;
+        }
+    }
+
+    &-img-title{
+        @include Text--extrasmall;
+
+        @include bpgte(sm){
+            @include Text--small;
+        }
+    }
+}

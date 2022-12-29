@@ -1,0 +1,32 @@
+@import '../../assets/sass/Common.scss';
+
+.Scenes
+{
+    display: flex;
+    max-width: 100%;
+    overflow-x: scroll;
+
+    &-cast
+    {
+        min-width: 40px;
+        border: 1px solid $gray-5;
+        border-radius: 4px;
+        margin-left: 8px;
+        font-size: 16px;
+        padding: 0 8px;
+        cursor: pointer;
+
+        &.active,
+        &:hover{
+            background-color: $brand-3;
+        }
+    }
+
+    &-addCast
+    {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: 12px;
+    }
+}

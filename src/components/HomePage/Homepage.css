@@ -1,0 +1,226 @@
+@import 'https://fonts.googleapis.com/css?family=Open+Sans|Roboto:300';
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css");
+.l-container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  width: auto;
+}
+@media (min-width: 768px) {
+  .l-container {
+    width: 768px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (min-width: 992px) {
+  .l-container {
+    width: 992px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (min-width: 1200px) {
+  .l-container {
+    width: 1170px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .l-visible-only-xs {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .l-hidden-xs {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .l-hidden-sm {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .l-hidden-md {
+    display: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .l-hidden-lg {
+    display: none;
+  }
+}
+
+/** @define Button */
+.Button--primary {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 2px;
+  color: #fff;
+  background-color: #800020;
+  border-radius: 4px;
+  border: 1px solid #222;
+  padding: 13px 16px;
+  display: inline-block;
+  width: auto;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  transition: 1s;
+  /* postcss-bem-linter: ignore */
+}
+.Button--primary:hover, .Button--primary:active {
+  transition: 1s;
+  background-color: #DCB69A;
+  opacity: 0.6;
+}
+@media (max-width: 767px) {
+  .Button--mobileHero {
+    height: 80px;
+    padding: 8px;
+    background-color: #eee;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    cursor: pointer;
+  }
+}
+
+/** @define Link */
+.Link--primary {
+  font-size: 16px;
+  line-height: 24px;
+  text-decoration: underline;
+  /* postcss-bem-linter: ignore */
+  /* postcss-bem-linter: ignore */
+  color: #800020;
+}
+.Link--primary:hover {
+  text-decoration: none;
+}
+.Link--primary:active {
+  text-decoration: underline;
+}
+
+/** @define Text */
+.Text {
+  font-size: 16px;
+  line-height: 24px;
+  color: #333;
+}
+.Text--bold {
+  font-weight: 700;
+}
+.Text--large {
+  font-size: 20px;
+  line-height: 32px;
+}
+.Text--small {
+  font-size: 14px;
+  line-height: 20px;
+}
+.Text--extrasmall {
+  font-size: 11px;
+  line-height: 13px;
+}
+
+.HomePage {
+  align-items: flex-start;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+.HomePage-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(330deg, #e4c886 0%, #b1ec73 25%, #917045 50%, #db7777 75%, #dad45b 100%);
+}
+.HomePage-splash {
+  display: flex;
+  height: 300px;
+  width: 100%;
+  position: relative;
+}
+.HomePage-backgroundOverlay {
+  background-color: rgba(0, 0, 0, 0.5607843137);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+.HomePage-greeting {
+  text-align: center;
+  background-color: #fff;
+  z-index: 9;
+  margin-top: -8px;
+  padding: 32px;
+  border-radius: 4px;
+  border: 1px solid #800020;
+  font-weight: 400;
+  transition: margin-top 1s ease-in;
+}
+.HomePage-greeting.HomePage-animategreeting {
+  margin-top: -54px;
+  transition: margin-top 1s ease-in;
+}
+.HomePage-options {
+  display: flex;
+  flex-wrap: wrap;
+  width: 80%;
+  margin-top: 16px;
+}
+.HomePage-option {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 160px;
+  min-height: 200px;
+  padding: 16px;
+  background-color: #eee;
+  transition: background-color 0.1s ease-in;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 16px 8px;
+}
+.HomePage-option.hover {
+  background-color: #f4e3d6;
+  transition: background-color 0.1s ease-in;
+}
+.HomePage-option:hover {
+  background-color: #f4e3d6;
+  margin-top: -1px;
+  transition: margin-top 0.1s ease-in;
+}
+@media (max-width: 767px) {
+  .HomePage-option {
+    flex-direction: column;
+  }
+}
+.HomePage-errorMsg {
+  font-size: xx-small;
+  color: #b00000;
+}
+.HomePage-cashAppField {
+  font-size: xx-small;
+  color: #6b7c93;
+  margin-top: 16px;
+}
+
+/*# sourceMappingURL=Homepage.css.map */

@@ -1,0 +1,18 @@
+@import '../../assets/sass/Common.scss';
+
+
+.Layout
+{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    &-content
+    {
+        flex-grow: 1;
+    }
+
+    &-footer{
+        display: flex;
+    }
+}

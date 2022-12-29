@@ -1,0 +1,230 @@
+@import 'https://fonts.googleapis.com/css?family=Open+Sans|Roboto:300';
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css");
+.l-container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  width: auto;
+}
+@media (min-width: 768px) {
+  .l-container {
+    width: 768px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (min-width: 992px) {
+  .l-container {
+    width: 992px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (min-width: 1200px) {
+  .l-container {
+    width: 1170px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .l-visible-only-xs {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .l-hidden-xs {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .l-hidden-sm {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .l-hidden-md {
+    display: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .l-hidden-lg {
+    display: none;
+  }
+}
+
+/** @define Button */
+.Button--primary {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 2px;
+  color: #fff;
+  background-color: #800020;
+  border-radius: 4px;
+  border: 1px solid #222;
+  padding: 13px 16px;
+  display: inline-block;
+  width: auto;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  transition: 1s;
+  /* postcss-bem-linter: ignore */
+}
+.Button--primary:hover, .Button--primary:active {
+  transition: 1s;
+  background-color: #DCB69A;
+  opacity: 0.6;
+}
+@media (max-width: 767px) {
+  .Button--mobileHero {
+    height: 80px;
+    padding: 8px;
+    background-color: #eee;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    cursor: pointer;
+  }
+}
+
+/** @define Link */
+.Link--primary {
+  font-size: 16px;
+  line-height: 24px;
+  text-decoration: underline;
+  /* postcss-bem-linter: ignore */
+  /* postcss-bem-linter: ignore */
+  color: #800020;
+}
+.Link--primary:hover {
+  text-decoration: none;
+}
+.Link--primary:active {
+  text-decoration: underline;
+}
+
+/** @define Text */
+.Text {
+  font-size: 16px;
+  line-height: 24px;
+  color: #333;
+}
+.Text--bold {
+  font-weight: 700;
+}
+.Text--large {
+  font-size: 20px;
+  line-height: 32px;
+}
+.Text--small {
+  font-size: 14px;
+  line-height: 20px;
+}
+.Text--extrasmall {
+  font-size: 11px;
+  line-height: 13px;
+}
+
+.ReaderView {
+  align-items: flex-start;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+.ReaderView-container {
+  min-height: 100%;
+}
+.ReaderView-scenes {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.ReaderView-scene {
+  color: red;
+  font-weight: bold;
+}
+.ReaderView-scene--currentScene {
+  color: green;
+}
+.ReaderView-chatArea {
+  margin: 32px 8px;
+  background-color: white;
+  flex-grow: 1;
+  height: 400px;
+  overflow-y: scroll;
+}
+.ReaderView-textView {
+  flex-grow: 1;
+  margin: 8px;
+  margin-top: 24px;
+  padding: 8px;
+  border: 1px solid #eee;
+  width: 100%;
+  border-radius: 4px;
+  background-color: #f6ebc8;
+}
+.ReaderView-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.ReaderView-title {
+  font-size: 50px;
+}
+.ReaderView-videoMsg, .ReaderView-imgMsg {
+  height: 200px;
+  width: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.ReaderView-chatArea {
+  display: flex;
+  flex-direction: column;
+  margin: 32px 8px;
+  background-color: white;
+  flex-grow: 1;
+  height: 400px;
+  overflow-y: scroll;
+  padding: 8px;
+  border-radius: 8px;
+}
+.ReaderView-chatArea-msg {
+  /* Style the message content */
+  font-size: 14px;
+  line-height: 1.5;
+  color: #000;
+  margin-top: 16px;
+  max-width: 400px;
+  min-width: 300px;
+  text-overflow: wrap;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.ReaderView-chatArea-msg.active {
+  margin-left: auto;
+  background-color: #e7e893;
+}
+.ReaderView-chatArea-msg-buttons {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+.ReaderView-chatArea-msg-button {
+  cursor: pointer;
+}
+
+/*# sourceMappingURL=ReaderView.css.map */

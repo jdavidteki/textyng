@@ -1,0 +1,51 @@
+/** @define Link */
+
+@mixin underline
+{
+  text-decoration: underline;
+
+  /* postcss-bem-linter: ignore */
+  &:hover
+  {
+    text-decoration: none;
+  }
+
+  /* postcss-bem-linter: ignore */
+  &:active
+  {
+    text-decoration: underline;
+  }
+}
+
+@mixin underline-reverse
+{
+  text-decoration: none;
+
+  /* postcss-bem-linter: ignore */
+  &:hover
+  {
+    text-decoration: underline;
+  }
+
+  /* postcss-bem-linter: ignore */
+  &:active
+  {
+    text-decoration: none;
+  }
+}
+
+@mixin Link--primary
+{
+  @include font-sizes(16px, 24px);
+  @include underline;
+
+  color: $brand-primary;
+}
+
+.Link
+{
+  &--primary
+  {
+    @include Link--primary;
+  }
+}

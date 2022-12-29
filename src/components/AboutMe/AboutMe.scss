@@ -1,0 +1,33 @@
+@import '../../assets/sass/Common.scss';
+
+
+.AboutMe
+{
+    display: flex;
+    height: 100%;
+    align-items: center;
+
+    @include bplte(xs){
+        flex-direction: column;
+    }
+
+    &-left
+    {
+        height: 300px;
+        width: 50%;
+        background: lightblue url("https://images01.nicepage.com/a1389d7bc73adea1e1c1fb7e/c2a565398dd75358a8c36156/9898.png") no-repeat fixed center;
+    }
+
+    &-right
+    {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        margin-left: 16px;
+    }
+
+    &-desc
+    {
+        margin-top: 8px;
+    }
+}

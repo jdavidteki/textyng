@@ -1,0 +1,31 @@
+.Advertisement {
+  display: flex;
+  position: relative;
+  width: 400px;
+  height: 400px;
+}
+.Advertisement-divSection {
+  display: flex;
+}
+.Advertisement-textField {
+  height: 50px;
+  width: 300px;
+  z-index: 9999;
+  background-color: white;
+}
+.Advertisement-divSection {
+  width: 100%;
+  height: 100%;
+}
+.Advertisement .overlap-group-40 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: #f7f8e4;
+  transition: background-image 2s;
+}
+
+/*# sourceMappingURL=Advertisement.css.map */

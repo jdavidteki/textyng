@@ -1,0 +1,153 @@
+@import '../../assets/sass/Common.scss';
+
+.EditScript {
+  align-items: flex-start;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+
+
+  &-container
+  {
+    min-height: 100%;
+  }
+
+  &-castMemberPrompt
+  {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &-senderName
+  {
+    font-size: 8px;
+    font-style: italic;
+    margin-top: 16px;
+    display: block;
+  }
+
+  &-chatArea
+  {
+    display: flex;
+    flex-direction: column;
+    margin: 32px 8px;
+    background-color: white;
+    flex-grow: 1;
+    height: 400px;
+    overflow-y: scroll;
+    padding: 8px;
+    border-radius: 8px;
+
+    &-msg
+    {
+        /* Style the message content */
+        font-size: 14px;
+        line-height: 1.5;
+        color: #000;
+        margin-top: 16px;
+        max-width: 400px;
+        min-width: 300px;
+        text-overflow: wrap;
+        padding: 10px;
+        background-color: #f8f8f8;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        &.active
+        {
+            margin-left: auto;
+            background-color: #e7e893;
+        }
+
+        &-buttons
+        {
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        &-button
+        {
+            cursor: pointer;
+        }
+    }
+  }
+
+  &-sendMessage
+  {
+    display: flex;
+    justify-content: space-between;
+
+    &--input
+    {
+      width: 70%;
+    }
+
+    &--timer.MuiTextField-root
+    {
+      margin-left: 16px;
+      width: 80px;
+    }
+
+    &--send.MuiButton-root
+    {
+      margin-left: 16px;
+      width: 25%;
+    }
+  }
+
+  &-textView
+  {
+    flex-grow: 1;
+    margin: 8px;
+    margin-top: 24px;
+    padding: 8px;
+    border: 1px solid $gray-5;
+    width: 100%;
+    border-radius: 4px;
+    background-color: $brand-3;
+  }
+
+  &-container
+  {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  &-title
+  {
+    font-size: 50px;
+  }
+
+  &-cast
+  {
+    margin-top: 16px;
+  }
+
+  &-saveSubmit
+  {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+
+    &--submit
+    {
+      margin-left: 8px !important;
+    }
+  }
+
+  &-videoMsg,
+  &-imgMsg
+  {
+    height: 200px;
+    width: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+}

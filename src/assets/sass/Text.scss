@@ -1,0 +1,53 @@
+/** @define Text */
+
+@mixin Text
+{
+  @include font-sizes(16px, 24px);
+
+  color: $gray-2;
+}
+
+@mixin Text--bold
+{
+  font-weight: $font-weight-bold;
+}
+
+@mixin Text--large
+{
+  @include font-sizes(20px, 32px);
+}
+
+@mixin Text--small
+{
+  @include font-sizes(14px, 20px);
+}
+
+@mixin Text--extrasmall
+{
+  @include font-sizes(11px, 13px);
+}
+
+.Text
+{
+  @include Text;
+
+  &--bold
+  {
+    @include Text--bold;
+  }
+
+  &--large
+  {
+    @include Text--large;
+  }
+
+  &--small
+  {
+    @include Text--small;
+  }
+
+  &--extrasmall
+  {
+    @include Text--extrasmall;
+  }
+}

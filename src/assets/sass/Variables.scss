@@ -1,0 +1,84 @@
+$generate-classes: true;
+$font-family-main: 'Helvetica Neue',Helvetica,Arial,sans-serif !default;
+
+$font-weight-bold: 700;
+$font-weight-semibold: 600;
+$font-weight-normal: 400;
+$font-weight-light: 300;
+
+$brand-primary: #800020 !default;
+$brand-secondary: #DCB69A !default;
+$brand-tertiary: #f4e3d6 !default;
+$brand-1: $brand-secondary !default;
+$brand-2: #332a4e !default;
+$brand-3: #f6ebc8 !default;
+
+$gray-1: #222 !default;
+$gray-2: #333 !default;
+$gray-3: #555 !default;
+$gray-4: #999 !default;
+$gray-5: #eee !default;
+$gray-6: #6b7c93 !default;
+
+$link-color-primary: $brand-primary !default;
+$link-color-hover: $brand-secondary !default;
+$link-color-active: $brand-primary !default;
+$link-color-visited: $brand-primary !default;
+
+$link-color-secondary: $brand-primary !default;
+$link-color-secondary-hover: $brand-secondary !default;
+$link-color-secondary-active: $brand-primary !default;
+$link-color-secondary-visited: $brand-primary !default;
+
+$text-primary: black !default;
+$text-secondary: black !default;
+
+$border-default: 2px solid #666 !default;
+$border-1: 1px solid $gray-5 !default;
+
+// Locator Variables
+$header-height-mobile: 64px;
+$header-height-desktop: 100px;
+$header-height: $header-height-desktop;
+
+// Bootstrap Overrides
+$grid-gutter-width: 32px !default;
+$grid-gutter-width-xs: $grid-gutter-width !default;
+$grid-gutter-width-sm: $grid-gutter-width !default;
+$grid-gutter-width-md: $grid-gutter-width !default;
+$grid-gutter-width-lg: $grid-gutter-width !default;
+
+$grid-columns: 12 !default;
+
+$padded-padding: calc(#{$grid-gutter-width} / 2) !default;
+$spaced-margin: calc(#{$grid-gutter-width} / 2) !default;
+
+$vertical-margin-top: $grid-gutter-width !default;
+$vertical-margin-bottom: $grid-gutter-width !default;
+
+$screen-xs-min: 480px;
+$screen-xs-max: 767px;
+$screen-sm-min: 768px;
+$screen-sm-max: 991px;
+$screen-md-min: 992px;
+$screen-md-max: 1199px;
+$screen-lg-min: 1200px;
+
+$container-tablet-base: 768px;
+$container-desktop-base: 992px;
+$container-large-desktop-base: 1170px;
+
+$container-tablet: ($container-tablet-base + $grid-gutter-width);
+$container-desktop: ($container-desktop-base + $grid-gutter-width);
+$container-large-desktop: ($container-large-desktop-base + $grid-gutter-width);
+
+$cobalt-base-padding: 2rem;
+
+$collapsing-banner-background: #b00000 !default;
+$collapsing-banner-fontcolor: #fff !default;
+
+$dark-overlay: $gray-5;
+$dark-purple: #31036f;
+$brand-light-green: $brand-tertiary;
+
+$white: #fff;

@@ -1,0 +1,132 @@
+// To execute Go code, please declare a func main() in a package "main"
+
+package main
+
+import "fmt"
+
+type Layer struct {
+	id         string
+	properties map[string]string
+}
+
+type Operation struct {
+	id       string
+	property string
+	value    string
+}
+
+type Doc struct {
+	layersById map[string]Layer
+	operations []Operation
+}
+
+func constructor(layers []Layer) *Doc {
+	// Fill me in!
+	d := Doc{}
+
+	for _, layer := range layers {
+		d = Doc{
+			layersById: map[string]Layer{
+				layer.id: layer,
+			},
+		}
+	}
+
+	return &d
+}
+
+func (d *Doc) layerById(id string) Layer {
+	// Fill me in!
+	if layer, ok := d.layersById[id]; ok {
+		fmt.Println(layer.properties["color"])
+		return layer
+	}
+
+	return Layer{}
+}
+
+func (d *Doc) apply(id string, property string, value string) {
+	// Fill me in!
+	layerToEdit := Layer{
+		id: id,
+		properties: map[string]string{
+			property: value,
+		},
+	}
+	d.layersById[id] = layerToEdit
+
+	//push layer of operation to stack
+	d.operations = append(d.operations, Operation{
+		id:       id,
+		property: property,
+		value:    value,
+	})
+
+	//todo on pushing this to actual doc
+}
+
+func (d *Doc) undo() {
+	// Fill me in!
+	stackHeight := len(d.operations)
+
+	//last operation carried
+	operationAtTopStack := d.operations[stackHeight-1]
+	//pop from the stack
+
+	//remove layer in map
+	layer := d.layersById[operationAtTopStack.id]
+	layer.id = operationAtTopStack.id
+	layer.properties[operationAtTopStack.property] = operationAtTopStack.value
+
+	//reduce size of stack after undo
+	d.operations = d.operations[:stackHeight-1]
+}
+
+func test_apply_and_undo() {
+	document := constructor([]Layer{
+		{id: "a", properties: map[string]string{"color": "red"}},
+		{id: "b", properties: map[string]string{"shape": "triangle"}},
+	})
+
+	document.apply("a", "color", "green")
+	document.apply("b", "shape", "square")
+	document.apply("a", "color", "blue")
+
+	document.undo()
+	assertTrue(document.layerById("a").properties["color"], "green")
+	assertTrue(document.layerById("b").properties["shape"], "square")
+
+	document.apply("a", "color", "purple")
+	assertTrue(document.layerById("a").properties["color"], "purple")
+	assertTrue(document.layerById("b").properties["shape"], "square")
+	document.undo()
+	assertTrue(document.layerById("a").properties["color"], "green")
+	assertTrue(document.layerById("b").properties["shape"], "square")
+
+	document.apply("a", "color", "purple")
+	assertTrue(document.layerById("a").properties["color"], "purple")
+	assertTrue(document.layerById("b").properties["shape"], "square")
+
+	document.undo()
+	assertTrue(document.layerById("a").properties["color"], "green")
+	assertTrue(document.layerById("b").properties["shape"], "square")
+
+	document.undo()
+	assertTrue(document.layerById("a").properties["color"], "green")
+	assertTrue(document.layerById("b").properties["shape"], "triangle")
+
+	document.undo()
+	assertTrue(document.layerById("a").properties["color"], "red")
+	assertTrue(document.layerById("b").properties["shape"], "triangle")
+	fmt.Println("Success!")
+}
+
+func assertTrue(actual, expected string) {
+	if actual != expected {
+		panic(fmt.Sprintf("FAILURE"))
+	}
+}
+
+func main() {
+	test_apply_and_undo()
+}

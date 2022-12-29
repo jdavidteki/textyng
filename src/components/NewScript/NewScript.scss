@@ -1,0 +1,89 @@
+@import '../../assets/sass/Common.scss';
+
+.NewScript {
+  align-items: flex-start;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+
+
+  &-container
+  {
+    min-height: 100%;
+  }
+
+  &-chatArea
+  {
+    margin: 32px 8px;
+    background-color: white;
+    flex-grow: 1;
+    height: 400px;
+    overflow-y: scroll;
+  }
+
+  &-sendMessage
+  {
+    display: flex;
+    justify-content: space-between;
+
+    &--input
+    {
+      width: 70%;
+    }
+
+    &--timer.MuiTextField-root
+    {
+      margin-left: 16px;
+      width: 80px;
+    }
+
+    &--send.MuiButton-root
+    {
+      margin-left: 16px;
+      width: 25%;
+    }
+  }
+
+  &-textView
+  {
+    flex-grow: 1;
+    margin: 8px;
+    margin-top: 24px;
+    padding: 8px;
+    border: 1px solid $gray-5;
+    width: 100%;
+    border-radius: 4px;
+    background-color: $brand-3;
+  }
+
+  &-container
+  {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  &-title
+  {
+    font-size: 50px;
+  }
+
+  &-cast
+  {
+    margin-top: 16px;
+  }
+
+  &-saveSubmit
+  {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+
+    &--submit
+    {
+      margin-left: 8px !important;
+    }
+  }
+}
