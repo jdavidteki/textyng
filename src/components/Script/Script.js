@@ -22,7 +22,8 @@ class Script {
     this.head = null;
     this.messages = new MessageNode();
     this.node = {};
-    this.totalNoMsgs = 0
+    this.totalNoMsgs = 0;
+    this.readerReactionMap = new Map();
   }
 
   updateScriptName(name){
@@ -42,6 +43,23 @@ class Script {
 
   getScenes(){
     return this.scenes
+  }
+
+  updateReaderReaction(emojiName, messageId){
+    if (!this.readerReactionMap.has(messageId)) {
+      this.readerReactionMap.set(messageId, []);
+    }
+    this.readerReactionMap.get(messageId).push(emojiName);
+
+    this.updateScriptFirebase()
+  }
+
+  getReaderReactionMap(){
+    return this.readerReactionMap
+  }
+
+  getTotalNumScenes(){
+    return this.getScenes().length
   }
 
   deleteScript() {
@@ -291,6 +309,7 @@ class Script {
       crew: this.getAllCrew(),
       messages: this.getAllMessagesAsNodes(),
       scenes: this.getAllScenes(),
+      readerReactionMap: JSON.stringify(Object.fromEntries(this.readerReactionMap)),
     }
 
     firebase.updateScript(script)
@@ -364,12 +383,20 @@ class Script {
           }
         }
 
+        //grab user reactions
+        let readerReactionMap = new Map();
+        if(val.readerReactionMap){
+          let javascriptObject = JSON.parse(val.readerReactionMap);
+          readerReactionMap = new Map(Object.entries(javascriptObject));
+        }
+
         this.name = val.name;
         this.dateCreated = val.dateCreated
         this.id = val.id
         this.cast = val.cast ? val.cast : []
         this.crew = val.crew ? val.crew : []
         this.scenes = val.scenes ? val.scenes : []
+        this.readerReactionMap = readerReactionMap
       })
       .then(() => {
         resolve(this)

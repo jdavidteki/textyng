@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Footer from "../Footer/Footer.js";
 import Header  from "../Header/Header.js";
 import NewScript from "../NewScript/NewScript.js"
-import Readerview from "../Readerview/Readerview.js"
+import ReaderView from "../ReaderView/ReaderView.js"
 import Advertisement from "../Advertisement/Advertisement.js"
 import EditScript from "../EditScript/EditScript.js"
 
@@ -51,7 +51,7 @@ class Layout extends Component{
                     <NewScript changePage={this.changePage}/>
                 }
                 {this.state.pageName == "readerview" &&
-                    <Readerview changePage={this.changePage}/>
+                    <ReaderView changePage={this.changePage}/>
                 }
                 {this.state.pageName == "advertisement" &&
                     <Advertisement changePage={this.changePage}/>

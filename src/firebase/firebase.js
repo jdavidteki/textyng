@@ -51,6 +51,7 @@ class Firebase {
           crew: script.crew,
           messages: script.messages,
           scenes: script.scenes,
+          readerReactionMap: script.readerReactionMap,
         }
       )
       .then((response) => {

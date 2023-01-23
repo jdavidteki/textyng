@@ -19,7 +19,7 @@ function Scenes(props) {
     },
   ]
 
-  if(props.cast){
+  if(props.scenes){
     defaultScenes = props.scenes
   }
 

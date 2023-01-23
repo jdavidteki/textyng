@@ -7,7 +7,6 @@
   overflow: hidden;
   width: 100%;
 
-
   &-container
   {
     min-height: 100%;
@@ -16,18 +15,54 @@
   &-scenes
   {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     width: 100%;
   }
 
   &-scene
   {
-    color: red;
     font-weight: bold;
+    margin-right: 16px;
 
     &--currentScene
     {
       color: green;
+    }
+
+    &:hover{
+      color: $gray-4;
+      cursor: pointer;
+    }
+  }
+
+  &-senderName
+  {
+    font-size: 8px;
+    font-style: italic;
+    margin-top: 16px;
+    display: block;
+  }
+
+  &-sendMessage
+  {
+    display: flex;
+    justify-content: space-between;
+
+    &--input
+    {
+      width: 70%;
+    }
+
+    &--timer.MuiTextField-root
+    {
+      margin-left: 16px;
+      width: 80px;
+    }
+
+    &--send.MuiButton-root
+    {
+      margin-left: 16px;
+      width: 25%;
     }
   }
 
@@ -36,7 +71,7 @@
     margin: 32px 8px;
     background-color: white;
     flex-grow: 1;
-    height: 400px;
+    min-height: 600px;
     overflow-y: scroll;
   }
 
@@ -121,4 +156,90 @@
         }
     }
   }
+
+  &-reactionEmojis
+  {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    width: 350px; 
+    overflow: auto;
+    background-color: white;
+    padding: 2px;
+  }
+
+  &-reactionEmoji
+  {
+    padding: 0 16px;
+  }
+
+  .emoji-mart-emoji
+  {
+    cursor: pointer;
+  }
+
+  .shake {
+    animation: shake 0.5s ease-in-out;
+    animation-iteration-count: 1;
+  }
+
+  &-readerReaction
+  {
+    overflow-x: scroll;
+    flex-grow: 1;
+    margin-left: 8px;
+
+    &--wrapper
+    {
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  &-navigation
+  {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    &--wrapper
+    {
+      display: flex;
+      width: 300px;
+      justify-content: space-between;
+      padding: 15px 8px;
+    }
+
+    .previous-button,
+    .play-pause-button,
+    .next-button
+    {
+      cursor: pointer;
+
+      &:hover
+      {
+        color: $gray-6;
+      }
+    }
+  }
 }
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+

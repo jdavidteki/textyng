@@ -146,21 +146,46 @@
 }
 .ReaderView-scenes {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100%;
 }
 .ReaderView-scene {
-  color: red;
   font-weight: bold;
+  margin-right: 16px;
 }
 .ReaderView-scene--currentScene {
   color: green;
+}
+.ReaderView-scene:hover {
+  color: #999;
+  cursor: pointer;
+}
+.ReaderView-senderName {
+  font-size: 8px;
+  font-style: italic;
+  margin-top: 16px;
+  display: block;
+}
+.ReaderView-sendMessage {
+  display: flex;
+  justify-content: space-between;
+}
+.ReaderView-sendMessage--input {
+  width: 70%;
+}
+.ReaderView-sendMessage--timer.MuiTextField-root {
+  margin-left: 16px;
+  width: 80px;
+}
+.ReaderView-sendMessage--send.MuiButton-root {
+  margin-left: 16px;
+  width: 25%;
 }
 .ReaderView-chatArea {
   margin: 32px 8px;
   background-color: white;
   flex-grow: 1;
-  height: 400px;
+  min-height: 600px;
   overflow-y: scroll;
 }
 .ReaderView-textView {
@@ -225,6 +250,71 @@
 }
 .ReaderView-chatArea-msg-button {
   cursor: pointer;
+}
+.ReaderView-reactionEmojis {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  width: 350px;
+  overflow: auto;
+  background-color: white;
+  padding: 2px;
+}
+.ReaderView-reactionEmoji {
+  padding: 0 16px;
+}
+.ReaderView .emoji-mart-emoji {
+  cursor: pointer;
+}
+.ReaderView .shake {
+  animation: shake 0.5s ease-in-out;
+  animation-iteration-count: 1;
+}
+.ReaderView-readerReaction {
+  overflow-x: scroll;
+  flex-grow: 1;
+  margin-left: 8px;
+}
+.ReaderView-readerReaction--wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.ReaderView-navigation {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.ReaderView-navigation--wrapper {
+  display: flex;
+  width: 300px;
+  justify-content: space-between;
+  padding: 15px 8px;
+}
+.ReaderView-navigation .previous-button,
+.ReaderView-navigation .play-pause-button,
+.ReaderView-navigation .next-button {
+  cursor: pointer;
+}
+.ReaderView-navigation .previous-button:hover,
+.ReaderView-navigation .play-pause-button:hover,
+.ReaderView-navigation .next-button:hover {
+  color: #6b7c93;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
 }
 
 /*# sourceMappingURL=ReaderView.css.map */
