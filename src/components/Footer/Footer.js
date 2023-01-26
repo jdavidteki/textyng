@@ -20,7 +20,7 @@ class Footer extends Component {
       <div className={"Footer-default"}>
         <div className="frame-142">
           <div className="Footer-greeting">
-            Copyright Basis's Kitchen
+            everything is a message
           </div>
           <div className="frame-140">
             <a href="https://www.twitter.com/basis_kitchen/"  target="_blank"><img className="twitter-negative" src={twitterIcon} /></a>
