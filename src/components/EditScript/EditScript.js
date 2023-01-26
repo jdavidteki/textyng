@@ -87,7 +87,7 @@ class ConnectedEditScript extends Component {
   }
 
   getScriptName = (name) => {
-    this.state.script.UpdateScriptName(name[1])
+    this.state.script.updateScriptName(name[1])
   }
 
   getAllCast = (cast) => {

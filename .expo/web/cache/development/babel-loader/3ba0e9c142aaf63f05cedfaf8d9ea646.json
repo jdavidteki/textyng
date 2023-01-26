@@ -1,1 +1,0 @@
-{"ast":null,"code":"export var SET_YOKIS = \"SET_YOKIS_ITEMS\";","map":{"version":3,"names":["SET_YOKIS"],"sources":["/Users/jdavid/Documents/textyng/src/Redux/Constants.js"],"sourcesContent":["export const SET_YOKIS = \"SET_YOKIS_ITEMS\";\n"],"mappings":"AAAA,OAAO,IAAMA,SAAS,GAAG,iBAAiB"},"metadata":{},"sourceType":"module"}
