@@ -1,5 +1,5 @@
 {
-  "homepage": "https://www.jdavidteki.github.io/textyng/",
+  "homepage": "https://www.textyng.com",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "concurrently \"expo start --web\" \"sass --watch .\"",
