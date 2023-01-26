@@ -42,6 +42,7 @@ class ConnectedReaderView extends Component {
         this.props.history.push({
           pathname: "/" + actualDestination
         });
+        window.location.reload(false);
       }
     }
 
