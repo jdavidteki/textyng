@@ -33,12 +33,9 @@ class ConnectedReaderView extends Component {
 
   componentDidMount() {
     //hack: use this to fix github pages doing ?/ on pages
-    if (window.location.href.includes("?/")) {
-      let actualDestination = window.location.href.split("?/")[1];
-
-      this.props.history.push({
-        pathname: "/" + actualDestination,
-      });
+    if (window.location.href.includes("?/")){
+      let actualDestination = window.location.href.split("?/")[1]
+      window.location = actualDestination;
     }
 
     let scriptId = window.location.pathname.replaceAll("readerview", "").replaceAll("/", "");
