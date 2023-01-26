@@ -6,7 +6,7 @@ import "./CastMembers.css";
 function CastMembers(props) {
   let defaultCast = [
     {
-      name: "Jesuye David",
+      name: "Peter Obi",
       id: 1,
     },
     {
