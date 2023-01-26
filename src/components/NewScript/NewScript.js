@@ -37,7 +37,9 @@ class ConnectedNewScript extends Component {
   componentDidMount() {
     window.setInterval(function() {
       var elem = document.getElementById('NewScript-chatArea-id');
-      elem.scrollTop = elem.scrollHeight;
+      if(elem != null){
+        elem.scrollTop = elem.scrollHeight;
+      }
     }, 500);
 
     window.setInterval(() => {

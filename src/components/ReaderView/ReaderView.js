@@ -46,19 +46,20 @@ class ConnectedReaderView extends Component {
       }
     }
 
-    let scriptId = window.location.pathname.replace("/readerview/", "");
-
-    if (scriptId !== "") {
-      let textyng = new Script(scriptId);
-      textyng
-        .grabScriptFromFirebase(scriptId)
-        .then(() => {
-          this.setState({ script: textyng }, () => {
-            this.updateCurrentNode();
-            this.startAutoPlay();
-          });
-        });
+    let scriptId = window.location.pathname.replaceAll("readerview", "").replaceAll("/", "");
+    if (scriptId == "") {
+      scriptId = "NewScript1674709550"
     }
+
+    let textyng = new Script(scriptId);
+    textyng
+      .grabScriptFromFirebase(scriptId)
+      .then(() => {
+        this.setState({ script: textyng }, () => {
+          this.updateCurrentNode();
+          this.startAutoPlay();
+        });
+      });
   }
 
   updateCurrentNode(index = 0) {

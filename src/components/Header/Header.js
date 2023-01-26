@@ -24,7 +24,7 @@ class Header extends Component{
 
     if(catSelected == "textyng"){
       this.setState({ findMeIconHover: "#800020"})
-    }else if(catSelected == "aboutme"){
+    }else if(catSelected == "readerview"){
       this.setState({ createIconHover: "#800020"})
     }else if(catSelected == "mecards"){
       this.setState({ meCardsIconHover: "#800020"})
@@ -37,7 +37,7 @@ class Header extends Component{
     let path = window.location.pathname;
     this.setState({
       findMeIconHover: path.includes("textyng/") || path.includes("rimicard") ? "#800020" : 'black',
-      createIconHover: path.includes("aboutme/") ? "#800020" : 'black',
+      createIconHover: path.includes("readerview/") ? "#800020" : 'black',
       meCardsIconHover: path.includes("mecards/") ? "#800020" : 'black',
     })
 
@@ -68,9 +68,9 @@ class Header extends Component{
             {GetSvgIcon("findMeIcon", this.state.findMeIconHover)}
             <span className="Header-img-title">textyng!</span>
           </div>
-          <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("aboutme")}>
+          <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("readerview")}>
             {GetSvgIcon("createIcon", this.state.createIconHover)}
-            <span className="Header-img-title">about.me</span>
+            <span className="Header-img-title">reader.view</span>
           </div>
         </div>
       </div>
