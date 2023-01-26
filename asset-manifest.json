@@ -1,26 +1,24 @@
 {
   "files": {
-    "app.js": "/textyng/static/js/app.15770ebc.chunk.js",
-    "app.js.map": "/textyng/static/js/app.15770ebc.chunk.js.map",
-    "runtime~app.js": "/textyng/static/js/runtime~app.e1ca35e1.js",
-    "runtime~app.js.map": "/textyng/static/js/runtime~app.e1ca35e1.js.map",
-    "static/js/2.51f2f04c.chunk.js": "/textyng/static/js/2.51f2f04c.chunk.js",
-    "static/js/2.51f2f04c.chunk.js.map": "/textyng/static/js/2.51f2f04c.chunk.js.map",
-    "favicon-16.png": "/textyng/favicon-16.png",
-    "favicon-32.png": "/textyng/favicon-32.png",
-    "favicon.ico": "/textyng/favicon.ico",
-    "index.html": "/textyng/index.html",
-    "manifest.json": "/textyng/manifest.json",
-    "serve.json": "/textyng/serve.json",
-    "service-worker.js.map": "/textyng/service-worker.js.map",
-    "static/js/2.51f2f04c.chunk.js.LICENSE.txt": "/textyng/static/js/2.51f2f04c.chunk.js.LICENSE.txt",
-    "static/media/bck11imagn.png": "/textyng/static/media/bck11imagn.fb2823d2.png",
-    "static/media/bck11originalimgn.png": "/textyng/static/media/bck11originalimgn.4b45ed3d.png",
-    "static/media/logo.png": "/textyng/static/media/logo.c63653a9.png"
+    "app.js": "/static/js/app.5c528ded.chunk.js",
+    "app.js.map": "/static/js/app.5c528ded.chunk.js.map",
+    "runtime~app.js": "/static/js/runtime~app.27401809.js",
+    "runtime~app.js.map": "/static/js/runtime~app.27401809.js.map",
+    "static/js/2.3f2e10a8.chunk.js": "/static/js/2.3f2e10a8.chunk.js",
+    "static/js/2.3f2e10a8.chunk.js.map": "/static/js/2.3f2e10a8.chunk.js.map",
+    "favicon-16.png": "/favicon-16.png",
+    "favicon-32.png": "/favicon-32.png",
+    "favicon.ico": "/favicon.ico",
+    "index.html": "/index.html",
+    "manifest.json": "/manifest.json",
+    "serve.json": "/serve.json",
+    "service-worker.js.map": "/service-worker.js.map",
+    "static/js/2.3f2e10a8.chunk.js.LICENSE.txt": "/static/js/2.3f2e10a8.chunk.js.LICENSE.txt",
+    "static/media/logo.png": "/static/media/logo.c63653a9.png"
   },
   "entrypoints": [
-    "static/js/runtime~app.e1ca35e1.js",
-    "static/js/2.51f2f04c.chunk.js",
-    "static/js/app.15770ebc.chunk.js"
+    "static/js/runtime~app.27401809.js",
+    "static/js/2.3f2e10a8.chunk.js",
+    "static/js/app.5c528ded.chunk.js"
   ]
 }
