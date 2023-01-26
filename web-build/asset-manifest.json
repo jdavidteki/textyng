@@ -1,11 +1,11 @@
 {
   "files": {
-    "app.js": "/textyng/static/js/app.81a6867b.chunk.js",
-    "app.js.map": "/textyng/static/js/app.81a6867b.chunk.js.map",
-    "runtime~app.js": "/textyng/static/js/runtime~app.80634870.js",
-    "runtime~app.js.map": "/textyng/static/js/runtime~app.80634870.js.map",
-    "static/js/2.209c7033.chunk.js": "/textyng/static/js/2.209c7033.chunk.js",
-    "static/js/2.209c7033.chunk.js.map": "/textyng/static/js/2.209c7033.chunk.js.map",
+    "app.js": "/textyng/static/js/app.aa77a606.chunk.js",
+    "app.js.map": "/textyng/static/js/app.aa77a606.chunk.js.map",
+    "runtime~app.js": "/textyng/static/js/runtime~app.e1ca35e1.js",
+    "runtime~app.js.map": "/textyng/static/js/runtime~app.e1ca35e1.js.map",
+    "static/js/2.51f2f04c.chunk.js": "/textyng/static/js/2.51f2f04c.chunk.js",
+    "static/js/2.51f2f04c.chunk.js.map": "/textyng/static/js/2.51f2f04c.chunk.js.map",
     "favicon-16.png": "/textyng/favicon-16.png",
     "favicon-32.png": "/textyng/favicon-32.png",
     "favicon.ico": "/textyng/favicon.ico",
@@ -13,19 +13,14 @@
     "manifest.json": "/textyng/manifest.json",
     "serve.json": "/textyng/serve.json",
     "service-worker.js.map": "/textyng/service-worker.js.map",
-    "static/js/2.209c7033.chunk.js.LICENSE.txt": "/textyng/static/js/2.209c7033.chunk.js.LICENSE.txt",
-    "static/media/Basisherogif.gif": "/textyng/static/media/Basisherogif.9d23a437.gif",
-    "static/media/cashappIcon.png": "/textyng/static/media/cashappIcon.bb26a2e9.png",
-    "static/media/fancybox_loading.gif": "/textyng/static/media/fancybox_loading.78a563f0.gif",
-    "static/media/fancybox_loading@2x.gif": "/textyng/static/media/fancybox_loading@2x.d8f0a972.gif",
-    "static/media/fancybox_overlay.png": "/textyng/static/media/fancybox_overlay.f0eb3448.png",
-    "static/media/fancybox_sprite.png": "/textyng/static/media/fancybox_sprite.7b8e2ce6.png",
-    "static/media/fancybox_sprite@2x.png": "/textyng/static/media/fancybox_sprite@2x.89fa20c7.png",
-    "static/media/logo.png": "/textyng/static/media/logo.07da4129.png"
+    "static/js/2.51f2f04c.chunk.js.LICENSE.txt": "/textyng/static/js/2.51f2f04c.chunk.js.LICENSE.txt",
+    "static/media/bck11imagn.png": "/textyng/static/media/bck11imagn.fb2823d2.png",
+    "static/media/bck11originalimgn.png": "/textyng/static/media/bck11originalimgn.4b45ed3d.png",
+    "static/media/logo.png": "/textyng/static/media/logo.c63653a9.png"
   },
   "entrypoints": [
-    "static/js/runtime~app.80634870.js",
-    "static/js/2.209c7033.chunk.js",
-    "static/js/app.81a6867b.chunk.js"
+    "static/js/runtime~app.e1ca35e1.js",
+    "static/js/2.51f2f04c.chunk.js",
+    "static/js/app.aa77a606.chunk.js"
   ]
 }

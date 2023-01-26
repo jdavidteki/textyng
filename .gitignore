@@ -1,1 +1,7 @@
+vocalremover/my-venv
+vocalremover/models
 node_modules
+.expo
+.eslintcache
+web-build
+.env
