@@ -3,7 +3,6 @@ import Footer from "../Footer/Footer.js";
 import Header  from "../Header/Header.js";
 import NewScript from "../NewScript/NewScript.js"
 import ReaderView from "../ReaderView/ReaderView.js"
-import Advertisement from "../Advertisement/Advertisement.js"
 import EditScript from "../EditScript/EditScript.js"
 
 import "./Layout.css";
@@ -52,9 +51,6 @@ class Layout extends Component{
                 }
                 {this.state.pageName == "readerview" &&
                     <ReaderView changePage={this.changePage}/>
-                }
-                {this.state.pageName == "advertisement" &&
-                    <Advertisement changePage={this.changePage}/>
                 }
                 {this.state.pageName == "editscript" &&
                     <EditScript changePage={this.changePage}/>
