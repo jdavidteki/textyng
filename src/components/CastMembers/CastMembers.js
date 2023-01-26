@@ -4,10 +4,6 @@ import EditableField from "../EditableField/EditableField";
 import "./CastMembers.css";
 
 function CastMembers(props) {
-
-
-  let totalCast = 2
-
   let defaultCast = [
     {
       name: "Jesuye David",
@@ -17,50 +13,45 @@ function CastMembers(props) {
       name: "Cast Member",
       id: 2,
     },
-  ]
+  ];
 
-  if(props.cast){
-    defaultCast = props.cast
-  }
+  const [casts, setCast] = React.useState(props.cast ? props.cast : defaultCast);
+  const [totalCast, setTotalCast] = React.useState(props.cast ? props.cast.length : defaultCast.length);
 
-  const [casts, setCast] = React.useState(defaultCast);
-
-  function addNewCastMember(){
-    totalCast +=1
-
+  function addNewCastMember() {
     let newCast = {
       name: "Cast Member",
-      id: totalCast
-    }
-
-    setCast(casts => [...casts, newCast])
-    props.getAllCast(casts)
+      id: totalCast + 1,
+    };
+    setCast(casts => [...casts, newCast]);
+    setTotalCast(totalCast + 1);
+    props.getAllCast(casts);
   }
 
-  function udpateCastName(name){
-    let id = name[0]
-    let newName = name[1]
+  function updateCastName(name) {
+    let id = name[0];
+    let newName = name[1];
 
-    for(var i = 0; i<casts.length; i++){
-      if(casts[i].id == id){
-        casts[i].name = newName
+    for (var i = 0; i < casts.length; i++) {
+      if (casts[i].id == id) {
+        casts[i].name = newName;
       }
     }
 
-    setCast(casts => [...casts])
-    props.getAllCast(casts)
+    setCast(casts => [...casts]);
+    props.getAllCast(casts);
   }
 
   function updateActiveOption(value) {
     var el = document.querySelectorAll(".CastMembers-cast");
 
     for (let i = 0; i < el.length; i++) {
-      el[i].classList.remove("active")
+      el[i].classList.remove("active");
     }
 
-    document.getElementById("CastMembers-castId-" + value.id).classList.add("active")
+    document.getElementById("CastMembers-castId-" + value.id).classList.add("active");
 
-    props.selectedCast ? props.selectedCast(value): {};
+    props.selectedCast ? props.selectedCast(value) : {};
   }
 
   return (
@@ -73,7 +64,7 @@ function CastMembers(props) {
             key={index}
             onClick={() => updateActiveOption(value)}
           >
-            <EditableField name={value.name} id={value.id} fontSize={16} getScriptName={udpateCastName} />
+            <EditableField name={value.name} id={value.id} fontSize={16} getScriptName={updateCastName} />
           </div>
         )
       )}

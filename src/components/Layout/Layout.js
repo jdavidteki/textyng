@@ -18,6 +18,20 @@ class Layout extends Component{
   }
 
   componentDidMount(){
+    if (window.location.href.includes("?/")){
+        console.log("we are here")
+        let actualDestination = window.location.href.split("?/")[1]
+        if(this.props.history == undefined){
+          //TODO: figure out if it's possible to not have to do this
+          window.location.href = "/" + actualDestination
+        }else{
+          this.props.history.push({
+            pathname: "/" + actualDestination
+          });
+          window.location.reload(false);
+        }
+      }
+
     document.getElementById("layoutContent").classList.add(this.state.pageName);
   }
 
