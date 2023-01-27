@@ -22,10 +22,6 @@ class Footer extends Component {
           <div className="Footer-greeting">
             everything is a message
           </div>
-          <div className="frame-140">
-            <a href="https://www.twitter.com/basis_kitchen/"  target="_blank"><img className="twitter-negative" src={twitterIcon} /></a>
-            <a href="https://www.instagram.com/basis_kitchen/"  target="_blank"><img className="instagram-negative" src={instagramIcon} /></a>
-          </div>
         </div>
       </div>
     )
