@@ -172,6 +172,11 @@
     padding-right: 16px;
   }
 }
+@media (max-width: 767px) {
+  .HomePage {
+    font-size: 16px;
+  }
+}
 .HomePage-or {
   position: absolute;
   top: 50%;
@@ -197,6 +202,11 @@
   left: 0;
   transform: translateY(-50%);
 }
+@media (max-width: 767px) {
+  .HomePage__left-side-a {
+    top: 40%;
+  }
+}
 .HomePage__demarcation {
   width: 2px;
   height: 60%;
@@ -220,6 +230,11 @@
   position: absolute;
   bottom: 30%;
   right: 0;
+}
+@media (max-width: 767px) {
+  .HomePage__right-side-a {
+    bottom: 30%;
+  }
 }
 .HomePage__text {
   font-weight: bold;

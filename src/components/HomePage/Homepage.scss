@@ -13,6 +13,11 @@
   text-align: center;
   position: relative;
 
+  @include bplte(xs)
+  {
+    font-size: 16px;
+  }
+
   &-or{
     position: absolute;
     top: 50%;
@@ -27,7 +32,7 @@
       justify-content: center;
       align-items: flex-start;
       cursor: pointer;
-      
+
       h1 {
           animation: writing-animation 3s steps(30, end);
       }
@@ -39,6 +44,11 @@
           top: 30%;
           left: 0;
           transform: translateY(-50%);
+
+          @include bplte(xs)
+          {
+            top: 40%;
+          }
       }
   }
 
@@ -65,6 +75,11 @@
           position: absolute;
           bottom: 30%;
           right: 0;
+
+          @include bplte(xs)
+          {
+            bottom: 30%;
+          }
       }
   }
 
