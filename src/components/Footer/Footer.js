@@ -1,8 +1,5 @@
 import React, { Component } from "react";
 
-import twitterIcon from "../../../static/img/twitter---negative-1@2x.png";
-import instagramIcon from "../../../static/img/instagram---negative-1@2x.png";
-
 import "./Footer.css";
 
 class Footer extends Component {
