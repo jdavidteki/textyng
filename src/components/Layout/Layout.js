@@ -4,6 +4,7 @@ import Header  from "../Header/Header.js";
 import NewScript from "../NewScript/NewScript.js"
 import ReaderView from "../ReaderView/ReaderView.js"
 import EditScript from "../EditScript/EditScript.js"
+import HomePage from "../HomePage/HomePage.js"
 
 import "./Layout.css";
 
@@ -18,12 +19,6 @@ class Layout extends Component{
   }
 
   componentDidMount(){
-    //hack: use this to fix github pages doing ?/ on pages
-    // if (window.location.href.includes("?/")){
-    //     let actualDestination = window.location.href.split("?/")[1]
-    //     window.location = actualDestination;
-    // }
-
     document.getElementById("layoutContent").classList.add(this.state.pageName);
   }
 
@@ -50,7 +45,7 @@ class Layout extends Component{
             </div>
             <div className="Layout-content" id="layoutContent">
                 {this.state.pageName == "textyng" &&
-                    <NewScript changePage={this.changePage}/>
+                    <HomePage changePage={this.changePage}/>
                 }
                 {this.state.pageName == "newscript" &&
                     <NewScript changePage={this.changePage}/>
