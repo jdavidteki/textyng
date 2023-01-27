@@ -11,23 +11,20 @@ class Header extends Component{
 
     this.state = {
       catSelected: "textyng",
-      findMeIconHover: "#800020",
     }
   }
 
   handleCategoryClick(catSelected){
     this.setState({
-      findMeIconHover: "black",
       createIconHover: "black",
       meCardsIconHover: "black",
     })
 
-    if(catSelected == "textyng"){
-      this.setState({ findMeIconHover: "#800020"})
-    }else if(catSelected == "readerview"){
-      this.setState({ createIconHover: "#800020"})
+
+    if(catSelected == "readerview"){
+      this.setState({ createIconHover: "#DCB69A"})
     }else if(catSelected == "mecards"){
-      this.setState({ meCardsIconHover: "#800020"})
+      this.setState({ meCardsIconHover: "#DCB69A"})
     }
 
     this.props.changePage(catSelected)
@@ -36,9 +33,8 @@ class Header extends Component{
   componentDidMount(){
     let path = window.location.pathname;
     this.setState({
-      findMeIconHover: path.includes("textyng/") || path.includes("rimicard") ? "#800020" : 'black',
-      createIconHover: path.includes("readerview/") ? "#800020" : 'black',
-      meCardsIconHover: path.includes("mecards/") ? "#800020" : 'black',
+      createIconHover: path.includes("readerview/") ? "#DCB69A" : 'black',
+      meCardsIconHover: path.includes("mecards/") ? "#DCB69A" : 'black',
     })
 
     let element = document.getElementById("Header-logo");
@@ -64,13 +60,9 @@ class Header extends Component{
           <img id="Header-logo" className="Header-logo" src={logo} alt="textyng.me.logo" />
         </div>
         <div className="Header-mainMenu">
-          <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("textyng")}>
-            {GetSvgIcon("findMeIcon", this.state.findMeIconHover)}
-            <span className="Header-img-title">textyng!</span>
-          </div>
-          <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("readerview")}>
+          <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("searchscripts")}>
             {GetSvgIcon("createIcon", this.state.createIconHover)}
-            <span className="Header-img-title">reader.view</span>
+            <span className="Header-img-title">scripts</span>
           </div>
         </div>
       </div>

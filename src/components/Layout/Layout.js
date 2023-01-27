@@ -5,6 +5,7 @@ import NewScript from "../NewScript/NewScript.js"
 import ReaderView from "../ReaderView/ReaderView.js"
 import EditScript from "../EditScript/EditScript.js"
 import HomePage from "../HomePage/HomePage.js"
+import SearchScripts from "../SearchScripts/SearchScripts.js"
 
 import "./Layout.css";
 
@@ -56,6 +57,10 @@ class Layout extends Component{
                 {this.state.pageName == "editscript" &&
                     <EditScript changePage={this.changePage}/>
                 }
+                {this.state.pageName == "searchscripts" &&
+                    <SearchScripts changePage={this.changePage}/>
+                }
+                
             </div>
             <div className="Layout-footer">
                 <Footer />

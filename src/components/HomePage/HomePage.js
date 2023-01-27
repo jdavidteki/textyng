@@ -35,7 +35,7 @@ const HomePage = (props) => {
         <div className="HomePage-or">or</div>
       </div>
       <div className="HomePage__right-side">
-        <div className="HomePage__right-side-a" onClick={() => props.changePage("readerview")}>
+        <div className="HomePage__right-side-a" onClick={() => props.changePage("searchscripts")}>
           <h1 className="HomePage__text HomePage__text--glossy">{rightText}</h1>
         </div>
       </div>

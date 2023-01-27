@@ -135,6 +135,10 @@
   line-height: 13px;
 }
 
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 .Footer-default {
   justify-content: center;
   background-color: #555;
@@ -147,7 +151,7 @@
 }
 
 .frame-142 {
-  justify-content: space-between;
+  justify-content: center;
   display: flex;
   margin-top: 4px;
   width: 80%;

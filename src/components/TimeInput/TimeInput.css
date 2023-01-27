@@ -135,6 +135,10 @@
   line-height: 13px;
 }
 
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 .TimeInput {
   background-color: rgba(96, 108, 110, 0.15);
   height: 100%;

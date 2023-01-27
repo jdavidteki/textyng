@@ -28,6 +28,7 @@ class App extends Component {
             <Route path="/readerview/:id" exact component={() => (<Layout pageName="readerview" />)}/>
             <Route path="/readerview/:id" exact component={() => (<Layout pageName="readerview" />)}/>
             <Route path="/editscript/:id" exact component={() => (<Layout pageName="editscript" />)}/>
+            <Route path="/searchscripts/" exact component={() => (<Layout pageName="searchscripts" />)}/>
           </Switch>
         </div>
       </div>

@@ -135,6 +135,10 @@
   line-height: 13px;
 }
 
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 .MsgTypes {
   display: flex;
   overflow-x: scroll;
