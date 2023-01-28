@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Switch, Route } from "react-router-dom";
 import Layout from "./components/Layout/Layout.js"
-import { loadStripe } from "@stripe/stripe-js";
 
 import "./App.css";
 
@@ -13,9 +12,6 @@ window.onresize = function() {
 window.onresize();
 
 
-const stripePromise = loadStripe("pk_test_6pRNASCoBOKtIshFeQd4XMUh");
-
-
 class App extends Component {
   render() {
     return (
@@ -25,7 +21,6 @@ class App extends Component {
             <Route path="/" exact component={() => (<Layout pageName="textyng" />)}/>
             <Route path="/textyng"  exact component={() => (<Layout pageName="textyng" />)}/>
             <Route path="/newscript" exact component={() => (<Layout pageName="newscript" />)}/>
-            <Route path="/readerview/:id" exact component={() => (<Layout pageName="readerview" />)}/>
             <Route path="/readerview/:id" exact component={() => (<Layout pageName="readerview" />)}/>
             <Route path="/editscript/:id" exact component={() => (<Layout pageName="editscript" />)}/>
             <Route path="/searchscripts/" exact component={() => (<Layout pageName="searchscripts" />)}/>

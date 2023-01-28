@@ -6,17 +6,6 @@ import { Emoji } from 'emoji-mart'
 
 import "./ReaderView.css";
 
-const emojis = [
-  {name: "exploding_head", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-  {name: "relaxed", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-  {name: "astonished", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-  {name: "pensive", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-  {name: "angry", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-  {name: "scream", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-  {name: "kissing_heart", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-  {name: "rolling_on_the_floor_laughing", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-]
-
 class ConnectedReaderView extends Component {
   constructor(props) {
     super(props);
@@ -29,6 +18,17 @@ class ConnectedReaderView extends Component {
       timeoutId: null,
       isPlaying: true,
     };
+
+    this.emojis = [
+      {name: "exploding_head", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "relaxed", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "astonished", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "pensive", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "angry", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "scream", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "kissing_heart", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "rolling_on_the_floor_laughing", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+    ]
   }
 
   componentDidMount() {
@@ -234,7 +234,7 @@ class ConnectedReaderView extends Component {
                       <span>{message.content}</span>
 
                       <div className="ReaderView-reactionEmojis">
-                        {emojis.map((emoji, index)=> 
+                        {this.emojis.map((emoji, index)=> 
                           <div
                             key={index}
                             className="ReaderView-reactionEmoji"

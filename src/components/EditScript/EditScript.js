@@ -14,7 +14,6 @@ import html2canvas from 'html2canvas';
 import Firebase from "../../firebase/firebase";
 
 import "./EditScript.css";
-import { nil } from "ajv";
 
 class ConnectedEditScript extends Component {
   constructor(props) {
