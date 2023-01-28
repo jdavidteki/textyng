@@ -22,6 +22,10 @@
     position: absolute;
     top: 50%;
     left: calc(50% - 22px);
+
+    @include bplte(xs){
+      left: calc(50% - 9px);
+    }
   }
 
   &__left-side {
@@ -86,6 +90,12 @@
   &__text {
     font-weight: bold;
     position: relative;
+
+    &:hover{
+      color: black;
+      transition: color 1s ease-in;
+    }
+
     &::before {
       content: "";
       position: absolute;

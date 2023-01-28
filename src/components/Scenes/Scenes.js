@@ -4,63 +4,54 @@ import EditableField from "../EditableField/EditableField";
 import "./Scenes.css";
 
 function Scenes(props) {
-
-
-  let totalCast = 2
-
   let defaultScenes = [
     {
-      name: "Scene 1",
+      name: "Bombay",
       id: 1,
     },
     {
-      name: "Scene 2",
+      name: "Sheraton Hostel",
       id: 2,
     },
-  ]
+  ];
 
-  if(props.scenes){
-    defaultScenes = props.scenes
-  }
+  const [scenes, setScenes] = React.useState(props.scenes && props.scenes.length > 0 ? props.scenes : defaultScenes);
+  const [totalScenes, setTotalScenes] = React.useState(props.scenes && props.scenes.length > 0 ? props.scenes.length : defaultScenes.length);
 
-  const [scenes, setScenes] = React.useState(defaultScenes);
-
-  function addNewScene(){
-    totalCast +=1
-
+  function addNewScene() {
     let newScene = {
-      name: "Scene Number",
-      id: totalCast
-    }
-
-    setScenes(scenes => [...scenes, newScene])
-    props.getAllScenes(scenes)
+      name: "Scene",
+      id: totalScenes + 1,
+    };
+    setScenes(scenes => [...scenes, newScene]);
+    setTotalScenes(totalScenes + 1);
+    props.getAllScenes(scenes);
   }
 
-  function updateSceneName(name){
-    let id = name[0]
-    let newName = name[1]
+  function updateSceneName(name) {
+    let id = name[0];
+    let newName = name[1];
 
-    for(var i = 0; i<scenes.length; i++){
-      if(scenes[i].id == id){
-        scenes[i].name = newName
+    for (var i = 0; i < scenes.length; i++) {
+      if (scenes[i].id == id) {
+        scenes[i].name = newName;
       }
     }
 
-    setScenes(scenes => [...scenes])
-    props.getAllScenes(scenes)
+    setScenes(scenes => [...scenes]);
+    props.getAllScenes(scenes);
   }
 
   function updateActiveOption(value) {
-    var el = document.querySelectorAll(".Scenes-cast");
+    var el = document.querySelectorAll(".Scenes-scene");
 
     for (let i = 0; i < el.length; i++) {
-      el[i].classList.remove("active")
+      el[i].classList.remove("active");
     }
 
-    document.getElementById("Scenes-castId-" + value.id).classList.add("active")
+    document.getElementById("Scenes-sceneId-" + value.id).classList.add("active");
 
-    props.selectedScene ? props.selectedScene(value): {};
+    props.selectedScene ? props.selectedScene(value) : {};
   }
 
   return (
@@ -68,8 +59,8 @@ function Scenes(props) {
       {scenes.map(
         (value, index) => (
           <div
-            id={"Scenes-castId-" + value.id}
-            className="Scenes-cast"
+            id={"Scenes-sceneId-" + value.id}
+            className="Scenes-scene"
             key={index}
             onClick={() => updateActiveOption(value)}
           >
@@ -78,7 +69,7 @@ function Scenes(props) {
         )
       )}
 
-      <div className="Scenes-addCast Scenes-cast" onClick={() => addNewScene()}>
+      <div className="Scenes-addScene Scenes-scene" onClick={() => addNewScene()}>
         +
       </div>
     </div>

@@ -27,15 +27,17 @@ class ConnectedEditScript extends Component {
       rimiToShow: null,
       animateGreeting: "EditScript-animategreeting",
       orderId: "",
-      script: null,
+      script: props.script ? props.script : null,
+      isNewScript: props.isNewScript,
       selectedCastId: 1,
       selectedSceneId: 1,
       selectedMsgType: "",
       timeSinceLastMsg: "",
       textMsg: "",
+      emotion: "",
       allMessages: [],
       spslm: 0,
-      likedByMap: new Map(),
+      likedByMap:  props.script ? props.script.getOnlyLikedMsgsAsNodes() : new Map(),
     };
   }
 
@@ -45,25 +47,35 @@ class ConnectedEditScript extends Component {
 
   componentDidMount() {
     //hack: use this to fix github pages doing ?/ on pages
-    if (window.location.href.includes("?/")) {
-      let actualDestination = window.location.href.split("?/")[1];
-
-      this.props.history.push({
-        pathname: "/" + actualDestination,
-      });
+    if (window.location.href.includes("?/")){
+      let actualDestination = window.location.href.split("?/")[1]
+      if(this.props.history == undefined){
+        //TODO: figure out if it's possible to not have to do this
+        window.location.href = "/" + actualDestination
+      }else{
+        this.props.history.push({
+          pathname: "/" + actualDestination
+        });
+        window.location.reload(false);
+      }
     }
 
-    let scriptId = window.location.pathname.replaceAll("/editscript/", "")
+    //TODO do this better
+    if (!this.state.isNewScript){
+      let scriptId = window.location.pathname.replaceAll("/editscript/", "")
 
-    if(scriptId != ""){
-      var textyng = new Script(scriptId);
-      textyng.grabScriptFromFirebase(scriptId)
-      .then(() => {
-        this.setState({
-          script: textyng,
-          likedByMap: this.generateLikedMap(textyng.getOnlyLikedMsgsAsNodes())
+      if(scriptId != ""){
+        var textyng = new Script(scriptId);
+        textyng.grabScriptFromFirebase(scriptId)
+        .then(() => {
+          this.setState({
+            script: textyng,
+            likedByMap: this.generateLikedMap(textyng.getOnlyLikedMsgsAsNodes())
+          })
         })
-      })
+      }
+    }else{
+      this.setState({likedByMap: this.state.script.getOnlyLikedMsgsAsNodes()})
     }
 
     this.intervalId = setInterval(() => {
@@ -91,7 +103,6 @@ class ConnectedEditScript extends Component {
   }
 
   getAllScenes = (scenes) => {
-    console.log("allscences", scenes)
     this.state.script.updateScene(scenes)
   }
 
@@ -181,16 +192,18 @@ class ConnectedEditScript extends Component {
       id: milliseconds,
       timeStamp: milliseconds,
       content: this.state.textMsg,
+      emotion: this.state.emotion,
       senderId: this.state.selectedCastId,
       tslmsg: tslmsg,
       msgType: "textMsg",
-      sceneId: this.state.selectedSceneId
+      sceneId: this.state.selectedSceneId,
     }
 
     this.state.script.addNewMessage(msgData)
     this.setState({
       allMessages: this.state.script.getOnlyTextMsgsAsNodes(),
       textMsg: "",
+      emotion: "",
       spslm: 0,
     })
   }
@@ -208,6 +221,7 @@ class ConnectedEditScript extends Component {
       timeStamp: milliseconds,
       msgType: "comment",
       content: comment,
+      emotion: this.state.emotion,
       whoSentCommentedMsg: whoSentCommentedMsg,
       idOfMsgCommented: idOfMsgCommented,
       whoCommentedMsg: this.state.selectedCastId,
@@ -219,6 +233,7 @@ class ConnectedEditScript extends Component {
     this.setState({
       allMessages: this.state.script.getOnlyTextMsgsAsNodes(),
       textMsg: "",
+      emotion: "",
       spslm: 0,
     })
   }
@@ -236,6 +251,7 @@ class ConnectedEditScript extends Component {
       id: milliseconds,
       timeStamp: milliseconds,
       content: mediaType,
+      emotion: this.state.emotion,
       senderId: this.state.selectedCastId,
       tslmsg: tslmsg,
       isImg: isImg,
@@ -250,6 +266,7 @@ class ConnectedEditScript extends Component {
     this.setState({
       allMessages: this.state.script.getOnlyTextMsgsAsNodes(),
       textMsg: "",
+      emotion: "",
       spslm: 0,
     })
   }
@@ -376,8 +393,10 @@ class ConnectedEditScript extends Component {
                               />
                             }
                             <div>
-                              <span>{value.content}</span>
+                              <span className="EditScript-msgIndex">{value.MsgIndex}</span>
                               <span className="EditScript-senderName">{this.state.script.getSenderNameFromID(value.senderId)}</span>
+                              <span className="EditScript-senderEmotion">{value.emotion ? '('+value.emotion + ')': ''}</span>
+                              <span>{value.content}</span>
                             </div>
                             <div className="EditScript-chatArea-msg-buttons">
                               <button className="EditScript-chatArea-msg-button" onClick={() => this.deleteMessage(value.id)}>Delete</button>
@@ -404,20 +423,22 @@ class ConnectedEditScript extends Component {
                             this.setState({ textMsg: e.target.value });
                           }}
                         />
+
+                        <TextField
+                          variant="outlined"
+                          className="EditScript-emotions--input"
+                          value={this.state.emotion}
+                          placeholder="Type emotion here"
+                          onChange={e => {
+                            this.setState({ emotion: e.target.value });
+                          }}
+                        />
+
                         <TimeInput inputTime={this.getInputTime} />
                       </div>
+                      
 
                       <div className="EditScript-saveSubmit">
-                        <div>
-                          <Button
-                            className="EditScript-saveSubmit--save"
-                            variant="outlined"
-                            color="primary"
-                            onClick={() => this.state.script.updateScriptFirebase()}
-                          >
-                            save
-                          </Button>
-                        </div>
                         <div>
                           <Button
                             className="EditScript-saveSubmit--send"
@@ -428,6 +449,16 @@ class ConnectedEditScript extends Component {
                             Send
                           </Button>
                         </div>
+                        <div>
+                          <Button
+                            className="EditScript-saveSubmit--save"
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => this.state.script.updateScriptFirebase()}
+                          >
+                            save
+                          </Button>
+                        </div>
                       </div>
                     </div>
                 </div>
@@ -435,7 +466,7 @@ class ConnectedEditScript extends Component {
         );
     }else{
         return (
-            <div>script loading...</div>
+            <div className="is-loading">script loading...</div>
         )
     }
   }

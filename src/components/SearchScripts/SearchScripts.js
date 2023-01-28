@@ -19,7 +19,10 @@ class SearchScripts extends Component {
 
     componentDidMount(){
        Firebase.getScripts().then( val => {
-        this.setState({scripts: val})
+        this.setState({
+            scripts: val,
+            results: val
+        })
        })
     }
 
@@ -39,7 +42,7 @@ class SearchScripts extends Component {
         }
 
         if(e.target.value == ""){
-            this.setState({ results: [] });
+            this.setState({ results: this.state.scripts });
         }
     }
 
@@ -60,11 +63,10 @@ class SearchScripts extends Component {
     render() {
     return (
         <div className="search-scripts">
-        <div className="search-bar" style={{ top: this.state.searchBarUp ? "-25%" : "0" }}>
+        <div className="search-bar" style={{ top: this.state.searchBarUp ? "-25%" : "-15%" }}>
             <input type="text" placeholder="what are you ryeading?" onChange={this.handleSearch} onFocus={this.handleFocus} onBlur={this.handleBlur} />
         </div>
         <div className="search-results">
-            <span>results will appear here</span>
             {this.state.results.map((result) => (
             <div className="search-eachResult" key={result.id} onClick={() => this.selectResult(result.id)}>
                 <h3>{result.name}</h3>

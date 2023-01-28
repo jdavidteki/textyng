@@ -30,9 +30,7 @@ function RecordModal(props) {
     });
 
     storageRef.put(audioFile).then(snapshot => {
-        console.log('Audio uploaded to Firebase');
         snapshot.ref.getDownloadURL().then(url => {
-            console.log("url", url)
             props.getVNURL(url)
         });
     });

@@ -46,7 +46,9 @@ class Firebase {
       .ref('/scripts/' + script.id + '/')
       .update(
         {
+          id: script.id,
           name: script.name,
+          dateCreated: script.dateCreated,
           cast: script.cast,
           crew: script.crew,
           messages: script.messages,

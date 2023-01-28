@@ -6,7 +6,7 @@
     max-width: 100%;
     overflow-x: scroll;
 
-    &-cast
+    &-scene
     {
         min-width: 40px;
         border: 1px solid $gray-5;
@@ -22,7 +22,7 @@
         }
     }
 
-    &-addCast
+    &-addScene
     {
         display: flex;
         justify-content: center;

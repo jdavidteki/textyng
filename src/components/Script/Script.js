@@ -15,7 +15,7 @@ class Script {
 
     this.name = name;
     this.dateCreated = milliseconds
-    this.id = name + this.dateCreated
+    this.id = name + milliseconds
     this.cast = [];
     this.crew = [];
     this.scenes = [];

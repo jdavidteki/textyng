@@ -7,14 +7,14 @@ import { Emoji } from 'emoji-mart'
 import "./ReaderView.css";
 
 const emojis = [
-  {name: "exploding_head", set: "twitter", size: 16, className: "ReaderView-reactionEmoji"},
-  {name: "relaxed", set: "twitter", size: 16, className: "ReaderView-reactionEmoji"},
-  {name: "astonished", set: "twitter", size: 16, className: "ReaderView-reactionEmoji"},
-  {name: "pensive", set: "twitter", size: 16, className: "ReaderView-reactionEmoji"},
-  {name: "angry", set: "twitter", size: 16, className: "ReaderView-reactionEmoji"},
-  {name: "scream", set: "twitter", size: 16, className: "ReaderView-reactionEmoji"},
-  {name: "kissing_heart", set: "twitter", size: 16, className: "ReaderView-reactionEmoji"},
-  {name: "rolling_on_the_floor_laughing", set: "twitter", size: 16, className: "ReaderView-reactionEmoji"},
+  {name: "exploding_head", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+  {name: "relaxed", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+  {name: "astonished", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+  {name: "pensive", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+  {name: "angry", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+  {name: "scream", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+  {name: "kissing_heart", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+  {name: "rolling_on_the_floor_laughing", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
 ]
 
 class ConnectedReaderView extends Component {
@@ -35,7 +35,15 @@ class ConnectedReaderView extends Component {
     //hack: use this to fix github pages doing ?/ on pages
     if (window.location.href.includes("?/")){
       let actualDestination = window.location.href.split("?/")[1]
-      window.location = actualDestination;
+      if(this.props.history == undefined){
+        //TODO: figure out if it's possible to not have to do this
+        window.location.href = "/" + actualDestination
+      }else{
+        this.props.history.push({
+          pathname: "/" + actualDestination
+        });
+        window.location.reload(false);
+      }
     }
 
     let scriptId = window.location.pathname.replaceAll("readerview", "").replaceAll("/", "");
@@ -54,7 +62,7 @@ class ConnectedReaderView extends Component {
       });
   }
 
-  updateCurrentNode(index = 0) {
+  updateCurrentNode(index = 1) {
     if (!this.state.script) {
       return;
     }
@@ -74,7 +82,7 @@ class ConnectedReaderView extends Component {
       this.setState({
         timeoutId: setTimeout(() => {
           this.handleNextClick();
-        }, this.state.script.getNthMessageNode(this.state.currentNodeIndex).tslmsg * 100)
+        }, this.state.script.getNthMessageNode(this.state.currentNodeIndex).tslmsg * 20)
       });
     }
   }
@@ -148,13 +156,11 @@ class ConnectedReaderView extends Component {
       <Emoji
         emoji={emoji}
         set={"twitter"}
-        size={16}
+        size={14}
         key={index}
         className="ReaderView-reactionEmoji"
       />
     ));
-
-    // console.log("readerEmojiReactions", readerEmojiReactions)
 
     return readerEmojiReactions
   }
@@ -208,10 +214,25 @@ class ConnectedReaderView extends Component {
                         controls
                       />
                     }
+                    {message.msgType == "like" &&
+                      <div
+                        className="ReaderView-msgLike"
+                      >
+                        <span>
+                          {this.state.script.getSenderNameFromID(message.whoLikedMsg)}&nbsp;
+                          liked message&nbsp;
+                          {this.state.script.getNodeByMessageId(message.idOfMsgLiked).data.MsgIndex}&nbsp;
+                          by&nbsp;
+                          {this.state.script.getSenderNameFromID(message.whoSentLikedMsg)}&nbsp;
+                        </span>
+                      </div>
+                    }
                     <div>
-                      <span>{message.content}</span>
+                      <span className="ReaderView-msgIndex">{message.MsgIndex}</span>
                       <span className="ReaderView-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
-                      
+                      <span className="ReaderView-senderEmotion">{message.emotion ? '('+message.emotion + ')': ''}</span>
+                      <span>{message.content}</span>
+
                       <div className="ReaderView-reactionEmojis">
                         {emojis.map((emoji, index)=> 
                           <div
@@ -235,7 +256,7 @@ class ConnectedReaderView extends Component {
               </div>
             </div>
             <div className="ReaderView-readerReaction--wrapper">
-              <span>reactions:</span> 
+              <span>audience:</span> 
               <span className="ReaderView-readerReaction"> {this.getReaderReactionFromMsg()}</span>                       
             </div>
             <div className="ReaderView-navigation">
@@ -259,8 +280,8 @@ class ConnectedReaderView extends Component {
     	);
 		}else{
 			return (
-        <div className="ReaderView">
-					loading scriptsss
+        <div className="ReaderView is-loading">
+					rytriving script
         </div>
     	);
 		}

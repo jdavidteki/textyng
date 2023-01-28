@@ -15,8 +15,8 @@ function CastMembers(props) {
     },
   ];
 
-  const [casts, setCast] = React.useState(props.cast ? props.cast : defaultCast);
-  const [totalCast, setTotalCast] = React.useState(props.cast ? props.cast.length : defaultCast.length);
+  const [casts, setCast] = React.useState(props.cast && props.cast.length > 0 ? props.cast : defaultCast);
+  const [totalCast, setTotalCast] = React.useState(props.cast && props.cast.length > 0 ? props.cast.length : defaultCast.length);
 
   function addNewCastMember() {
     let newCast = {

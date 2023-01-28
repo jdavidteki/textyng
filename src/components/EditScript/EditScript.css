@@ -87,7 +87,7 @@
   .Button--mobileHero {
     height: 80px;
     padding: 8px;
-    background-color: #eee;
+    background-color: #f8f8f8;
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -139,6 +139,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.is-loading {
+  text-align: center;
+  font-size: 2em;
+  animation: glow 1s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #555555, 0 0 40px #555555, 0 0 50px #555555, 0 0 60px #555555, 0 0 70px #555555;
+  }
+  to {
+    text-shadow: 0 0 20px #fff, 0 0 30px #555557, 0 0 40px #555558, 0 0 50px #555559, 0 0 60px #55555A, 0 0 70px #55555B, 0 0 80px #55555C;
+  }
+}
 .EditScript {
   align-items: flex-start;
   height: 100%;
@@ -148,6 +166,10 @@ body {
 .EditScript-container {
   min-height: 100%;
 }
+.EditScript-msgIndex {
+  float: right;
+  font-size: 8px;
+}
 .EditScript-castMemberPrompt {
   height: 100%;
   width: 100%;
@@ -155,10 +177,10 @@ body {
   justify-content: center;
   align-items: center;
 }
-.EditScript-senderName {
+.EditScript-senderEmotion, .EditScript-senderName {
   font-size: 8px;
   font-style: italic;
-  margin-top: 16px;
+  margin-top: 8px 0;
   display: block;
 }
 .EditScript-chatArea {
@@ -188,7 +210,7 @@ body {
 }
 .EditScript-chatArea-msg.active {
   margin-left: auto;
-  background-color: #e7e893;
+  background-color: #f6ebc8;
 }
 .EditScript-chatArea-msg-buttons {
   margin-top: 16px;
@@ -218,10 +240,10 @@ body {
   margin: 8px;
   margin-top: 24px;
   padding: 8px;
-  border: 1px solid #eee;
+  border: 1px solid #f8f8f8;
   width: 100%;
   border-radius: 4px;
-  background-color: #f6ebc8;
+  background-color: #f8f8f8;
 }
 .EditScript-container {
   display: flex;

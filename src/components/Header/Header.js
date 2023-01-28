@@ -44,13 +44,13 @@ class Header extends Component{
 
         let currentBorderRadius = element.style.borderRadius;
         if (currentBorderRadius === "25%") {
-          element.style.borderRadius = "50%";
+          element.style.borderRadius = "0";
         } else {
           element.style.borderRadius = "25%";
         }
 
       }, randomInterval);
-    }, 10000); // 1000 milliseconds = 1 second
+    }, 4000); // 1000 milliseconds = 1 second
   }
 
   render(){

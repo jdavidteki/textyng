@@ -87,7 +87,7 @@
   .Button--mobileHero {
     height: 80px;
     padding: 8px;
-    background-color: #eee;
+    background-color: #f8f8f8;
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -139,24 +139,42 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.is-loading {
+  text-align: center;
+  font-size: 2em;
+  animation: glow 1s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #555555, 0 0 40px #555555, 0 0 50px #555555, 0 0 60px #555555, 0 0 70px #555555;
+  }
+  to {
+    text-shadow: 0 0 20px #fff, 0 0 30px #555557, 0 0 40px #555558, 0 0 50px #555559, 0 0 60px #55555A, 0 0 70px #55555B, 0 0 80px #55555C;
+  }
+}
 .Scenes {
   display: flex;
   max-width: 100%;
   overflow-x: scroll;
 }
-.Scenes-cast {
+.Scenes-scene {
   min-width: 40px;
-  border: 1px solid #eee;
+  border: 1px solid #f8f8f8;
   border-radius: 4px;
   margin-left: 8px;
   font-size: 16px;
   padding: 0 8px;
   cursor: pointer;
 }
-.Scenes-cast.active, .Scenes-cast:hover {
+.Scenes-scene.active, .Scenes-scene:hover {
   background-color: #f6ebc8;
 }
-.Scenes-addCast {
+.Scenes-addScene {
   display: flex;
   justify-content: center;
   align-items: center;

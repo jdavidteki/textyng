@@ -20,6 +20,20 @@ class Layout extends Component{
   }
 
   componentDidMount(){
+    //hack: use this to fix github pages doing ?/ on pages
+    if (window.location.href.includes("?/")){
+        let actualDestination = window.location.href.split("?/")[1]
+        if(this.props.history == undefined){
+          //TODO: figure out if it's possible to not have to do this
+          window.location.href = "/" + actualDestination
+        }else{
+          this.props.history.push({
+            pathname: "/" + actualDestination
+          });
+          window.location.reload(false);
+        }
+      }
+
     document.getElementById("layoutContent").classList.add(this.state.pageName);
   }
 

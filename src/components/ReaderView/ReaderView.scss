@@ -17,6 +17,7 @@
     display: flex;
     justify-content: flex-start;
     width: 100%;
+    margin: 8px 0;
   }
 
   &-scene
@@ -35,11 +36,18 @@
     }
   }
 
+  &-msgIndex
+  {
+    float: right;
+    font-size: 8px;
+  }
+
+  &-senderEmotion,
   &-senderName
   {
     font-size: 8px;
     font-style: italic;
-    margin-top: 16px;
+    margin-bottom: 8px;
     display: block;
   }
 
@@ -85,6 +93,12 @@
     width: 100%;
     border-radius: 4px;
     background-color: $gray-5;
+    max-height: 625px;
+    overflow-y: scroll;
+
+    @include bplte(xs){
+      max-height: 400px;
+    }
   }
 
   &-container
@@ -117,7 +131,7 @@
     margin: 32px 8px;
     background-color: white;
     flex-grow: 1;
-    height: 400px;
+    height: 100%;
     overflow-y: scroll;
     padding: 8px;
     border-radius: 8px;

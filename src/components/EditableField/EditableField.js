@@ -31,7 +31,7 @@ function EditableField(props) {
       ) : (
         <TextField
           autoFocus
-          inputProps={{maxLength: 12, style: {fontSize: props.fontSize ? props.fontSize : 50}}}
+          inputProps={{maxLength: 20, style: {fontSize: props.fontSize ? props.fontSize : 50}}}
           value={name}
           onChange={(event) => setName(event.target.value)}
           onBlur={(event) => onBlurFunction()}
