@@ -20,10 +20,6 @@ class ConnectedEditScript extends Component {
     super(props);
 
     this.state = {
-      rimis: [],
-      rimisIds: [],
-      filteredRimis: [],
-      rimiToShow: null,
       animateGreeting: "EditScript-animategreeting",
       orderId: "",
       script: props.script ? props.script : null,
