@@ -41,7 +41,7 @@ class ConnectedReaderView extends Component {
     //   });
     // }
 
-    let scriptId = window.location.pathname.replaceAll("readerview", "").replaceAll("/", "");
+    let scriptId = this.props.match.params.id
     if (scriptId == "") {
       scriptId = "NewScript1674709550"
     }

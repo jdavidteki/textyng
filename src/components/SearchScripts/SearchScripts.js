@@ -63,7 +63,6 @@ class ConnectedSearchScripts extends Component {
         this.props.history.push({
             pathname: `/readerview/${id}`
         });
-        window.location.reload(false);
     }
 
     render() {
