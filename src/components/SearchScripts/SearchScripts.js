@@ -1,8 +1,11 @@
-import "./SearchScripts.css";
 import React, { Component } from 'react';
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import Firebase from "../../firebase/firebase";
 
-class SearchScripts extends Component {
+import "./SearchScripts.css";
+
+class ConnectedSearchScripts extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -57,7 +60,10 @@ class SearchScripts extends Component {
     }
 
     selectResult(id) {
-        window.location.assign(`/readerview/${id}`)
+        this.props.history.push({
+            pathname: `/readerview/${id}`
+        });
+        window.location.reload(false);
     }
 
     render() {
@@ -79,4 +85,11 @@ class SearchScripts extends Component {
     }
 }
 
-export default SearchScripts;
+
+const mapStateToProps = (state) => {
+  return {};
+};
+
+let SearchScripts = withRouter(connect(mapStateToProps)(ConnectedSearchScripts));
+export default withRouter(SearchScripts);
+
