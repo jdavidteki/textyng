@@ -64,7 +64,7 @@ class ConnectedReaderView extends Component {
   }
 
   startAutoPlay() {
-    if (this.state.isPlaying) {
+    if (this.state.isPlaying && this.state.currentNodeIndex < this.state.script.getAllMessagesAsNodes().length) {
       this.setState({
         timeoutId: setTimeout(() => {
           this.handleNextClick();
