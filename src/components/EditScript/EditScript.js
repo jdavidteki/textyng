@@ -65,7 +65,7 @@ class ConnectedEditScript extends Component {
         })
       }
     }else{
-      this.setState({likedByMap: this.state.script.getOnlyLikedMsgsAsNodes()})
+      this.setState({likedByMap: this.generateLikedMap(this.state.script.getOnlyLikedMsgsAsNodes())})
     }
 
     this.intervalId = setInterval(() => {
