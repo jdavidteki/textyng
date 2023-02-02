@@ -24,11 +24,18 @@ class Script {
     this.node = {};
     this.totalNoMsgs = 0;
     this.readerReactionMap = new Map();
+    this.isPrivateScript = false;
   }
 
   updateScriptName(name){
     this.name = name
-    this.id = this.name + this.dateCreated
+    this.updateIsPrivateScript()
+  }
+
+  updateIsPrivateScript(){
+    if(this.name.startsWith("yyyy")){
+      this.isPrivateScript = true
+    }
   }
 
   numberOfMessages() {
@@ -153,7 +160,11 @@ class Script {
       }
     }
 
-    return current.data
+    if (current){
+      return current.data
+    }
+
+    return null
   }
 
   getAllMessagesStringList() {
@@ -287,6 +298,7 @@ class Script {
       crew: this.getAllCrew(),
       messages: this.getAllMessagesAsNodes(),
       scenes: this.getAllScenes(),
+      isPrivateScript: this.isPrivateScript,
     }
 
     firebase.createNewScript(script)
@@ -310,6 +322,7 @@ class Script {
       messages: this.getAllMessagesAsNodes(),
       scenes: this.getAllScenes(),
       readerReactionMap: JSON.stringify(Object.fromEntries(this.readerReactionMap)),
+      isPrivateScript: this.isPrivateScript,
     }
 
     firebase.updateScript(script)
@@ -366,11 +379,7 @@ class Script {
   getScriptName() {
     return this.name;
   }
-
-  updateScriptName(name) {
-    this.name = name;
-  }
-
+  
   grabScriptFromFirebase(scriptId){
     return new Promise(resolve => {
       firebase.getScriptById(scriptId)
@@ -397,6 +406,7 @@ class Script {
         this.crew = val.crew ? val.crew : []
         this.scenes = val.scenes ? val.scenes : []
         this.readerReactionMap = readerReactionMap
+        this.isPrivateScript = val.isPrivateScript ? val.isPrivateScript : false
       })
       .then(() => {
         resolve(this)

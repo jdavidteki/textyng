@@ -28,6 +28,7 @@ class Firebase {
           cast: script.cast,
           crew: script.crew,
           messages: script.messages,
+          isPrivateScript: script.isPrivateScript,
         }
       )
       .then((response) => {
@@ -54,6 +55,7 @@ class Firebase {
           messages: script.messages,
           scenes: script.scenes,
           readerReactionMap: script.readerReactionMap,
+          isPrivateScript: script.isPrivateScript,
         }
       )
       .then((response) => {

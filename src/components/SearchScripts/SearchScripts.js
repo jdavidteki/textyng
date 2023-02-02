@@ -59,10 +59,19 @@ class ConnectedSearchScripts extends Component {
         }
     }
 
-    selectResult(id) {
-        this.props.history.push({
-            pathname: `/readerview/${id}`
-        });
+    selectResult(id, isPrivateScript) {
+        if(isPrivateScript){
+            var tenure = prompt("Please enter master password to read private", "");
+            if (tenure != null && tenure == "7779") {
+                this.props.history.push({
+                    pathname: `/readerview/${id}`
+                });
+            }
+        }else{
+            this.props.history.push({
+                pathname: `/readerview/${id}`
+            });
+        }
     }
 
     render() {
@@ -73,7 +82,7 @@ class ConnectedSearchScripts extends Component {
         </div>
         <div className="search-results">
             {this.state.results.map((result) => (
-            <div className="search-eachResult" key={result.id} onClick={() => this.selectResult(result.id)}>
+            <div className="search-eachResult" key={result.id} onClick={() => this.selectResult(result.id, result.isPrivateScript)}>
                 <h3>{result.name}</h3>
                 <p>{result.id}</p>
             </div>

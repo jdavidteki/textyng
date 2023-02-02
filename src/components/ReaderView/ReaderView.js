@@ -49,9 +49,10 @@ class ConnectedReaderView extends Component {
   }
 
   updateCurrentNode(index = 1) {
-    if (!this.state.script) {
+    if (!this.state.script || !this.state.script.getNthMessageNode(index)) {
       return;
     }
+    
     let sceneId = this.state.script.getNthMessageNode(index).sceneId;
     if (sceneId === undefined) {
         sceneId = this.state.script.getTotalNumScenes();
