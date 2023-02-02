@@ -242,6 +242,13 @@ body {
 .ReaderView-title {
   font-size: 50px;
 }
+@media (max-width: 991px) {
+  .ReaderView-title {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
 .ReaderView-videoMsg, .ReaderView-imgMsg {
   height: 200px;
   width: 180px;
@@ -305,9 +312,11 @@ body {
   animation-iteration-count: 1;
 }
 .ReaderView-readerReaction {
-  overflow-x: scroll;
   flex-grow: 1;
   margin-left: 8px;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .ReaderView-readerReaction--wrapper {
   width: 100%;

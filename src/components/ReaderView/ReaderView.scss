@@ -113,6 +113,12 @@
   &-title
   {
     font-size: 50px;
+
+    @include bplte(sm){
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   &-videoMsg,
@@ -199,9 +205,11 @@
 
   &-readerReaction
   {
-    overflow-x: scroll;
     flex-grow: 1;
     margin-left: 8px;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
 
     &--wrapper
     {

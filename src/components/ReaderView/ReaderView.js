@@ -52,7 +52,7 @@ class ConnectedReaderView extends Component {
     if (!this.state.script || !this.state.script.getNthMessageNode(index)) {
       return;
     }
-    
+
     let sceneId = this.state.script.getNthMessageNode(index).sceneId;
     if (sceneId === undefined) {
         sceneId = this.state.script.getTotalNumScenes();
@@ -244,7 +244,7 @@ class ConnectedReaderView extends Component {
             </div>
             <div className="ReaderView-readerReaction--wrapper">
               <span>audience:</span> 
-              <span className="ReaderView-readerReaction"> {this.getReaderReactionFromMsg()}</span>                       
+              <div className="ReaderView-readerReaction"> {this.getReaderReactionFromMsg()}</div>                       
             </div>
             <div className="ReaderView-navigation">
               <div className="ReaderView-navigation--wrapper">
