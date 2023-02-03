@@ -311,9 +311,14 @@ body {
   display: flex;
   justify-content: space-between;
   max-width: 300px;
-  overflow: auto;
+  overflow-x: scroll;
   background-color: white;
   padding: 2px;
+  padding-bottom: 0;
+}
+.ReaderView-reactionEmojis::-webkit-scrollbar {
+  height: 0;
+  background-color: transparent;
 }
 .ReaderView-reactionEmoji {
   padding: 0 16px;

@@ -200,9 +200,15 @@
     display: flex;
     justify-content: space-between;
     max-width: 300px; 
-    overflow: auto;
+    overflow-x: scroll;
     background-color: white;
     padding: 2px;
+    padding-bottom: 0;
+
+    &::-webkit-scrollbar {
+      height: 0;
+      background-color: transparent;
+    }
   }
 
   &-reactionEmoji
