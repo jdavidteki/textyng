@@ -31,6 +31,13 @@ class ConnectedReaderView extends Component {
     ]
   }
 
+  componentDidUpdate(){
+    if(document.querySelector('.ReaderView-chatArea')){
+      const chatArea = document.querySelector(".ReaderView-chatArea");
+      chatArea.scrollTop = chatArea.scrollHeight + 30;
+    }
+  }
+
   componentDidMount() {
     let scriptId = this.props.match.params.id
     if (scriptId == "") {
@@ -164,7 +171,7 @@ class ConnectedReaderView extends Component {
               {this.state.script.getScenes()
               .map((scene, index) =>
                 scene.id == this.state.selectedSceneId ? (
-                  <div key={index} onClick={() => this.selectThisScene(scene.id)} className="ReaderView-scene ReaderView-scene--currentScene">
+                  <div key={index} onClick={() => this.selectThisScene(scene.id)} className="ReaderView-scene is-loading ReaderView-scene--currentScene">
                     {scene.name}
                   </div>
                 ) : (
@@ -173,6 +180,9 @@ class ConnectedReaderView extends Component {
                   </div>
                 )
               )}
+            </div>
+            <div className="ReaderView-msgCounts">
+              {this.state.allMessages.length} / {this.state.script.getAllMessagesAsNodes().length}
             </div>
             <div className="ReaderView-textView">
               <div id="ReaderView-chatArea-id" className="ReaderView-chatArea">

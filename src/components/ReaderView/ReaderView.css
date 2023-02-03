@@ -168,16 +168,19 @@ body {
 }
 .ReaderView-scenes {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   width: 100%;
   margin: 8px 0;
+  overflow-x: scroll;
+  overflow-y: hidden;
 }
 .ReaderView-scene {
   font-weight: bold;
   margin-right: 16px;
+  white-space: nowrap;
 }
 .ReaderView-scene--currentScene {
-  color: green;
+  font-size: 16px !important;
 }
 .ReaderView-scene:hover {
   color: #999;
@@ -232,6 +235,14 @@ body {
     max-height: 400px;
   }
 }
+.ReaderView-msgCounts {
+  font-size: 8px;
+  font-weight: bold;
+  font-style: italic;
+  display: flex;
+  justify-content: right;
+  width: 100%;
+}
 .ReaderView-container {
   display: flex;
   justify-content: center;
@@ -261,10 +272,10 @@ body {
   margin: 32px 8px;
   background-color: white;
   flex-grow: 1;
-  height: 100%;
-  overflow-y: scroll;
   padding: 8px;
   border-radius: 8px;
+  height: 400px;
+  overflow-y: auto;
 }
 .ReaderView-chatArea-msg {
   /* Style the message content */
@@ -296,7 +307,7 @@ body {
   margin-top: 16px;
   display: flex;
   justify-content: space-between;
-  width: 350px;
+  max-width: 300px;
   overflow: auto;
   background-color: white;
   padding: 2px;
