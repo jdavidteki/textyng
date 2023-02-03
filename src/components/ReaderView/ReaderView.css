@@ -218,6 +218,10 @@ body {
   min-height: 600px;
   overflow-y: scroll;
 }
+.ReaderView-chatArea::-webkit-scrollbar {
+  width: 0;
+  background-color: transparent;
+}
 .ReaderView-textView {
   flex-grow: 1;
   margin: 8px;
@@ -282,9 +286,8 @@ body {
   font-size: 14px;
   line-height: 1.5;
   color: #000;
-  margin-top: 16px;
+  margin: 16px 4px;
   max-width: 400px;
-  min-width: 300px;
   text-overflow: wrap;
   padding: 10px;
   background-color: #f8f8f8;
@@ -323,11 +326,17 @@ body {
   animation-iteration-count: 1;
 }
 .ReaderView-readerReaction {
+  display: flex;
   flex-grow: 1;
   margin-left: 8px;
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
+  align-items: center;
+}
+.ReaderView-readerReaction::-webkit-scrollbar {
+  width: 0;
+  background-color: transparent;
 }
 .ReaderView-readerReaction--wrapper {
   width: 100%;

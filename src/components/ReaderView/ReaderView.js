@@ -36,6 +36,11 @@ class ConnectedReaderView extends Component {
       const chatArea = document.querySelector(".ReaderView-chatArea");
       chatArea.scrollTop = chatArea.scrollHeight + 30;
     }
+
+    if(document.querySelector('.ReaderView-readerReaction')){
+      const chatArea = document.querySelector(".ReaderView-readerReaction");
+      chatArea.scrollLeft = chatArea.scrollWidth;
+    }
   }
 
   componentDidMount() {
@@ -253,7 +258,6 @@ class ConnectedReaderView extends Component {
               </div>
             </div>
             <div className="ReaderView-readerReaction--wrapper">
-              <span>audience:</span> 
               <div className="ReaderView-readerReaction"> {this.getReaderReactionFromMsg()}</div>                       
             </div>
             <div className="ReaderView-navigation">
