@@ -41,6 +41,13 @@ class ConnectedReaderView extends Component {
       const chatArea = document.querySelector(".ReaderView-readerReaction");
       chatArea.scrollLeft = chatArea.scrollWidth;
     }
+
+    const msgElements = document.querySelectorAll(".ReaderView-chatArea-msg");
+    for (const msgElement of msgElements) {
+      if (msgElement.getAttribute("data-attribute-ispotagonist") === "true") {
+        msgElement.classList.add("isProtagonist");
+      }
+    }
   }
 
   componentDidMount() {
@@ -195,7 +202,7 @@ class ConnectedReaderView extends Component {
                 .map((message, index) => (
                   (message.sceneId == this.state.selectedSceneId)
                   &&
-                  <div key={index} className="ReaderView-chatArea-msg">
+                  <div key={index} className="ReaderView-chatArea-msg" data-attribute-ispotagonist={message.senderId === 1 ? true : false}>
                     {message.isImg &&
                       <img
                         className="ReaderView-imgMsg"

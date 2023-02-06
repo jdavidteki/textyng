@@ -294,9 +294,8 @@ body {
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-.ReaderView-chatArea-msg.active {
-  margin-left: auto;
-  background-color: #e7e893;
+.ReaderView-chatArea-msg.isProtagonist {
+  background-color: #f6ebc8;
 }
 .ReaderView-chatArea-msg-buttons {
   margin-top: 16px;
