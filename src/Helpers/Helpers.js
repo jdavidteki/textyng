@@ -111,3 +111,18 @@ export function HmsToSecondsOnly(totalSecs) {
 
     return s *1000 + ((parseInt(totalSecs.substr(6, 9), 10))/100);
 }
+
+
+export function ConvertSecondsToDate(secondString) {
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var date;
+    try {
+      date = new Date(parseInt(secondString) * 1000);
+    } catch (error) {
+      date = new Date(1996, 2, 13);
+    }
+    var month = months[date.getMonth()];
+    var day = date.getDate();
+    var year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
+  }

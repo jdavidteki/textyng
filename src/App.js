@@ -5,7 +5,6 @@ import Layout from "./components/Layout/Layout.js"
 import "./App.css";
 
 const Router = process.env.NODE_ENV === 'production' ? HashRouter : BrowserRouter;
-console.log("environment is ", process.env.NODE_ENV);
 
 
 //textyng - everything is a message

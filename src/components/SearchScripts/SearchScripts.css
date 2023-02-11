@@ -59,6 +59,20 @@
   }
 }
 
+@keyframes glowing-text-animation {
+  0% {
+    text-shadow: 0 0 10px #fff;
+    transform: translateX(5px);
+  }
+  50% {
+    text-shadow: 0 0 10px #fff;
+    transform: translateX(8px);
+  }
+  100% {
+    text-shadow: 0 0 20px #fff;
+    transform: translateX(15px);
+  }
+}
 /** @define Button */
 .Button--primary {
   font-size: 16px;
@@ -149,6 +163,10 @@ body {
   color: white;
 }
 
+.glowing-text {
+  animation: glowing-text-animation 1s ease-in-out infinite alternate;
+}
+
 @keyframes glow {
   from {
     text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #555555, 0 0 40px #555555, 0 0 50px #555555, 0 0 60px #555555, 0 0 70px #555555;
@@ -157,13 +175,13 @@ body {
     text-shadow: 0 0 20px #fff, 0 0 30px #555557, 0 0 40px #555558, 0 0 50px #555559, 0 0 60px #55555A, 0 0 70px #55555B, 0 0 80px #55555C;
   }
 }
-.search-scripts {
+.SearchScripts-scripts {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
 }
-.search-scripts .search-bar {
+.SearchScripts-bar {
   width: 70%;
   height: 50px;
   border-radius: 25px;
@@ -175,7 +193,7 @@ body {
   transition: 1s ease-in-out;
   z-index: 999;
 }
-.search-scripts .search-bar input {
+.SearchScripts-bar input {
   width: 90%;
   border: none;
   padding: 0 15px;
@@ -184,7 +202,7 @@ body {
   outline: none;
   height: 80%;
 }
-.search-scripts .search-results {
+.SearchScripts-results {
   position: absolute;
   width: 70%;
   background-color: #fff;
@@ -196,14 +214,19 @@ body {
   max-height: 300px;
   overflow-y: scroll;
 }
-.search-scripts .search-eachResult {
+.SearchScripts-eachResult {
   cursor: pointer;
   border: 1px solid #f8f8f8;
   border-radius: 4px;
   padding: 4px;
   padding-left: 8px;
 }
-.search-scripts .search-eachResult:hover {
+.SearchScripts-eachResult-dateCreated {
+  font-size: 12px;
+  color: #555;
+  font-style: italic;
+}
+.SearchScripts-eachResult:hover {
   background-color: #f6ebc8;
 }
 

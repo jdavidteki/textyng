@@ -183,7 +183,7 @@ class ConnectedReaderView extends Component {
               {this.state.script.getScenes()
               .map((scene, index) =>
                 scene.id == this.state.selectedSceneId ? (
-                  <div key={index} onClick={() => this.selectThisScene(scene.id)} className="ReaderView-scene is-loading ReaderView-scene--currentScene">
+                  <div key={index} onClick={() => this.selectThisScene(scene.id)} className="ReaderView-scene ReaderView-scene--currentScene">
                     {scene.name}
                   </div>
                 ) : (
@@ -236,12 +236,32 @@ class ConnectedReaderView extends Component {
                         </span>
                       </div>
                     }
+                    {message.msgType == "action" &&
+                      <div
+                        className="ReaderView-msgTypeAction glowing-text"
+                      >
+                          <span className="ReaderView-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
+                          <span>y: {message.content}</span> 
+                      </div>
+                    }
+                    {message.msgType == "authorAction" &&
+                      <div
+                        className="ReaderView-msgTypeAuthorAction glowing-text"
+                      >
+                        <div className="ReaderView-content">
+                          yy: {message.content}
+                        </div>
+                      </div>
+                    }
+                    {message.msgType != "action" && message.msgType != "authorAction" &&
+                      <div className="ReaderView-isnotactionMsg">
+                        <span className="ReaderView-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
+                        <span className="ReaderView-senderEmotion">{message.emotion ? '('+message.emotion + ')': ''}</span>
+                        <span>{message.content}</span>
+                      </div>
+                    }  
+                    <span className="ReaderView-msgIndex">{message.MsgIndex}</span>
                     <div>
-                      <span className="ReaderView-msgIndex">{message.MsgIndex}</span>
-                      <span className="ReaderView-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
-                      <span className="ReaderView-senderEmotion">{message.emotion ? '('+message.emotion + ')': ''}</span>
-                      <span>{message.content}</span>
-
                       <div className="ReaderView-reactionEmojis">
                         {this.emojis.map((emoji, index)=> 
                           <div

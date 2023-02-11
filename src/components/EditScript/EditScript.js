@@ -98,13 +98,13 @@ class ConnectedEditScript extends Component {
 
   getSelectedCast = (cast) => {
     this.setState({selectedCastId: cast.id}, () => {
-      this.setState({allMessages: this.state.script.getOnlyTextMsgsAsNodes()})
+      this.setState({allMessages: this.state.script.getAllMessagesAsNodes()})
     })
   }
 
   getSelectedScene = (scene) => {
     this.setState({selectedSceneId: scene.id}, () => {
-      this.setState({allMessages: this.state.script.getOnlyTextMsgsAsNodes()})
+      this.setState({allMessages: this.state.script.getAllMessagesAsNodes()})
     })
   }
 
@@ -162,7 +162,7 @@ class ConnectedEditScript extends Component {
 
       this.setState({
         likedByMap: updatedLikedByMap,
-        allMessages: this.state.script.getOnlyTextMsgsAsNodes(),
+        allMessages: this.state.script.getAllMessagesAsNodes(),
         spslm: 0,
       })
     }else{
@@ -189,6 +189,14 @@ class ConnectedEditScript extends Component {
       sceneId: this.state.selectedSceneId,
     }
 
+    if(this.isActionMsg()){
+      msgData.msgType = "action"
+    }
+
+    if(this.isAuthorActionMsg()){ 
+      msgData.msgType = "authorAction"
+    }
+
     this.state.script.addNewMessage(msgData)
     this.setState({
       allMessages: this.state.script.getOnlyTextMsgsAsNodes(),
@@ -196,6 +204,14 @@ class ConnectedEditScript extends Component {
       emotion: "",
       spslm: 0,
     })
+  }
+
+  isActionMsg(){
+    return this.state.emotion == "y:"
+  }
+
+  isAuthorActionMsg(){
+    return this.state.emotion == "yy:"
   }
 
   addNewMsgComment = (comment, idOfMsgCommented, whoSentCommentedMsg) => {
@@ -261,6 +277,7 @@ class ConnectedEditScript extends Component {
     })
   }
 
+
   componentDidUpdate(){
     if(this.state.script){
       this.state.script.updateScriptFirebase()
@@ -299,7 +316,6 @@ class ConnectedEditScript extends Component {
       const storageRef = Firebase.storage().ref("ScreenShot/" + milliseconds);
       storageRef.putString(imageData, 'data_url').then(snapshot => {
         snapshot.ref.getDownloadURL().then(downloadURL => {
-          console.log(`Image URL: ${downloadURL}`);
           this.addNewMediaMsg("ScreenShot", downloadURL, true, false, false)
         });
       });
@@ -307,17 +323,14 @@ class ConnectedEditScript extends Component {
   }
 
   getInsertedImg = (url) => {
-    console.log("url", url)
     this.addNewMediaMsg("InsertImage", url, true, false, false)
   }
 
   getUplodedVideo = (url) => {
-    console.log("url", url)
     this.addNewMediaMsg("UploadedVideo", url, false, false, true)
   }
 
   getVNURL = (url) => {
-    console.log("url", url)
     this.addNewMediaMsg("VoiceNote", url, false, true, false)
   }
 
@@ -358,47 +371,82 @@ class ConnectedEditScript extends Component {
                         {this.state.allMessages.length == 0 &&
                           <span className="EditScript-castMemberPrompt">click on a cast member to see messages</span>
                         }
-                        {this.state.allMessages.map((value, index) => (
-                          (value.sceneId == this.state.selectedSceneId)
+                        {this.state.allMessages.map((message, index) => (
+                          (message.sceneId == this.state.selectedSceneId)
                           &&
-                          <DynamicClassAssignment key={index} isActive={value.senderId == this.state.selectedCastId} value={value} index={index} >
-                            {value.isImg &&
+                          <DynamicClassAssignment key={index} isActive={message.senderId == this.state.selectedCastId && message.msgType != "authorAction"} message={message} index={index} >
+                            {message.isImg &&
                               <img
                                 className="EditScript-imgMsg"
-                                src={value.url}
+                                src={message.url}
                               />
                             }
-                            {value.isAudio &&
+                            {message.isAudio &&
                               <audio
                                 className="EditScript-audioMsg"
-                                src={value.url}
+                                src={message.url}
                                 controls
                               />
                             }
-                            {value.isVideo &&
+                            {message.isVideo &&
                               <video
                                 className="EditScript-videoMsg"
-                                src={value.url}
+                                src={message.url}
                                 controls
                               />
                             }
-                            <div>
-                              <span className="EditScript-msgIndex">{value.MsgIndex}</span>
-                              <span className="EditScript-senderName">{this.state.script.getSenderNameFromID(value.senderId)}</span>
-                              <span className="EditScript-senderEmotion">{value.emotion ? '('+value.emotion + ')': ''}</span>
-                              <span>{value.content}</span>
-                            </div>
+                            {message.msgType == "like" &&
+                              <div
+                                className="ReaderView-msgLike"
+                              >
+                                <span>
+                                  {this.state.script.getSenderNameFromID(message.whoLikedMsg)}&nbsp;
+                                  liked message&nbsp;
+                                  {this.state.script.getNodeByMessageId(message.idOfMsgLiked).data.MsgIndex}&nbsp;
+                                  by&nbsp;
+                                  {this.state.script.getSenderNameFromID(message.whoSentLikedMsg)}&nbsp;
+                                </span>
+                              </div>
+                            }
+                            {message.msgType == "action" &&
+                              <div
+                                className="EditScript-msgTypeAction glowing-text"
+                              >
+                                  <span className="EditScript-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
+                                  <span>y: {message.content}</span> 
+                              </div>
+                            }
+                            {message.msgType == "authorAction" &&
+                              <div
+                                className="EditScript-msgTypeAuthorAction glowing-text"
+                              >
+                                <div className="EditScript-content">
+                                  yy: {message.content}
+                                </div>
+                              </div>
+                            }
+                            {message.msgType != "action" && message.msgType != "authorAction" &&
+                              <div className="EditScript-isnotactionMsg">
+                                <span className="EditScript-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
+                                <span className="EditScript-senderEmotion">{message.emotion ? '('+message.emotion + ')': ''}</span>
+                                <span>{message.content}</span>
+                              </div>
+                            }  
+
+                            {/* TODO: find a better way to do this */}
+                            <span className="EditScript-msgIndex">{message.MsgIndex}</span>
                             <div className="EditScript-chatArea-msg-buttons">
-                              <button className="EditScript-chatArea-msg-button" onClick={() => this.deleteMessage(value.id)}>Delete</button>
-                              <button className="EditScript-chatArea-msg-button" onClick={() => this.addNewLikeMsg(value.id, value.senderId)}>{this.alreadyBeenLikedByselectedCastId(value.id) ? "Unlike" : "Like"}</button>
+                              <button className="EditScript-chatArea-msg-button" onClick={() => this.deleteMessage(message.id)}>Delete</button>
+                              <button className="EditScript-chatArea-msg-button" onClick={() => this.addNewLikeMsg(message.id, message.senderId)}>{this.alreadyBeenLikedByselectedCastId(message.id) ? "Unlike" : "Like"}</button>
                               <CommentedPopup
                                 className="EditScript-chatArea-msg-button"
-                                idOfMsgCommented={value.id}
-                                whoSentCommentedMsg={value.senderId}
+                                idOfMsgCommented={message.id}
+                                whoSentCommentedMsg={message.senderId}
                                 onSave={this.onSaveComment}
-                                alreadySavedValue={this.state.script.getCommentByCastIdMsgId(this.state.selectedCastId, value.id)}
+                                alreadySavedValue={this.state.script.getCommentByCastIdMsgId(this.state.selectedCastId, message.id)}
                               />
                             </div>
+                            
                           </DynamicClassAssignment>
                         ))}
                       </div>

@@ -6,8 +6,8 @@ import "./MsgTypes.css";
 
 function MsgTypes(props) {
   let msgTypes = [
-    "Is Typing",
-    "Left Chat",
+    "Thinking...",
+    "Left Scene",
   ];
 
   return (
@@ -20,7 +20,7 @@ function MsgTypes(props) {
       </div>
       <div className={"MsgTypes-name"}>
         <FilePicker
-          msgType="Insert Image"
+          msgType="Upload Image"
           getImgURL={props.getInsertedImg}
         />
       </div>

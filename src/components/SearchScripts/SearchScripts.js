@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import Firebase from "../../firebase/firebase";
+import { ConvertSecondsToDate } from "../../Helpers/Helpers.js";
 
 import "./SearchScripts.css";
 
@@ -22,6 +23,7 @@ class ConnectedSearchScripts extends Component {
 
     componentDidMount(){
        Firebase.getScripts().then( val => {
+        console.log("val", val)
         this.setState({
             scripts: val,
             results: val
@@ -76,15 +78,15 @@ class ConnectedSearchScripts extends Component {
 
     render() {
     return (
-        <div className="search-scripts">
-        <div className="search-bar" style={{ top: this.state.searchBarUp ? "-25%" : "-15%" }}>
+        <div className="SearchScripts-scripts">
+        <div className="SearchScripts-bar" style={{ top: this.state.searchBarUp ? "-25%" : "-15%" }}>
             <input type="text" placeholder="what are you ryeading?" onChange={this.handleSearch} onFocus={this.handleFocus} onBlur={this.handleBlur} />
         </div>
-        <div className="search-results">
+        <div className="SearchScripts-results">
             {this.state.results.map((result) => (
-            <div className="search-eachResult" key={result.id} onClick={() => this.selectResult(result.id, result.isPrivateScript)}>
+            <div className="SearchScripts-eachResult" key={result.id} onClick={() => this.selectResult(result.id, result.isPrivateScript)}>
                 <h3>{result.name}</h3>
-                <p>{result.id}</p>
+                <p className="SearchScripts-eachResult-dateCreated">{ConvertSecondsToDate(result.dateCreated)}</p>
             </div>
             ))}
         </div>

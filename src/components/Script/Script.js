@@ -312,20 +312,28 @@ class Script {
     this.scenes = scenes
   }
 
-  updateScriptFirebase(){
-    let script = {
-      id: this.id,
-      name: this.name,
-      dateCreated: this.dateCreated,
-      cast: this.getAllCast(),
-      crew: this.getAllCrew(),
-      messages: this.getAllMessagesAsNodes(),
-      scenes: this.getAllScenes(),
-      readerReactionMap: JSON.stringify(Object.fromEntries(this.readerReactionMap)),
-      isPrivateScript: this.isPrivateScript,
-    }
+  //might have to update how we should understand this
+  isEmptyScript(){
+    return this.name == "NewScript"
+  }
 
-    firebase.updateScript(script)
+  updateScriptFirebase(){
+
+    if (!this.isEmptyScript()){
+      let script = {
+        id: this.id,
+        name: this.name,
+        dateCreated: this.dateCreated,
+        cast: this.getAllCast(),
+        crew: this.getAllCrew(),
+        messages: this.getAllMessagesAsNodes(),
+        scenes: this.getAllScenes(),
+        readerReactionMap: JSON.stringify(Object.fromEntries(this.readerReactionMap)),
+        isPrivateScript: this.isPrivateScript,
+      }
+  
+      firebase.updateScript(script)
+    }
   }
 
   removeCast(cast){

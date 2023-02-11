@@ -20,6 +20,7 @@ const FilePicker = (props) => {
     <div className="FilePicker">
         <span>{props.msgType}</span>
         <input
+          className="file-input"
           type="file"
           ref={fileInput}
           onChange={handleFileSelect}
