@@ -191,6 +191,16 @@ body {
   margin: 8px 0;
   overflow-x: scroll;
   overflow-y: hidden;
+  scroll-behavior: smooth;
+}
+@media (max-width: 991px) {
+  .ReaderView-scenes {
+    justify-content: start;
+  }
+}
+.ReaderView-scenes::-webkit-scrollbar {
+  height: 0;
+  background-color: transparent;
 }
 .ReaderView-scene {
   font-weight: bold;
@@ -233,17 +243,6 @@ body {
   margin-left: 16px;
   width: 25%;
 }
-.ReaderView-chatArea {
-  margin: 32px 8px;
-  background-color: white;
-  flex-grow: 1;
-  min-height: 600px;
-  overflow-y: scroll;
-}
-.ReaderView-chatArea::-webkit-scrollbar {
-  width: 0;
-  background-color: transparent;
-}
 .ReaderView-textView {
   flex-grow: 1;
   margin: 8px;
@@ -253,13 +252,22 @@ body {
   width: 100%;
   border-radius: 4px;
   background-color: #f8f8f8;
-  max-height: 625px;
-  overflow-y: scroll;
+}
+@media (min-width: 768px) {
+  .ReaderView-textView {
+    overflow-y: scroll;
+  }
 }
 @media (max-width: 767px) {
   .ReaderView-textView {
+    overflow-y: auto;
     max-height: 400px;
+    height: 400px;
   }
+}
+.ReaderView-textView::-webkit-scrollbar {
+  width: 0;
+  background-color: transparent;
 }
 .ReaderView-msgCounts {
   font-size: 8px;
@@ -284,6 +292,7 @@ body {
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 32px;
   }
 }
 .ReaderView-videoMsg, .ReaderView-imgMsg {
@@ -301,7 +310,13 @@ body {
   padding: 8px;
   border-radius: 8px;
   height: 400px;
-  overflow-y: auto;
+  max-height: 400px;
+  overflow-y: scroll;
+  height: 100%;
+}
+.ReaderView-chatArea::-webkit-scrollbar {
+  width: 0;
+  background-color: transparent;
 }
 .ReaderView-chatArea-msg {
   /* Style the message content */
@@ -377,7 +392,7 @@ body {
 .ReaderView-navigation--wrapper {
   display: flex;
   width: 300px;
-  justify-content: space-between;
+  justify-content: space-evenly;
   padding: 15px 8px;
 }
 .ReaderView-navigation .previous-button,

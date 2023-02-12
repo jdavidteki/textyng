@@ -23,7 +23,6 @@ class ConnectedSearchScripts extends Component {
 
     componentDidMount(){
        Firebase.getScripts().then( val => {
-        console.log("val", val)
         this.setState({
             scripts: val,
             results: val

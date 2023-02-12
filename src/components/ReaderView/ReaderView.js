@@ -34,7 +34,30 @@ class ConnectedReaderView extends Component {
   componentDidUpdate(){
     if(document.querySelector('.ReaderView-chatArea')){
       const chatArea = document.querySelector(".ReaderView-chatArea");
-      chatArea.scrollTop = chatArea.scrollHeight + 30;
+      const startPosition = chatArea.scrollTop;
+      const endPosition = chatArea.scrollHeight;
+      const duration = 1000; // 1 second
+      const numberOfSteps = 10;
+      const stepDuration = duration / numberOfSteps;
+      const scrollAmount = (endPosition - startPosition) / numberOfSteps;
+      
+      let currentStep = 0;
+    
+      const animateScrollStep = function() {
+        chatArea.scrollTop += scrollAmount;
+        currentStep++;
+        if (currentStep < numberOfSteps) {
+          setTimeout(animateScrollStep, stepDuration);
+        }
+      }
+    
+      setTimeout(animateScrollStep, stepDuration);
+    }
+    
+    const currentScene = document.querySelector(".ReaderView-scene--currentScene");
+    const scenes = document.querySelector(".ReaderView-scenes");
+    if (currentScene) {
+      scenes.scrollLeft = currentScene.offsetLeft - scenes.offsetLeft - (scenes.offsetWidth - currentScene.offsetWidth) / 2;
     }
 
     if(document.querySelector('.ReaderView-readerReaction')){
@@ -62,16 +85,17 @@ class ConnectedReaderView extends Component {
       .then(() => {
         this.setState({ script: textyng }, () => {
           this.updateCurrentNode();
-          this.startAutoPlay();
+          // this.startAutoPlay(); TODO: uncomment this line to autoplay
+          this.handleNextClick();
         });
       });
   }
 
-  updateCurrentNode(index = 1) {
+  updateCurrentNode(index = this.state.currentNodeIndex + 1) {
     if (!this.state.script || !this.state.script.getNthMessageNode(index)) {
       return;
     }
-
+  
     let sceneId = this.state.script.getNthMessageNode(index).sceneId;
     if (sceneId === undefined) {
         sceneId = this.state.script.getTotalNumScenes();
@@ -131,7 +155,7 @@ class ConnectedReaderView extends Component {
   handleNextClick = () => {
     clearTimeout(this.state.timeoutId);
     this.updateCurrentNode(this.state.currentNodeIndex + 1);
-    this.startAutoPlay();
+    // this.startAutoPlay(); //TODO: uncomment this line to autoplay
   };
 
   getScriptName = (name) => {
@@ -292,12 +316,12 @@ class ConnectedReaderView extends Component {
                 <div className="previous-button" onClick={this.handlePreviousClick}>
                   <i className="fas fa-arrow-left"></i>
                 </div>
-                <div className="play-pause-button" onClick={this.handlePlayPauseClick}>
+                {/* <div className="play-pause-button" onClick={this.handlePlayPauseClick}>
                   {this.state.isPlaying ? 
                     <i className="fas fa-pause"></i> : 
                     <i className="fas fa-play"></i>
-                  }
-                </div>
+                  }  //TODO: add play pause functionality
+                </div> */}
                 <div className="next-button" onClick={this.handleNextClick}>
                   <i className="fas fa-arrow-right"></i>
                 </div>
