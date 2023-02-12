@@ -53,7 +53,7 @@ class ConnectedReaderView extends Component {
     
       setTimeout(animateScrollStep, stepDuration);
     }
-    
+
     const currentScene = document.querySelector(".ReaderView-scene--currentScene");
     const scenes = document.querySelector(".ReaderView-scenes");
     if (currentScene) {
@@ -247,7 +247,8 @@ class ConnectedReaderView extends Component {
                         controls
                       />
                     }
-                    {message.msgType == "like" &&
+                    {/* //TODO: delete very msgtype like of an original message if original message was deleted */}
+                    {message.msgType == "like" && this.state.script.getNodeByMessageId(message.idOfMsgLiked) &&
                       <div
                         className="ReaderView-msgLike"
                       >
