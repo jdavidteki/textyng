@@ -78,7 +78,7 @@ class ConnectedSearchScripts extends Component {
     render() {
     return (
         <div className="SearchScripts-scripts">
-        <div className="SearchScripts-bar" style={{ top: this.state.searchBarUp ? "-25%" : "-15%" }}>
+        <div className="SearchScripts-bar" style={{ top: this.state.searchBarUp ? "-40%" : "-30%" }}>
             <input type="text" placeholder="what are you ryeading?" onChange={this.handleSearch} onFocus={this.handleFocus} onBlur={this.handleBlur} />
         </div>
         <div className="SearchScripts-results">

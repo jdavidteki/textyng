@@ -212,7 +212,8 @@ body {
 .ReaderView-scene--currentScene {
   border: 2px solid #ccc;
   animation: border-glow 0.5s ease-in-out infinite;
-  padding: 0 8px;
+  padding: 2px 8px;
+  border-radius: 8px;
 }
 .ReaderView-scene:hover {
   color: #999;
@@ -246,23 +247,19 @@ body {
 .ReaderView-textView {
   flex-grow: 1;
   margin: 8px;
-  margin-top: 24px;
-  padding: 8px;
+  margin-top: 16px;
+  padding: 24px 8px;
   border: 1px solid #f8f8f8;
   width: 100%;
   border-radius: 4px;
   background-color: #f8f8f8;
+  overflow-y: auto;
+  max-height: 400px;
+  height: 400px;
 }
 @media (min-width: 768px) {
   .ReaderView-textView {
     overflow-y: scroll;
-  }
-}
-@media (max-width: 767px) {
-  .ReaderView-textView {
-    overflow-y: auto;
-    max-height: 400px;
-    height: 400px;
   }
 }
 .ReaderView-textView::-webkit-scrollbar {
@@ -279,7 +276,7 @@ body {
 }
 .ReaderView-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
   flex-direction: column;
   align-items: center;
   width: 100%;
@@ -304,15 +301,12 @@ body {
 .ReaderView-chatArea {
   display: flex;
   flex-direction: column;
-  margin: 32px 8px;
   background-color: white;
   flex-grow: 1;
-  padding: 8px;
   border-radius: 8px;
-  height: 400px;
-  max-height: 400px;
   overflow-y: scroll;
   height: 100%;
+  max-height: 100%;
 }
 .ReaderView-chatArea::-webkit-scrollbar {
   width: 0;
@@ -346,15 +340,22 @@ body {
   margin-top: 16px;
   display: flex;
   justify-content: space-between;
-  max-width: 300px;
+  max-width: 250px;
   overflow-x: scroll;
   background-color: white;
   padding: 2px;
   padding-bottom: 0;
+  border-radius: 8px;
 }
 .ReaderView-reactionEmojis::-webkit-scrollbar {
   height: 0;
   background-color: transparent;
+}
+.ReaderView-reactionEmojis-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 .ReaderView-reactionEmoji {
   padding: 0 16px;

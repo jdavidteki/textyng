@@ -20,14 +20,14 @@ class ConnectedReaderView extends Component {
     };
 
     this.emojis = [
-      {name: "exploding_head", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-      {name: "relaxed", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-      {name: "astonished", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-      {name: "pensive", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-      {name: "angry", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-      {name: "scream", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
-      {name: "kissing_heart", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
       {name: "rolling_on_the_floor_laughing", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "relaxed", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "angry", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "astonished", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "kissing_heart", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "exploding_head", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "pensive", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
+      {name: "scream", set: "twitter", size: 14, className: "ReaderView-reactionEmoji"},
     ]
   }
 
@@ -286,7 +286,7 @@ class ConnectedReaderView extends Component {
                       </div>
                     }  
                     <span className="ReaderView-msgIndex">{message.MsgIndex}</span>
-                    <div>
+                    <div className="ReaderView-reactionEmojis-container">
                       <div className="ReaderView-reactionEmojis">
                         {this.emojis.map((emoji, index)=> 
                           <div
