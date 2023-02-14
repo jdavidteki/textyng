@@ -1,15 +1,15 @@
 @keyframes glowing-text-animation {
   0% {
     text-shadow: 0 0 10px #fff;
-    transform: translateX(5px);
+    transform: translateY(5px);
   }
   50% {
     text-shadow: 0 0 10px #fff;
-    transform: translateX(8px);
+    transform: translateY(8px);
   }
   100% {
     text-shadow: 0 0 20px #fff;
-    transform: translateX(15px);
+    transform: translateY(15px);
   }
 }
 
