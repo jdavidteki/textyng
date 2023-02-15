@@ -328,6 +328,12 @@ body {
 .ReaderView-chatArea-msg.isProtagonist {
   background-color: #f6ebc8;
 }
+@media (min-width: 768px) {
+  .ReaderView-chatArea-msg.isProtagonist {
+    min-width: 35%;
+    margin-left: auto;
+  }
+}
 .ReaderView-chatArea-msg-buttons {
   margin-top: 16px;
   display: flex;

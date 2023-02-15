@@ -189,6 +189,11 @@
         &.isProtagonist
         {
           background-color: $brand-3;
+
+          @include bpgte(sm) {
+            min-width: 35%;
+            margin-left: auto;
+          }
         }
 
         &-buttons
