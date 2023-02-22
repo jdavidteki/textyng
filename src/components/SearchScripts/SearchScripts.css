@@ -202,6 +202,12 @@ body {
   outline: none;
   height: 80%;
 }
+.SearchScripts-resultCount {
+  font-size: 10px;
+  font-weight: bold;
+  font-style: italic;
+  margin-left: auto;
+}
 .SearchScripts-results {
   position: absolute;
   width: 70%;
@@ -213,6 +219,8 @@ body {
   top: 35%;
   max-height: 300px;
   overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
 }
 .SearchScripts-eachResult {
   cursor: pointer;

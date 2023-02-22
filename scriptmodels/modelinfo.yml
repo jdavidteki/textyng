@@ -1,0 +1,75 @@
+davinci:ft-yext-2023-02-19-04-07-44
+
+curl https://api.openai.com/v1/completions \
+  -H "Authorization: Bearer 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" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Is Tayo African?", "model": "davinci:ft-yext-2023-02-19-04-07-44"}'
+
+
+curl https://api.openai.com/v1/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer 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" \
+  -d '{
+  "model": "davinci:ft-yext-2023-02-19-04-07-44",
+  "prompt": "Human: Who is Kiyo?",
+  "temperature": 0.9,
+  "max_tokens": 150,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0.6,
+  "stop": [" Human:", " AI:"]
+}'
+
+"id": "ft-h1IHoFIlgGov3CSD3jAgbWk8",
+
+
+curl https://api.openai.com/v1/files \
+  -H "Authorization: Bearer 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" \
+  -F purpose="fine-tune" \
+  -F file='@ahrezgirls.jsonl'
+
+
+curl https://api.openai.com/v1/fine-tunes \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer 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" \
+  -d '{
+  "training_file": "ahrezgirls.jsonl"
+}'
+
+
+curl https://api.openai.com/v1/files \
+  -H 'Authorization: Bearer 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'
+
+
+
+curl https://api.openai.com/v1/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer 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" \
+  -d '{
+  "model": "davinci:ft-yext-2023-02-19-06-08-58",
+  "prompt": "Human: Who is Kiyo?",
+  "temperature": 0.9,
+  "max_tokens": 150,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0.6,
+  "stop": [" Human:", " AI:"]
+
+
+curl https://api.openai.com/v1/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer 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" \
+  -d '{
+  "model": "davinci:ft-yext-2023-02-19-06-08-58",
+  "prompt": "Human: What happened in Kiyo's school",
+  "temperature": 0.9,
+  "max_tokens": 150,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0.6,
+  "stop": [" Human:", " AI:"]
+}'
+
+
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer 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" -d '{"model": "davinci:ft-yext-2023-02-19-06-08-58", "prompt": "Human: What happened in Kiyo'\''s school?", "temperature": 0.9, "max_tokens": 150, "top_p": 1, "frequency_penalty": 0, "presence_penalty": 0.6, "stop": ["Human: What happened in Kiyo's school"]}' https://api.openai.com/v1/completions

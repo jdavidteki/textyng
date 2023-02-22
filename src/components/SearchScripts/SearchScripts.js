@@ -82,11 +82,12 @@ class ConnectedSearchScripts extends Component {
             <input type="text" placeholder="what are you ryeading?" onChange={this.handleSearch} onFocus={this.handleFocus} onBlur={this.handleBlur} />
         </div>
         <div className="SearchScripts-results">
+            <p className="SearchScripts-resultCount">{this.state.results.length} movies</p>
             {this.state.results.map((result) => (
-            <div className="SearchScripts-eachResult" key={result.id} onClick={() => this.selectResult(result.id, result.isPrivateScript)}>
-                <h3>{result.name}</h3>
-                <p className="SearchScripts-eachResult-dateCreated">{ConvertSecondsToDate(result.dateCreated)}</p>
-            </div>
+                <div className="SearchScripts-eachResult" key={result.id} onClick={() => this.selectResult(result.id, result.isPrivateScript)}>
+                    <h3>{result.name}</h3>
+                    <p className="SearchScripts-eachResult-dateCreated">{ConvertSecondsToDate(result.dateCreated)}</p>
+                </div>
             ))}
         </div>
         </div>

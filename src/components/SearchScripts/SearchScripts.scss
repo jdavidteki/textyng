@@ -1,6 +1,6 @@
 @import '../../assets/sass/Common.scss';
 
-.SearchScripts{
+.SearchScripts {
   &-scripts {
     display: flex;
     align-items: center;
@@ -30,36 +30,45 @@
       height: 80%;
     }
   }
-  
-    &-results {
-      position: absolute;
-      width: 70%;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      padding: 15px;
-      z-index: 10;
-      top: 35%;
-      max-height: 300px;
-      overflow-y: scroll;
+
+  &-resultCount
+  {
+    font-size: 10px;
+    font-weight: bold;
+    font-style: italic;
+    margin-left: auto;
+  }
+
+  &-results {
+    position: absolute;
+    width: 70%;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    z-index: 10;
+    top: 35%;
+    max-height: 300px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-eachResult {
+    cursor: pointer;
+    border: 1px solid $gray-5;
+    border-radius: 4px;
+    padding: 4px;
+    padding-left: 8px;
+
+    &-dateCreated {
+      font-size: 12px;
+      color: $gray-3;
+      font-style: italic;
     }
 
-    &-eachResult{
-        cursor: pointer;
-        border: 1px solid $gray-5;
-        border-radius: 4px;
-        padding: 4px;
-        padding-left: 8px;
-
-        &-dateCreated{
-          font-size: 12px;
-          color: $gray-3;
-          font-style: italic;
-        }
-
-        &:hover{
-            background-color: $brand-3
-        }
+    &:hover {
+      background-color: $brand-3
     }
   }
-  
+}
