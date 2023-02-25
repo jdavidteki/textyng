@@ -6,7 +6,8 @@ import ReaderView from "../ReaderView/ReaderView.js"
 import EditScript from "../EditScript/EditScript.js"
 import HomePage from "../HomePage/HomePage.js"
 import SearchScripts from "../SearchScripts/SearchScripts.js"
-import CwC from "../CwC/CwC.js"
+import Conversation from "../Conversation/Conversation.js"
+import ScriptGenerator from "../ScriptGenerator/ScriptGenerator.js"
 
 import "./Layout.css";
 
@@ -70,9 +71,12 @@ class Layout extends Component{
                 {this.state.pageName == "searchscripts" &&
                     <SearchScripts changePage={this.changePage}/>
                 }
-                {this.state.pageName == "cwc" &&
-                    <CwC changePage={this.changePage}/>
-                }                
+                {this.state.pageName == "conversation" &&
+                    <Conversation changePage={this.changePage}/>
+                }   
+                {this.state.pageName == "scriptgenerator" &&
+                    <ScriptGenerator changePage={this.changePage}/>
+                }            
             </div>
             <div className="Layout-footer">
                 <Footer />

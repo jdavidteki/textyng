@@ -151,6 +151,7 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
 }
 
 .is-loading {
@@ -228,6 +229,60 @@ body {
   font-style: italic;
   margin-bottom: 8px;
   display: block;
+}
+.ReaderView-senderName {
+  cursor: pointer;
+}
+.ReaderView-senderName:hover {
+  color: #f4e3d6;
+}
+.ReaderView-conversation {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+}
+.ReaderView .ReaderView-conversation {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  cursor: pointer;
+  background-color: white;
+}
+.ReaderView .ReaderView-conversation-close {
+  position: absolute;
+  top: -32px;
+  right: -16px;
+  margin: 8px;
+  height: 30px;
+  z-index: 12;
+  background-color: white;
+  cursor: pointer;
+  width: 20%;
+  padding: 8px;
+}
+.ReaderView .ReaderView-conversation-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  position: relative;
+}
+.ReaderView .Conversation-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+  padding: 8px;
 }
 .ReaderView-sendMessage {
   display: flex;

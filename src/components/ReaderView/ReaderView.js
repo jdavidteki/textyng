@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import Script from "../Script/Script.js";
 import { Emoji } from 'emoji-mart'
+import Conversation from "../Conversation/Conversation.js";
 
 import "./ReaderView.css";
 
@@ -17,6 +18,7 @@ class ConnectedReaderView extends Component {
       selectedSceneId: 1,
       timeoutId: null,
       isPlaying: true,
+      showConversation: false,
     };
 
     this.emojis = [
@@ -144,8 +146,12 @@ class ConnectedReaderView extends Component {
             selectedSceneId: sceneId
         };
     });
-};
+  };
 
+  handleSpanClick = () => {
+    console.log("span clicked")
+    this.setState({ showConversation: true });
+  }
 
   handlePlayPauseClick = () => {
     clearTimeout(this.state.timeoutId);
@@ -195,7 +201,14 @@ class ConnectedReaderView extends Component {
     return readerEmojiReactions
   }
 
+  closeConversation = () => {
+    this.setState({ showConversation: false });
+  }
+
   render() {
+    const { script, selectedMessageIndex } = this.state;
+    const senderName = (message) => script.getSenderNameFromID(message.senderId);
+    
 		if(this.state.allMessages && this.state.allMessages.length > 0){
 			return (
         <div className="ReaderView">
@@ -280,7 +293,24 @@ class ConnectedReaderView extends Component {
                     }
                     {message.msgType != "action" && message.msgType != "authorAction" &&
                       <div className="ReaderView-isnotactionMsg">
-                        <span className="ReaderView-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
+                        {this.state.showConversation ? (
+                          <div className="ReaderView-conversation-container">
+                            <div className="ReaderView-conversation-close" onClick={this.closeConversation}>
+                              X
+                            </div>
+                            <Conversation
+                              className = "ReaderView-conversation"
+                              messages={script.messages}
+                              selectedMessageIndex={selectedMessageIndex}
+                              oncloseCoonversationClick={this.closeConversation}
+                              senderName={senderName}  
+                            />
+                          </div>
+                        ) : (
+                          <span className="ReaderView-senderName checking something!" onClick={this.handleSpanClick}>
+                            {this.state.script.getSenderNameFromID(message.senderId)}
+                          </span>
+                        )}
                         <span className="ReaderView-senderEmotion">{message.emotion ? '('+message.emotion + ')': ''}</span>
                         <span>{message.content}</span>
                       </div>

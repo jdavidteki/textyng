@@ -69,6 +69,71 @@
     display: block;
   }
 
+  &-senderName
+  {
+    cursor: pointer;
+
+    &:hover{
+      color: $brand-tertiary;
+    }
+  }
+  
+  &-conversation
+  {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+    padding: 8px;
+  }
+
+  .ReaderView-conversation
+  {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    width: 100%;
+    padding: 8px;
+    cursor: pointer;
+    background-color: white;
+
+    &-close{
+      position: absolute;
+      top: -32px;
+      right: -16px;
+      margin: 8px;
+      height: 30px;
+      z-index: 12;
+      background-color: white;
+      cursor: pointer;
+      width: 20%;
+      padding: 8px;
+    }
+
+    &-container{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      width: 100%;
+      padding: 8px;
+      position: relative;
+    }
+  }
+
+  .Conversation-container
+  {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+    padding: 8px;
+  }
+
   &-sendMessage
   {
     display: flex;

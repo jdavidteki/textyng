@@ -10,6 +10,11 @@
     &-content
     {
         flex-grow: 1;
+
+        &.conversation
+        {
+            max-height: calc(100% - 122px);
+        }
     }
 
     &-footer{

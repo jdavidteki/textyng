@@ -1,35 +1,41 @@
-from flask import Flask, jsonify, request, make_response
-from flask_cors import CORS
-import os
 import openai
+import os
+from flask import Flask, request
+from flask_cors import CORS
+from datetime import datetime
+
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 app = Flask(__name__)
 CORS(app)
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+conversation_history = []
 
-@app.route('/ask', methods=['POST'])
-def ask():
-    req_data = request.get_json()
-    prompt = req_data['inputText']
-    start_sequence = "\nAI:"
-    restart_sequence = "\nHuman: "
-
-    response = openai.Completion.create(
-        model="davinci:ft-yext-2023-02-19-06-08-58",
-        prompt=prompt,
-        temperature=0.9,
+def ask(question, conversation_history):
+    openai_response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=(f"{conversation_history}User: {question}\nAI:"),
+        temperature=0.5,
         max_tokens=150,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0.6,
-        stop=[" Human:", " AI:"]
+        n=1,
+        stop=["\nUser:", "AI:"]
     )
 
-    return make_response(jsonify(response.choices[0].text))
+    message = openai_response.choices[0].text.strip()
+    conversation_history += f"\nUser: {question}\nAI: {message}\n{str(datetime.now())}\n"
+    with open("conversation_history.txt", "w") as f:
+        f.write(conversation_history)
+
+    return message
+
+@app.route('/ask', methods=['POST'])
+def handle_ask():
+    data = request.get_json()
+    input_text = data['inputText']
+    conversation_history_file = open("conversation_history.txt", "r")
+    conversation_history = conversation_history_file.read()
+    conversation_history_file.close()
+    return ask(input_text, conversation_history)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
-
-
+    app.run(debug=True)
