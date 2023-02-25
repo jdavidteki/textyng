@@ -1,23 +1,22 @@
 {
   "files": {
-    "main.css": "/static/css/main.3298baf0.css",
-    "main.js": "/static/js/main.12a7ff75.js",
-    "static/js/789.8512dab5.js": "/static/js/789.8512dab5.js",
+    "main.css": "/static/css/main.e4a1a672.css",
+    "main.js": "/static/js/main.a29b4bf1.js",
+    "static/js/723.2758c40f.js": "/static/js/723.2758c40f.js",
     "favicon.ico": "/favicon.ico",
     "static/media/logo.png": "/static/media/logo.c63653a9ea048846f65e.png",
     "index.html": "/index.html",
-    "static/media/CwC.scss": "/static/media/CwC.de0421f4ccc8dc3e9fbd.scss",
     "favicon-32.png": "/favicon-32.png",
     "favicon-16.png": "/favicon-16.png",
     "manifest.json": "/manifest.json",
     "serve.json": "/serve.json",
-    "main.3298baf0.css.map": "/static/css/main.3298baf0.css.map",
-    "main.12a7ff75.js.map": "/static/js/main.12a7ff75.js.map",
-    "789.8512dab5.js.map": "/static/js/789.8512dab5.js.map"
+    "main.e4a1a672.css.map": "/static/css/main.e4a1a672.css.map",
+    "main.a29b4bf1.js.map": "/static/js/main.a29b4bf1.js.map",
+    "723.2758c40f.js.map": "/static/js/723.2758c40f.js.map"
   },
   "entrypoints": [
-    "static/js/789.8512dab5.js",
-    "static/css/main.3298baf0.css",
-    "static/js/main.12a7ff75.js"
+    "static/js/723.2758c40f.js",
+    "static/css/main.e4a1a672.css",
+    "static/js/main.a29b4bf1.js"
   ]
 }
