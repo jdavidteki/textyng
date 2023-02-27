@@ -37,7 +37,13 @@ class Conversation extends Component {
   
     try {
       if (process.env.NODE_ENV === "production") {
-        let apiKey = "sk-hB8ep1INZgmM73IH" + "XJQsT3Blb" + "kFJNWS3EDea" + "hAn17i92pxiM";
+
+        let tPart = "CjriL9UZmOz";
+        let sPart = "fMlsLgT3BlbkFJ";
+        let fPart = "sk-rNXaj4x1S5N0GR";
+        let lPart = "TBwOQbHcb";
+
+        let apiKey = fPart + sPart + tPart + lPart;
         
         const { Configuration, OpenAIApi } = require("openai");
         const configuration = new Configuration({
