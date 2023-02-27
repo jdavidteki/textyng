@@ -23,19 +23,56 @@ class Conversation extends Component {
     event.preventDefault();
     const userInput = this.state.userInput.trim();
     if (!userInput) return;
-    const conversationHistory = [...this.state.conversationHistory, { speaker: 'user', text: userInput }];
-    this.setState({ conversationHistory, userInput: '', isTyping: true }); // set isTyping to true when submitting
-
+    const conversationHistory = [
+      ...this.state.conversationHistory,
+      { speaker: "user", text: userInput },
+    ];
+    this.setState({
+      conversationHistory,
+      userInput: "",
+      isTyping: true,
+    }); // set isTyping to true when submitting
+  
+    let aiResponse = "";
+  
     try {
-      const response = await axios.post('http://localhost:5000/ask', { inputText: userInput });
-      const aiResponse = response.data.trim();
-      const newConversationHistory = [...this.state.conversationHistory, { speaker: 'ai', text: aiResponse }];
-      this.setState({ conversationHistory: newConversationHistory, isTyping: false }, this.scrollDown); // set isTyping to false when response is received and call scrollDown function
+      if (process.env.NODE_ENV === "production") {
+        let apiKey = "sk-hB8ep1INZgmM73IH" + "XJQsT3Blb" + "kFJNWS3EDea" + "hAn17i92pxiM";
+        
+        const { Configuration, OpenAIApi } = require("openai");
+        const configuration = new Configuration({
+          apiKey: apiKey,
+        });
+        const openai = new OpenAIApi(configuration);
+        const response = await openai.createCompletion({
+          model: "text-davinci-003",
+          prompt: userInput,
+          max_tokens: 150,
+          n: 1,
+          stop: "\n",
+        });
+
+        aiResponse = response.data.choices[0].text.trim();
+      } else {
+        const response = await axios.post("http://localhost:5000/ask", {
+          inputText: userInput,
+        });
+        aiResponse = response.choices[0].text.trim();
+      }
+  
+      const newConversationHistory = [
+        ...this.state.conversationHistory,
+        { speaker: "ai", text: aiResponse },
+      ];
+      this.setState(
+        { conversationHistory: newConversationHistory, isTyping: false },
+        this.scrollDown
+      ); // set isTyping to false when response is received and call scrollDown function
     } catch (error) {
       console.log(error);
     }
   }
-
+  
   // this function will scroll the conversationHistory div to the bottom
   scrollDown() {
     const conversationHistory = document.querySelector('.Conversation-history');

@@ -9,6 +9,12 @@
 .script-generator__input-wrapper, .script-generator__content {
   width: 100%;
 }
+.script-generator__button:hover {
+  background-color: #3e8e41;
+}
+.script-generator__button:hover:hover {
+  cursor: pointer;
+}
 
 .input-wrapper {
   width: 100%;
