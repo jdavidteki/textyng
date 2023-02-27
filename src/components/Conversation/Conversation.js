@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import Firebase from "../../firebase/firebase.js";
+
 import './Conversation.css';
 
 class Conversation extends Component {
@@ -31,39 +33,37 @@ class Conversation extends Component {
       conversationHistory,
       userInput: "",
       isTyping: true,
-    }); // set isTyping to true when submitting
+    });
   
     let aiResponse = "";
   
-    try {
-      if (process.env.NODE_ENV === "production") {
+    try {  
+      if (process.env.NODE_ENV === "production") {    
+        const openAIAPI = await Firebase.getOpenAIAPI();
+        const openaiApiKey = Array.isArray(openAIAPI) ? openAIAPI.join("") : openAIAPI;
+        const conversationHistory = await Firebase.getConversationHistory()
+        const conversationHistoryString = conversationHistory.join("");
 
-        let tPart = "CjriL9UZmOz";
-        let sPart = "fMlsLgT3BlbkFJ";
-        let fPart = "sk-rNXaj4x1S5N0GR";
-        let lPart = "TBwOQbHcb";
-
-        let apiKey = fPart + sPart + tPart + lPart;
-        
         const { Configuration, OpenAIApi } = require("openai");
         const configuration = new Configuration({
-          apiKey: apiKey,
+          apiKey: openaiApiKey,
         });
         const openai = new OpenAIApi(configuration);
         const response = await openai.createCompletion({
           model: "text-davinci-003",
-          prompt: userInput,
+          prompt: `${conversationHistoryString}\nUser: ${userInput}\nAI:`,
           max_tokens: 150,
           n: 1,
-          stop: "\n",
+          stop: ["\nUser:", "AI:"]
         });
-
+  
         aiResponse = response.data.choices[0].text.trim();
       } else {
         const response = await axios.post("http://localhost:5000/ask", {
           inputText: userInput,
         });
-        aiResponse = response.choices[0].text.trim();
+
+        aiResponse = response.data
       }
   
       const newConversationHistory = [
@@ -73,7 +73,7 @@ class Conversation extends Component {
       this.setState(
         { conversationHistory: newConversationHistory, isTyping: false },
         this.scrollDown
-      ); // set isTyping to false when response is received and call scrollDown function
+      );
     } catch (error) {
       console.log(error);
     }

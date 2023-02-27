@@ -68,6 +68,36 @@ class Firebase {
     })
   }
 
+  getOpenAIAPI = () => {
+    return new Promise(resolve => {
+      firebase.database()
+      .ref('/openAIAPI/')
+      .once('value')
+      .then(snapshot => {
+        if (snapshot.val()){
+          resolve(Object.values(snapshot.val()))
+        }else{
+          resolve({})
+        }
+      })
+    })
+  }
+
+  getConversationHistory = () => {
+    return new Promise(resolve => {
+      firebase.database()
+      .ref('/conversationHistory/')
+      .once('value')
+      .then(snapshot => {
+        if (snapshot.val()){
+          resolve(Object.values(snapshot.val()))
+        }else{
+          resolve({})
+        }
+      })
+    })
+  }
+
   getRimiSenTitles = () =>{
     return new Promise(resolve => {
       firebase.database()
