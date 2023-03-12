@@ -7,7 +7,7 @@ import "./App.css";
 const Router = process.env.NODE_ENV === 'production' ? HashRouter : BrowserRouter;
 
 
-//textyng - everything is a message
+//textyng - about everything
 
 window.onresize = function() {
   document.getElementsByClassName("App").height = window.innerHeight;

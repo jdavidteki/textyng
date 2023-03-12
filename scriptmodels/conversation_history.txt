@@ -63,20 +63,6 @@ User: tell me amout him
 AI: Kiyo is a typical Nigerian boy from a Christian home, where family values and religious beliefs are highly treasured. Growing up, Kiyo was exposed to a strict but loving upbringing, where he was taught the importance of discipline, respect, and hard work. His parents instilled in him the virtues of honesty, integrity, and selflessness, which he carries with him to this day. Kiyo's childhood was a mixture of fun, mischief, and adventure. He enjoyed playing with his friends, going on bike rides, and exploring the outdoors. He was an active child who loved sports, especially football, and was always eager to try new things. Despite the occasional mischievous act, Kiyo remained a well-beh
 2023-02-23 19:48:18.015969
 
-User: hello
-AI: Hi there! How can I help you?
-2023-02-23 19:48:25.934502
-2023-02-23 19:49:26.939384
-
-User: hello write me a three paragraph story about kiyo
-AI: Sure, here's a story about Kiyo:
-
-Kiyo is a typical Nigerian boy from a Christian home, where family values and religious beliefs are highly treasured. Growing up, Kiyo was exposed to a strict but loving upbringing, where he was taught the importance of discipline, respect, and hard work. His parents instilled in him the virtues of honesty, integrity, and selflessness, which he carries with him to this day. Kiyo's childhood was a mixture of fun, mischief, and adventure. He enjoyed playing with his friends, going on bike rides, and exploring the outdoors. He was an active child who loved sports, especially football, and was always eager to try new things. Despite the occasional
-2023-02-23 19:49:55.911787
-
-User: write me paragraph about anything
-AI: The wind was blowing gently through the trees, rustling the leaves and creating a pleasant sound. The sky was a deep blue, dotted with clouds that seemed to be painted on the canvas of the sky. The sun shone brightly, warming the earth and providing a welcome respite from the chill of the night before. The smell of freshly cut grass filled the air, and the birds sang their cheerful songs. It was a peaceful and tranquil moment, and a reminder of the beauty of nature.
-2023-02-23 19:58:52.746241
 
 User: write me two paragraphs about anything
 AI: The summer sun shone brightly in the sky, its rays warming the earth and bringing life to the world around it. The birds sang their cheerful songs, and the trees swayed in the gentle breeze. The smell of freshly cut grass filled the air, and the sound of children's laughter could be heard in the distance. It was a beautiful day, and a reminder of the joys of summer. 
@@ -206,3 +192,37 @@ User: what's the first thing i said?
 AI: You said "hello" at 19:25:51.067684.
 2023-02-26 20:00:05.624084
 2023-02-26 20:00:03.877684
+
+User: hello
+AI: Hi there! How can I help you?
+2023-02-26 20:00:15.717758
+2023-02-26 20:27:23.849806
+
+User: i want to give you a script. i want you to understand the script, and then answer some questions i have about the script
+AI: Sure, I can do that. What is the script about?
+2023-02-26 20:27:36.611307
+2023-02-26 20:27:45.912082
+2023-02-26 20:27:49.052890
+
+User: INT. A CAFÉ TANYA (FUNKE): Tanya (Funke): So Kunle, what do you do for a living? TANYA (FUNKE): Tanya (Funke): InsertImage KUNLE: Kunle: I'm an engineer. I design buildings. What about you, Tanya? TANYA (FUNKE): Tanya (Funke): I work in marketing. I love it. I get to be creative every day. KUNLE: Kunle: That sounds amazing. TANYA (FUNKE): Tanya (Funke): So Kunle, are you single? KUNLE: Kunle: Yes, I am. TANYA (FUNKE): Tanya (Funke): Good to know. KUNLE: Kunle: Why do you ask? TANYA (FUNKE): Tanya (Funke): I just wanted to make sure I'm not wasting my time flirting with someone who's taken. KUNLE: Kunle: You're not wasting your time, Tanya. I'm definitely single and ready to mingle. TANYA (FUNKE): Tanya (Funke): Great. So Kunle, are you married? KUNLE: Kunle: No, I'm not. TANYA (FUNKE): Tanya (Funke): Good to know. KUNLE: Kunle: Why are you so relieved, Tanya? TANYA (FUNKE): Tanya (Funke): I just don't want to get involved with someone who's already taken. That's all. KUNLE: Kunle: I understand. I'm definitely not married. TANYA (FUNKE): Tanya (Funke): Great. I'm really glad to hear that, Kunle. KUNLE: Kunle: Me too, Tanya. Me too. TANYA (FUNKE): Tanya (Funke): KUNLE!!!!! it's me Funke! Your wife! you are lying to people? You like these small akata girls! KUNLE: Kunle: Left Chat TANYA (FUNKE): Tanya (Funke): Kunle! Where are you!
+AI: Got it! From the script, it appears that Kunle is single and not married, and he was flirting with Tanya. However, when Tanya found out that Kunle is actually married, he left the chat. Is there anything else I can help you with?
+2023-02-26 20:29:21.881769
+2023-02-26 20:27:55.186930
+
+User: amazing. kunle actually checked into chikfila on his way on cheating on his wife
+AI: Got it! Kunle checked into Chikfila on his way to cheating on his wife. Is there anything else I can help you with?
+2023-02-26 20:29:47.838861
+2023-02-26 20:30:00.858365
+2023-02-26 20:31:02.389944
+
+User: i have a question about the script
+AI: Sure, what's your question about the script?
+2023-02-26 20:31:14.814179
+2023-02-26 20:31:18.838093
+2023-02-26 20:31:15.152099
+
+User: did kunle check into chikfila?
+AI: It is not clear if Kunle checked into Chikfila or not. Is there anything else I can help you with?
+2023-02-26 20:31:27.644527
+2023-02-26 20:31:31.979420
+2023-02-26 20:31:28.422014

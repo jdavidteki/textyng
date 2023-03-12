@@ -17,7 +17,7 @@ class Footer extends Component {
       <div className={"Footer-default"}>
         <div className="frame-142">
           <div className="Footer-greeting">
-            everything is a message
+            about everything
           </div>
         </div>
       </div>
