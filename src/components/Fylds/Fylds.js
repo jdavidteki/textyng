@@ -29,7 +29,7 @@ class Fylds extends Component {
 
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
-    const cloudWidth = 150;
+    const cloudWidth =  screenWidth > 776 ? 150 : 50;
     const cloudHeight = 100;
     const maxClouds = Math.floor((screenWidth * screenHeight) / (cloudWidth * cloudHeight * 4));
     const clouds = document.querySelectorAll(".cloud");

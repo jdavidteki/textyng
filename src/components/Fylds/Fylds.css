@@ -302,10 +302,10 @@ body {
   max-width: 200px;
   text-transform: lowercase;
   /* Add some randomness to the cloud's position */
-  left: 38;
-  top: 55;
+  left: 66;
+  top: 74;
   /* Add some randomness to the cloud's speed */
-  animation-delay: 11;
+  animation-delay: 2;
 }
 .cloud:hover {
   opacity: 1;
