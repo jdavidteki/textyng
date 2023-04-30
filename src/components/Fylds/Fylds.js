@@ -50,7 +50,7 @@ class Fylds extends Component {
   }
   
   componentWillUnmount(){
-    clearInterval(this.int1);
+    clearInterval(this.int1); 
   }
 
   //function to handle model selection
