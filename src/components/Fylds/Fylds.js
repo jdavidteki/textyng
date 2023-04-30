@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Firebase from "../../firebase/firebase.js";
 
-import './Fylds.css'; //import your css file here
+import './Fylds.css';
 
 class Fylds extends Component {
 
