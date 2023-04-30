@@ -1,0 +1,180 @@
+@import '../../assets/sass/Common.scss';
+
+.Fylds
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+    font-size: 1.2rem;
+    background-color: #87cefa;
+
+    &-searchbar
+    {
+        position: fixed;
+        bottom: 81px;
+        left: 41%;
+        min-width: 300px;
+        display: flex;
+        z-index: 99;
+
+        @include bplte(xs){
+            width: 90%;
+            left: 16px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+    }
+}
+
+.chat{
+
+    &-input
+    {
+        flex-grow: 1;
+    }
+
+    &-close
+    {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 8px;
+        cursor: pointer;
+        color: black;
+        font-size: 1.2rem;
+        font-weight: bolder;
+        height: 24px;
+        width: 18px;
+        background-color: white;
+        text-align: center;
+        border-radius: 4px;
+    }
+
+    &-header
+    {
+        margin-top: 16px;
+        text-transform: lowercase;
+        text-align: center;
+    }
+
+    &-popup
+    {
+        position: absolute;
+        bottom: 34px;
+        padding: 50px 8px;
+        border: 3px solid #f1f1f1;
+        z-index: 9;
+        min-height: 70%;
+        min-width: 70%;
+        background-color: #87cefa;
+        opacity: 0.9;
+        color: black;
+        border-bottom: 0;
+        border-top-right-radius: 16px;
+        border-top-left-radius: 16px;
+        font-weight: bold;
+
+        @include bplte(xs){
+            width: 95%;
+        }
+
+    }
+    
+    &-messages
+    {
+        @include hide-scroll-bar;
+        display: flex;
+        flex-direction: column;
+        max-height: 500px;
+        overflow-y: scroll;
+        margin-top: 24px;
+        margin-bottom: 8px;
+        border-top: 1px solid white;
+    }
+
+    &-message
+    {
+        margin: 16px;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: #f1f1f1;
+        color: black;
+        font-size: 14px;
+        font-weight: 200;
+        background: radial-gradient(circle at left top, white, #BDE4F8);
+        background-position: center -10%;
+        width: 50%;
+
+        &.ai
+        {
+            background-color: #87cefa;
+            color: black;
+            margin-left: auto;
+            background: radial-gradient(circle at right top, white, #BDE4F8);
+        }
+    }
+}
+
+.cloud {
+    position: absolute;
+    background-color: black;
+    border-radius: 4px;
+    border: 1px solid $gray-3;
+    opacity: 0.5;
+    animation: float 20s infinite;
+    padding: 4px 8px;
+    margin: 8px;
+    cursor: pointer;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    transition: opacity 1s;
+    overflow: hidden;
+    max-width: 200px;
+    text-transform: lowercase;
+
+    &:hover
+    {
+        opacity: 1;
+        overflow: visible;
+        z-index: 99;
+        max-width: 100%;
+    }   
+    
+    /* Add some randomness to the cloud's position */
+    left: random(25%) + random(25%) + random(25%) + random(25%);
+    top: random(25%) + random(25%) + random(25%) + random(25%);
+    
+    /* Add some randomness to the cloud's speed */
+    animation-delay: random(10s) + random(10s);
+
+    &-container
+    {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        color: #fff;
+        font-size: 1.2rem;
+        text-shadow: 1px 1px #000;
+        background: radial-gradient(circle at left top, white, #BDE4F8);
+        background-position: center -10%;
+        overflow-x: hidden;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateX(-10%) translateY(-50%);
+    }
+    50% {
+        transform: translateX(10%) translateY(-50%);
+    }
+    100% {
+        transform: translateX(-10%) translateY(-50%);
+    }
+}

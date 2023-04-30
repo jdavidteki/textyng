@@ -10,7 +10,7 @@ class Header extends Component{
     super(props);
 
     this.state = {
-      catSelected: "textyng",
+      catSelected: "",
     }
   }
 
@@ -21,9 +21,9 @@ class Header extends Component{
     })
 
 
-    if(catSelected == "readerview"){
+    if(catSelected == "textyng"){
       this.setState({ createIconHover: "#DCB69A"})
-    }else if(catSelected == "mecards"){
+    }else if(catSelected == "searchscripts"){
       this.setState({ meCardsIconHover: "#DCB69A"})
     }
 
@@ -33,8 +33,8 @@ class Header extends Component{
   componentDidMount(){
     let path = window.location.pathname;
     this.setState({
-      createIconHover: path.includes("readerview/") ? "#DCB69A" : 'black',
-      meCardsIconHover: path.includes("mecards/") ? "#DCB69A" : 'black',
+      createIconHover: path.includes("textyng/") ? "#DCB69A" : 'black',
+      meCardsIconHover: path.includes("searchscripts/") ? "#DCB69A" : 'black',
     })
 
     let element = document.getElementById("Header-logo");
@@ -56,12 +56,16 @@ class Header extends Component{
   render(){
     return (
       <div className="Header">
-        <div className="Header-logoWrapper" onClick={() => this.handleCategoryClick("textyng")}>
+        <div className="Header-logoWrapper" onClick={() => this.handleCategoryClick("fylds")}>
           <img id="Header-logo" className="Header-logo" src={logo} alt="textyng.me.logo" />
         </div>
         <div className="Header-mainMenu">
+          <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("textyng")}>
+            {GetSvgIcon("mecardsIcon", this.state.createIconHover)}
+            <span className="Header-img-title">create</span>
+          </div>
           <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("searchscripts")}>
-            {GetSvgIcon("createIcon", this.state.createIconHover)}
+            {GetSvgIcon("createIcon", this.state.meCardsIconHover)}
             <span className="Header-img-title">scripts</span>
           </div>
         </div>

@@ -149,7 +149,6 @@ class ConnectedReaderView extends Component {
   };
 
   handleSpanClick = () => {
-    console.log("span clicked")
     this.setState({ showConversation: true });
   }
 

@@ -26,10 +26,7 @@
       justify-content: start;
     }
 
-    &::-webkit-scrollbar {
-      height: 0;
-      background-color: transparent;
-    }
+    @include hide-scroll-bar;
   }
 
   &-scene
@@ -175,10 +172,7 @@
       overflow-y: scroll;
     }
     
-    &::-webkit-scrollbar {
-      width: 0;
-      background-color: transparent;
-    }
+    @include hide-scroll-bar;
   }
 
   &-msgCounts
@@ -232,10 +226,7 @@
     height: 100%;
     max-height: 100%;
 
-    &::-webkit-scrollbar {
-      width: 0;
-      background-color: transparent;
-    }
+    @include hide-scroll-bar;
 
     &-msg
     {
@@ -287,10 +278,7 @@
     padding-bottom: 0;
     border-radius: 8px;
 
-    &::-webkit-scrollbar {
-      height: 0;
-      background-color: transparent;
-    }
+    @include hide-scroll-bar;
 
     &-container
     {
@@ -318,6 +306,8 @@
 
   &-readerReaction
   {
+    @include hide-scroll-bar;
+    
     display: flex;
     flex-grow: 1;
     margin-left: 8px;
@@ -325,11 +315,6 @@
     overflow-x: auto;
     overflow-y: hidden;
     align-items: center;
-
-    &::-webkit-scrollbar {
-      width: 0;
-      background-color: transparent;
-    }
 
     &--wrapper
     {

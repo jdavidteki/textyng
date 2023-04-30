@@ -1,0 +1,338 @@
+@import 'https://fonts.googleapis.com/css?family=Open+Sans|Roboto:300';
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css");
+.l-container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  width: auto;
+}
+@media (min-width: 768px) {
+  .l-container {
+    width: 768px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (min-width: 992px) {
+  .l-container {
+    width: 992px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (min-width: 1200px) {
+  .l-container {
+    width: 1170px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .l-visible-only-xs {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .l-hidden-xs {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .l-hidden-sm {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .l-hidden-md {
+    display: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .l-hidden-lg {
+    display: none;
+  }
+}
+
+@keyframes glowing-text-animation {
+  0% {
+    text-shadow: 0 0 10px #fff;
+    transform: translateY(5px);
+  }
+  50% {
+    text-shadow: 0 0 10px #fff;
+    transform: translateY(8px);
+  }
+  100% {
+    text-shadow: 0 0 20px #fff;
+    transform: translateY(15px);
+  }
+}
+/** @define Button */
+.Button--primary {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 2px;
+  color: #fff;
+  background-color: #800020;
+  border-radius: 4px;
+  border: 1px solid #222;
+  padding: 13px 16px;
+  display: inline-block;
+  width: auto;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  transition: 1s;
+  /* postcss-bem-linter: ignore */
+}
+.Button--primary:hover, .Button--primary:active {
+  transition: 1s;
+  background-color: #DCB69A;
+  opacity: 0.6;
+}
+@media (max-width: 767px) {
+  .Button--mobileHero {
+    height: 80px;
+    padding: 8px;
+    background-color: #f8f8f8;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    cursor: pointer;
+  }
+}
+
+/** @define Link */
+.Link--primary {
+  font-size: 16px;
+  line-height: 24px;
+  text-decoration: underline;
+  /* postcss-bem-linter: ignore */
+  /* postcss-bem-linter: ignore */
+  color: #800020;
+}
+.Link--primary:hover {
+  text-decoration: none;
+}
+.Link--primary:active {
+  text-decoration: underline;
+}
+
+/** @define Text */
+.Text {
+  font-size: 16px;
+  line-height: 24px;
+  color: #333;
+}
+.Text--bold {
+  font-weight: 700;
+}
+.Text--large {
+  font-size: 20px;
+  line-height: 32px;
+}
+.Text--small {
+  font-size: 14px;
+  line-height: 20px;
+}
+.Text--extrasmall {
+  font-size: 11px;
+  line-height: 13px;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+}
+
+.is-loading {
+  text-align: center;
+  font-size: 2em;
+  animation: glow 1s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.glowing-text {
+  animation: glowing-text-animation 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #555555, 0 0 40px #555555, 0 0 50px #555555, 0 0 60px #555555, 0 0 70px #555555;
+  }
+  to {
+    text-shadow: 0 0 20px #fff, 0 0 30px #555557, 0 0 40px #555558, 0 0 50px #555559, 0 0 60px #55555A, 0 0 70px #55555B, 0 0 80px #55555C;
+  }
+}
+.Fylds {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  background-color: #000;
+  color: #fff;
+  font-size: 1.2rem;
+  background-color: #87cefa;
+}
+.Fylds-searchbar {
+  position: fixed;
+  bottom: 81px;
+  left: 41%;
+  min-width: 300px;
+  display: flex;
+  z-index: 99;
+}
+@media (max-width: 767px) {
+  .Fylds-searchbar {
+    width: 90%;
+    left: 16px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
+.chat-input {
+  flex-grow: 1;
+}
+.chat-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: black;
+  font-size: 1.2rem;
+  font-weight: bolder;
+  height: 24px;
+  width: 18px;
+  background-color: white;
+  text-align: center;
+  border-radius: 4px;
+}
+.chat-header {
+  margin-top: 16px;
+  text-transform: lowercase;
+  text-align: center;
+}
+.chat-popup {
+  position: absolute;
+  bottom: 34px;
+  padding: 50px 8px;
+  border: 3px solid #f1f1f1;
+  z-index: 9;
+  min-height: 70%;
+  min-width: 70%;
+  background-color: #87cefa;
+  opacity: 0.9;
+  color: black;
+  border-bottom: 0;
+  border-top-right-radius: 16px;
+  border-top-left-radius: 16px;
+  font-weight: bold;
+}
+@media (max-width: 767px) {
+  .chat-popup {
+    width: 95%;
+  }
+}
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  max-height: 500px;
+  overflow-y: scroll;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  border-top: 1px solid white;
+}
+.chat-messages::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+  background-color: transparent;
+}
+.chat-message {
+  margin: 16px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #f1f1f1;
+  color: black;
+  font-size: 14px;
+  font-weight: 200;
+  background: radial-gradient(circle at left top, white, #BDE4F8);
+  background-position: center -10%;
+  width: 50%;
+}
+.chat-message.ai {
+  background-color: #87cefa;
+  color: black;
+  margin-left: auto;
+  background: radial-gradient(circle at right top, white, #BDE4F8);
+}
+
+.cloud {
+  position: absolute;
+  background-color: black;
+  border-radius: 4px;
+  border: 1px solid #555;
+  opacity: 0.5;
+  animation: float 20s infinite;
+  padding: 4px 8px;
+  margin: 8px;
+  cursor: pointer;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  transition: opacity 1s;
+  overflow: hidden;
+  max-width: 200px;
+  text-transform: lowercase;
+  /* Add some randomness to the cloud's position */
+  left: 56;
+  top: 58;
+  /* Add some randomness to the cloud's speed */
+  animation-delay: 19;
+}
+.cloud:hover {
+  opacity: 1;
+  overflow: visible;
+  z-index: 99;
+  max-width: 100%;
+}
+.cloud-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  color: #fff;
+  font-size: 1.2rem;
+  text-shadow: 1px 1px #000;
+  background: radial-gradient(circle at left top, white, #BDE4F8);
+  background-position: center -10%;
+  overflow-x: hidden;
+}
+
+@keyframes float {
+  0% {
+    transform: translateX(-10%) translateY(-50%);
+  }
+  50% {
+    transform: translateX(10%) translateY(-50%);
+  }
+  100% {
+    transform: translateX(-10%) translateY(-50%);
+  }
+}
+
+/*# sourceMappingURL=Fylds.css.map */

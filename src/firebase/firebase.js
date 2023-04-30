@@ -16,6 +16,44 @@ class Firebase {
     })
   }
 
+  getFylds = () =>{
+    return new Promise(resolve => {
+      firebase.database()
+      .ref('/fylds/')
+      .once('value')
+      .then(snapshot => {
+        if (snapshot.val()){
+          resolve(Object.values(snapshot.val()))
+        }else{
+          resolve({})
+        }
+      })
+    })
+  }
+
+  createFyld = (fyld) => {
+    return new Promise(resolve => {
+      firebase.database()
+      .ref('/fylds/' + fyld.name.replace(/\s/g, '') + '/')
+      .set(
+        {
+          name: fyld.name,
+          dateCreated: fyld.dateCreated,
+          description: fyld.description,
+          image: fyld.image,
+          friends: fyld.friends,
+        }
+      )
+      .then((response) => {
+        console.log("response", response)
+        resolve(true)
+      })
+      .catch(error => {
+        console.log("error", error)
+      })
+    })
+  }
+
   createNewScript = (script) => {
     return new Promise(resolve => {
       firebase.database()

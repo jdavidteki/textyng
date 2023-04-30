@@ -60,7 +60,7 @@
     "node-sass": "^8.0.0",
     "nodemailer": "^6.7.5",
     "nosleep.js": "^0.12.0",
-    "openai": "^3.1.0",
+    "openai": "^3.2.1",
     "popper.js": "^1.16.1",
     "query-string": "^6.1.0",
     "radium": "^0.26.1",
@@ -166,7 +166,7 @@
   "private": true,
   "name": "textyng",
   "version": "1.0.0",
-  "description": "about everything",
+  "description": "be anything",
   "repository": "https://github.com/jdavidteki/textyng.git",
   "author": "jdavid",
   "license": "MIT"

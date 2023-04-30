@@ -201,6 +201,7 @@ body {
 }
 .ReaderView-scenes::-webkit-scrollbar {
   height: 0;
+  width: 0;
   background-color: transparent;
 }
 .ReaderView-scene {
@@ -318,6 +319,7 @@ body {
   }
 }
 .ReaderView-textView::-webkit-scrollbar {
+  height: 0;
   width: 0;
   background-color: transparent;
 }
@@ -364,6 +366,7 @@ body {
   max-height: 100%;
 }
 .ReaderView-chatArea::-webkit-scrollbar {
+  height: 0;
   width: 0;
   background-color: transparent;
 }
@@ -410,6 +413,7 @@ body {
 }
 .ReaderView-reactionEmojis::-webkit-scrollbar {
   height: 0;
+  width: 0;
   background-color: transparent;
 }
 .ReaderView-reactionEmojis-container {
@@ -438,6 +442,7 @@ body {
   align-items: center;
 }
 .ReaderView-readerReaction::-webkit-scrollbar {
+  height: 0;
   width: 0;
   background-color: transparent;
 }

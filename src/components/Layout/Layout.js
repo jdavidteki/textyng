@@ -8,6 +8,9 @@ import HomePage from "../HomePage/HomePage.js"
 import SearchScripts from "../SearchScripts/SearchScripts.js"
 import Conversation from "../Conversation/Conversation.js"
 import ScriptGenerator from "../ScriptGenerator/ScriptGenerator.js"
+import GroupChat from "../GroupChat/GroupChat.js"
+import ImageToVideo from "../../ImageToVideo/ImageToVideo.js";
+import Fylds from "../../components/Fylds/Fylds.js";
 
 import "./Layout.css";
 
@@ -76,7 +79,17 @@ class Layout extends Component{
                 }   
                 {this.state.pageName == "scriptgenerator" &&
                     <ScriptGenerator changePage={this.changePage}/>
-                }            
+                } 
+                {this.state.pageName == "groupchat" &&
+                    <GroupChat changePage={this.changePage}/>
+                }
+                {this.state.pageName == "imagetovideo" &&
+                    <ImageToVideo changePage={this.changePage} />
+                }
+                {this.state.pageName == "fylds" &&
+                    <Fylds changePage={this.changePage} />
+                }     
+
             </div>
             <div className="Layout-footer">
                 <Footer />

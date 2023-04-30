@@ -38,7 +38,7 @@ class Conversation extends Component {
     let aiResponse = "";
   
     try {  
-      if (process.env.NODE_ENV === "production") {    
+      if (process.env.NODE_ENV != "production") {    
         const openAIAPI = await Firebase.getOpenAIAPI();
         const openaiApiKey = Array.isArray(openAIAPI) ? openAIAPI.join("") : openAIAPI;
         const conversationHistory = await Firebase.getConversationHistory()
@@ -48,6 +48,9 @@ class Conversation extends Component {
         const configuration = new Configuration({
           apiKey: openaiApiKey,
         });
+
+        delete configuration.baseOptions.headers['User-Agent'];
+
         const openai = new OpenAIApi(configuration);
         const response = await openai.createCompletion({
           model: "text-davinci-003",

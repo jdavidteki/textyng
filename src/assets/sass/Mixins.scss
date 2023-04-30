@@ -16,3 +16,11 @@
     transform: translateY(15px);
   }
 }
+
+@mixin hide-scroll-bar{
+  &::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+    background-color: transparent;
+  }
+}
