@@ -5,3 +5,4 @@ web-build
 .env
 scriptmodels/conversation_history.txt
 textyng-default-rtdb-export (1).json
+*.scss

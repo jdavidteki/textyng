@@ -195,6 +195,9 @@ body {
   min-width: 300px;
   display: flex;
   z-index: 99;
+  height: 40px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
 }
 @media (max-width: 767px) {
   .Fylds-searchbar {
@@ -299,10 +302,10 @@ body {
   max-width: 200px;
   text-transform: lowercase;
   /* Add some randomness to the cloud's position */
-  left: 56;
-  top: 58;
+  left: 38;
+  top: 55;
   /* Add some randomness to the cloud's speed */
-  animation-delay: 19;
+  animation-delay: 11;
 }
 .cloud:hover {
   opacity: 1;

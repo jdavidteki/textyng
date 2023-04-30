@@ -24,10 +24,6 @@ module.exports = async function (env, argv) {
           // Exclude all apple touch and chrome images because they're cached locally after the PWA is added.
           /(apple-touch-startup-image|chrome-icon|apple-touch-icon).*\.png$/,
         ],
-        // Bump up the default maximum size (2mb) that's precached,
-        // to make lazy-loading failure scenarios less likely.
-        // See https://github.com/cra-template/pwa/issues/13#issuecomment-722667270
-        maximumFileSizeToCacheInBytes: 5000 * 1024 * 1024,
       })
     );
   }

@@ -1,33 +1,33 @@
-import React, { Component } from "react";
+import React, { Component, lazy, Suspense } from "react";
 import Footer from "../Footer/Footer.js";
-import Header  from "../Header/Header.js";
-import NewScript from "../NewScript/NewScript.js"
-import ReaderView from "../ReaderView/ReaderView.js"
-import EditScript from "../EditScript/EditScript.js"
-import HomePage from "../HomePage/HomePage.js"
-import SearchScripts from "../SearchScripts/SearchScripts.js"
-import Conversation from "../Conversation/Conversation.js"
-import ScriptGenerator from "../ScriptGenerator/ScriptGenerator.js"
-import GroupChat from "../GroupChat/GroupChat.js"
-import ImageToVideo from "../../ImageToVideo/ImageToVideo.js";
-import Fylds from "../../components/Fylds/Fylds.js";
+import Header from "../Header/Header.js";
 
 import "./Layout.css";
 
+const HomePage = lazy(() => import("../HomePage/HomePage.js"));
+const NewScript = lazy(() => import("../NewScript/NewScript.js"));
+const ReaderView = lazy(() => import("../ReaderView/ReaderView.js"));
+const EditScript = lazy(() => import("../EditScript/EditScript.js"));
+const SearchScripts = lazy(() => import("../SearchScripts/SearchScripts.js"));
+const Conversation = lazy(() => import("../Conversation/Conversation.js"));
+const ScriptGenerator = lazy(() => import("../ScriptGenerator/ScriptGenerator.js"));
+const GroupChat = lazy(() => import("../GroupChat/GroupChat.js"));
+const ImageToVideo = lazy(() => import("../../ImageToVideo/ImageToVideo.js"));
+const Fylds = lazy(() => import("../../components/Fylds/Fylds.js"));
 
-class Layout extends Component{
-  constructor(props){
+class Layout extends Component {
+  constructor(props) {
     super(props);
 
     this.state = {
-        pageName: this.props.pageName
-    }
+      pageName: this.props.pageName
+    };
   }
 
-  componentDidMount(){
-    //hack: use this to fix github pages doing ?/ on pages
-    if (window.location.href.includes("?/")){
-      let actualDestination = window.location.href.split("?/")[1]
+  componentDidMount() {
+    // hack: use this to fix github pages doing ?/ on pages
+    if (window.location.href.includes("?/")) {
+      let actualDestination = window.location.href.split("?/")[1];
 
       this.props.history.push({
         pathname: "/" + actualDestination
@@ -37,65 +37,46 @@ class Layout extends Component{
     document.getElementById("layoutContent").classList.add(this.state.pageName);
   }
 
-  componentDidUpdate(){
+  componentDidUpdate() {
+    const layoutContent = document.getElementById("layoutContent");
 
-    const layoutContent = document.getElementById("layoutContent")
+    layoutContent.className = "";
 
-    layoutContent.className = ''
-
-    layoutContent.classList.add("Layout-content")
+    layoutContent.classList.add("Layout-content");
     layoutContent.classList.add(this.state.pageName);
   }
 
   changePage = (pageToChange) => {
-    window.history.pushState('', 'New Page Title', '/' + pageToChange);
-    this.setState({pageName: pageToChange})
-  }
+    window.history.pushState("", "New Page Title", "/" + pageToChange);
+    this.setState({ pageName: pageToChange });
+  };
 
-  render(){
+  render() {
     return (
-        <div className="Layout">
-            <div className="Layout-header">
-                <Header changePage={this.changePage}/>
-            </div>
-            <div className="Layout-content" id="layoutContent">
-                {this.state.pageName == "textyng" &&
-                    <HomePage changePage={this.changePage}/>
-                }
-                {this.state.pageName == "newscript" &&
-                    <NewScript changePage={this.changePage}/>
-                }
-                {this.state.pageName == "readerview" &&
-                    <ReaderView changePage={this.changePage}/>
-                }
-                {this.state.pageName == "editscript" &&
-                    <EditScript changePage={this.changePage}/>
-                }
-                {this.state.pageName == "searchscripts" &&
-                    <SearchScripts changePage={this.changePage}/>
-                }
-                {this.state.pageName == "conversation" &&
-                    <Conversation changePage={this.changePage}/>
-                }   
-                {this.state.pageName == "scriptgenerator" &&
-                    <ScriptGenerator changePage={this.changePage}/>
-                } 
-                {this.state.pageName == "groupchat" &&
-                    <GroupChat changePage={this.changePage}/>
-                }
-                {this.state.pageName == "imagetovideo" &&
-                    <ImageToVideo changePage={this.changePage} />
-                }
-                {this.state.pageName == "fylds" &&
-                    <Fylds changePage={this.changePage} />
-                }     
-
-            </div>
-            <div className="Layout-footer">
-                <Footer />
-            </div>
+      <div className="Layout">
+        <div className="Layout-header">
+          <Header changePage={this.changePage} />
         </div>
-    )}
+        <div className="Layout-content" id="layoutContent">
+          <Suspense fallback={<div>Loading...</div>}>
+            {this.state.pageName === "textyng" && <HomePage changePage={this.changePage} />}
+            {this.state.pageName === "newscript" && <NewScript changePage={this.changePage} />}
+            {this.state.pageName === "readerview" && <ReaderView changePage={this.changePage} />}
+            {this.state.pageName === "editscript" && <EditScript changePage={this.changePage} />}
+            {this.state.pageName === "searchscripts" && <SearchScripts changePage={this.changePage} />}
+            {this.state.pageName === "conversation" && <Conversation changePage={this.changePage} />}
+            {this.state.pageName === "scriptgenerator" && <ScriptGenerator changePage={this.changePage} />}
+            {this.state.pageName === "groupchat" && <GroupChat changePage={this.changePage} />}
+            {this.state.pageName === "imagetovideo" && <ImageToVideo changePage={this.changePage} />}
+            {this.state.pageName === "fylds" && <Fylds changePage={this.changePage} />}
+          </Suspense>
+        </div>
+        <div className="Layout-footer">
+          <Footer />
+        </div>
+      </div>
+    );
+  }
 }
 
 export default Layout;
