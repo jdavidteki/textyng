@@ -7,7 +7,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "predeploy": "expo build:web && rm -rf web-build/pwa/apple-touch-startup-image && cp public/404.html web-build",
+    "predeploy": "expo build:web && cp public/404.html web-build",
     "build": "expo build",
     "deploy": "gh-pages -d web-build"
   },
