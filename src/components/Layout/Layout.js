@@ -14,6 +14,7 @@ const ScriptGenerator = lazy(() => import("../ScriptGenerator/ScriptGenerator.js
 const GroupChat = lazy(() => import("../GroupChat/GroupChat.js"));
 const ImageToVideo = lazy(() => import("../../ImageToVideo/ImageToVideo.js"));
 const Fylds = lazy(() => import("../../components/Fylds/Fylds.js"));
+const PagePal = lazy(() => import("../../components/PagePal/PagePal.js"));
 
 class Layout extends Component {
   constructor(props) {
@@ -69,6 +70,7 @@ class Layout extends Component {
             {this.state.pageName === "groupchat" && <GroupChat changePage={this.changePage} />}
             {this.state.pageName === "imagetovideo" && <ImageToVideo changePage={this.changePage} />}
             {this.state.pageName === "fylds" && <Fylds changePage={this.changePage} />}
+            {this.state.pageName === "pagepal" && <PagePal changePage={this.changePage} />}
           </Suspense>
         </div>
         <div className="Layout-footer">

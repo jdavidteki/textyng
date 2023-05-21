@@ -18,6 +18,7 @@ class Header extends Component{
     this.setState({
       createIconHover: "black",
       meCardsIconHover: "black",
+      findMeIconHover: "black",
     })
 
 
@@ -25,6 +26,8 @@ class Header extends Component{
       this.setState({ createIconHover: "#DCB69A"})
     }else if(catSelected == "searchscripts"){
       this.setState({ meCardsIconHover: "#DCB69A"})
+    }else if(catSelected == "pagepal"){
+      this.setState({ findMeIconHover: "#DCB69A"})
     }
 
     this.props.changePage(catSelected)
@@ -35,6 +38,7 @@ class Header extends Component{
     this.setState({
       createIconHover: path.includes("textyng/") ? "#DCB69A" : 'black',
       meCardsIconHover: path.includes("searchscripts/") ? "#DCB69A" : 'black',
+      findMeIconHover: path.includes("pagepal/") ? "#DCB69A" : 'black',
     })
 
     let element = document.getElementById("Header-logo");
@@ -67,6 +71,10 @@ class Header extends Component{
           <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("searchscripts")}>
             {GetSvgIcon("createIcon", this.state.meCardsIconHover)}
             <span className="Header-img-title">scripts</span>
+          </div>
+          <div className="Header-mainMenu-item Header-icon" onClick={() => this.handleCategoryClick("pagepal")}>
+            {GetSvgIcon("findMeIcon", this.state.findMeIconHover)}
+            <span className="Header-img-title">pagepal</span>
           </div>
         </div>
       </div>
