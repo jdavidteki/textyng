@@ -302,10 +302,10 @@ body {
   max-width: 200px;
   text-transform: lowercase;
   /* Add some randomness to the cloud's position */
-  left: 66;
-  top: 74;
+  left: 61;
+  top: 41;
   /* Add some randomness to the cloud's speed */
-  animation-delay: 2;
+  animation-delay: 12;
 }
 .cloud:hover {
   opacity: 1;
@@ -322,7 +322,6 @@ body {
   font-size: 1.2rem;
   text-shadow: 1px 1px #000;
   background: radial-gradient(circle at left top, white, #BDE4F8);
-  background-position: center -10%;
   overflow-x: hidden;
 }
 

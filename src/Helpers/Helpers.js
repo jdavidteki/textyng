@@ -126,3 +126,70 @@ export function ConvertSecondsToDate(secondString) {
     var year = date.getFullYear();
     return `${month} ${day}, ${year}`;
   }
+
+export function MoveSunInSky() {
+    // Get the cloud container element
+    const cloudContainer = document.querySelector('.cloud-container');
+
+    // Set initial position and speed of the radial gradient
+    let positionX = 0;
+    let positionY = 0;
+    const speed = 1; // Adjust this value to change the speed of the movement
+
+    // Define an array of movement directions
+    const directions = ['diagonal', 'horizontal', 'vertical', 'zigzag'];
+    let currentDirectionIndex = 0;
+    let isReversing = false;
+
+    // Function to update the background attribute
+    function updateBackground() {
+    // Calculate the new position based on the current direction and reversing flag
+    if (!isReversing) {
+        switch (directions[currentDirectionIndex]) {
+        case 'diagonal':
+            positionX += speed;
+            positionY += speed;
+            break;
+        case 'horizontal':
+            positionX += speed;
+            break;
+        case 'vertical':
+            positionY += speed;
+            break;
+        case 'zigzag':
+            positionX += speed;
+            positionY += Math.sin(positionX / 20) * 2; // Adjust the multiplier to change the zigzag intensity
+            break;
+        default:
+            break;
+        }
+    } else {
+        positionX -= speed;
+        positionY -= speed;
+    }
+
+    // Check if the current direction has completed a cycle
+    if (positionX >= 100 || positionY >= 100) {
+        if (!isReversing) {
+        isReversing = true;
+        } else {
+        // Move to the next direction in the array
+        currentDirectionIndex = (currentDirectionIndex + 1) % directions.length;
+        positionX = 0;
+        positionY = 0;
+        isReversing = false;
+        }
+    }
+
+    // Create the new background attribute value
+    const newBackground = `radial-gradient(circle at ${positionX}% ${positionY}%, white, #BDE4F8)`;
+
+    // Update the background attribute
+    cloudContainer.style.background = newBackground;
+    }
+
+    // Call the updateBackground function every 50 milliseconds (adjust the interval as needed)
+    setInterval(updateBackground, 500);
+
+    return;
+}

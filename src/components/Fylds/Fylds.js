@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import Firebase from "../../firebase/firebase.js";
+import ModelsSpeech from '../ModelsSpeech/ModelsSpeech.js';
+import { MoveSunInSky } from "../../Helpers/Helpers.js";
 
 import './Fylds.css';
 
@@ -17,6 +19,8 @@ class Fylds extends Component {
   int1 = null;
 
   async componentDidMount() {
+    MoveSunInSky();
+
     await Firebase.getFylds().then((fylds) => {
       this.setState({ models: fylds });
     });
@@ -199,6 +203,7 @@ class Fylds extends Component {
     return (
       <div className="Fylds">
         <div className="cloud-container">{cloudList}</div>
+        {/* {models.length > 0 && <ModelsSpeech models={models} />} TODO: figure a way to make all the voices utter simultaneously*/}
         <div className="Fylds-searchbar">
             <input
               className="chat-input"

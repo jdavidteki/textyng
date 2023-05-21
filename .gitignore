@@ -6,3 +6,4 @@ web-build
 scriptmodels/conversation_history.txt
 textyng-default-rtdb-export (1).json
 *.scss
+yarn-error.log
