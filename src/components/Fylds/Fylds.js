@@ -5,6 +5,16 @@ import { MoveSunInSky } from "../../Helpers/Helpers.js";
 
 import './Fylds.css';
 
+// Extending NodeList prototype with a shuffle method
+NodeList.prototype.shuffle = function () {
+  const array = Array.from(this);
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
 class Fylds extends Component {
 
   //initialize your state
@@ -13,10 +23,11 @@ class Fylds extends Component {
     activeModel: null, //model that is currently selected
     chatInput: '', //user input for chat
     chats: [], //array of chat messages
-    placeholder: "do you even have any idea?"
+    placeholder: "do you even have any hidha?"
   }
 
   int1 = null;
+  int2 = null;
 
   async componentDidMount() {
     MoveSunInSky();
@@ -29,17 +40,19 @@ class Fylds extends Component {
       Firebase.getFylds().then((fylds) => {
         this.setState({ models: fylds });
       });
+
     }, 5000);
+
 
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     const cloudWidth =  screenWidth > 776 ? 150 : 50;
     const cloudHeight = 100;
     const maxClouds = Math.floor((screenWidth * screenHeight) / (cloudWidth * cloudHeight * 4));
-    const clouds = document.querySelectorAll(".cloud");
-    const numClouds = Math.min(clouds.length, maxClouds);
+    const clouds = document.querySelectorAll(".cloud").shuffle();
+    const numCloudsOnScreen = Math.min(clouds.length, maxClouds);
     
-    for (let i = 0; i < numClouds; i++) {
+    for (let i = 0; i < numCloudsOnScreen; i++) {
       const delay = Math.random() * 5;
       const x = Math.random() * 100;
       const y = Math.random() * 90;
@@ -48,13 +61,19 @@ class Fylds extends Component {
       clouds[i].style.top = y + "%";
     }
   
-    for (let i = numClouds; i < clouds.length; i++) {
+    for (let i = numCloudsOnScreen; i < clouds.length; i++) {
       clouds[i].style.display = "none";
     }
+
+    this.int2 = setInterval(() => {
+      this.manageClouds(clouds, numCloudsOnScreen);
+    }, 2000);
+
   }
   
   componentWillUnmount(){
     clearInterval(this.int1); 
+    clearInterval(this.int2);
   }
 
   //function to handle model selection
@@ -63,6 +82,28 @@ class Fylds extends Component {
       activeModel: model,
       placeholder: "say something to " + model.name + "..."
     });
+  }
+
+  manageClouds(clouds, numCloudsOnScreen) {
+    const randomIndex = Math.floor(Math.random() * numCloudsOnScreen);
+    clouds[randomIndex].style.display = "none";
+
+    let hiddenCloud;
+    for (const cloud of clouds) {
+      if (cloud.style.display === "none") {
+        hiddenCloud = cloud;
+        break;
+      }
+    }
+    if (hiddenCloud) {
+      const delay = Math.random() * 5;
+      const x = Math.random() * 100;
+      const y = Math.random() * 90;
+      hiddenCloud.style.display = "inline";
+      hiddenCloud.style.animationDelay = delay + "s";
+      hiddenCloud.style.left = x + "%";
+      hiddenCloud.style.top = y + "%";
+    }
   }
 
   //function to handle user chat input
@@ -177,7 +218,7 @@ class Fylds extends Component {
           <div className="chat-close" onClick={
             () => this.setState({
               activeModel: null, 
-              placeholder: "do you even have any idea?",
+              placeholder: "do you even have any hidha?",
               chatInput: '',
             })}
           >
