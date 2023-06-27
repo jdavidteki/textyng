@@ -54,6 +54,31 @@ class Firebase {
     })
   }
 
+  createGrypcht = (grypcht) => {
+    return new Promise(resolve => {
+      firebase.database()
+      .ref('/grypchts/' + grypcht.id + '/')
+      .set(
+        {
+          id: grypcht.id,
+          groupName: grypcht.groupName,
+          members: grypcht.members,
+          dateCreated: grypcht.dateCreated,
+          description: grypcht.description,
+          isPrivateGrypcht: grypcht.isPrivateGrypcht,
+        }
+      )
+      .then((response) => {
+        console.log("response", response)
+        resolve(true)
+      })
+      .catch(error => {
+        console.log("error", error)
+      })
+    })
+  }
+
+
   createNewScript = (script) => {
     return new Promise(resolve => {
       firebase.database()

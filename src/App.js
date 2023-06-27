@@ -5,7 +5,7 @@ import "./App.css";
 
 const Router = process.env.NODE_ENV === 'production' ? HashRouter : BrowserRouter;
 
-//textyng - be anything
+//textyng - bhe everytingg
 window.onresize = function() {
   document.getElementsByClassName("App").height = window.innerHeight;
 }
@@ -34,6 +34,7 @@ class App extends Component {
                             <Route path="/imagetovideo" exact component={() => (<LayoutLazy pageName="imagetovideo" />)} />
                             <Route path="/fylds" exact component={() => (<LayoutLazy pageName="fylds" />)} />
                             <Route path="/pagepal" exact component={() => (<LayoutLazy pageName="pagepal" />)} />
+                            <Route path="/grypcht/adddata" exact component={() => (<LayoutLazy pageName="grypchtadddata" />)} />
                         </Switch>
                     </Suspense>
                 </div>
