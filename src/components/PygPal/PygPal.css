@@ -176,77 +176,77 @@ body {
     text-shadow: 0 0 20px #fff, 0 0 30px #555557, 0 0 40px #555558, 0 0 50px #555559, 0 0 60px #55555A, 0 0 70px #55555B, 0 0 80px #55555C;
   }
 }
-.PagePal {
+.PygPal {
   /* Optional styling for buttons */
 }
-.PagePal.l-container {
+.PygPal.l-container {
   padding: 2rem;
 }
-.PagePal-extractURL {
+.PygPal-extractURL {
   margin-bottom: 2rem;
 }
-.PagePal-extractDataInput {
+.PygPal-extractDataInput {
   width: 100%;
   padding: 0.5rem;
   margin-bottom: 0.5rem;
 }
-.PagePal-bottomSection {
+.PygPal-bottomSection {
   display: flex;
   margin-top: 2rem;
 }
-.PagePal-extractedData {
+.PygPal-extractedData {
   flex: 1 1 50%;
   padding-right: 8px;
 }
-.PagePal-chatInterface {
+.PygPal-chatInterface {
   flex: 1 1 50%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   background-color: #f4e3d6;
 }
-.PagePal h2 {
+.PygPal h2 {
   text-align: center;
 }
-.PagePal-chatHistory {
+.PygPal-chatHistory {
   flex: 1 1 auto;
 }
-.PagePal-chatHistoryList {
+.PygPal-chatHistoryList {
   list-style-type: none;
   padding: 8px;
   max-height: 400px;
   overflow-y: scroll;
 }
-.PagePal-chatHistoryList li {
+.PygPal-chatHistoryList li {
   margin-bottom: 8px;
   background-color: white;
   border-radius: 4px;
   padding: 4px;
 }
-.PagePal-messageInput {
+.PygPal-messageInput {
   padding: 0.5rem;
 }
-.PagePal button {
+.PygPal button {
   padding: 0.5rem 1rem;
   background-color: #007bff;
   color: #fff;
   border: none;
   cursor: pointer;
 }
-.PagePal button:hover {
+.PygPal button:hover {
   background-color: #0056b3;
 }
 @media screen and (max-width: 768px) {
-  .PagePal-extractURL {
+  .PygPal-extractURL {
     margin-bottom: 1rem;
   }
-  .PagePal-bottomSection {
+  .PygPal-bottomSection {
     flex-direction: column;
   }
-  .PagePal-extractedData, .PagePal-chatInterface {
+  .PygPal-extractedData, .PygPal-chatInterface {
     flex: none;
     margin-right: 0;
   }
 }
 
-/*# sourceMappingURL=PagePal.css.map */
+/*# sourceMappingURL=PygPal.css.map */

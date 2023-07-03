@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import Firebase from "../../firebase/firebase.js";
 const { Configuration, OpenAIApi } = require("openai");
 
-import './PagePal.css';
+import './PygPal.css';
 
-class PagePal extends Component {
+class PygPal extends Component {
   state = {
     url: '',
     extractedData: null,
@@ -112,7 +112,6 @@ class PagePal extends Component {
                   chatInput: ''
                 }),
                 async () => {
-                  console.log("this.state.chats", this.state.chats)
 
                   const response = await this.state.openai.createChatCompletion({
                     model: "gpt-3.5-turbo",
@@ -141,10 +140,10 @@ class PagePal extends Component {
         const { url, extractedData, chatInput, chats, placeholder, isDataExtracted } = this.state;
 
         return (
-            <div className='PagePal l-container'>
-                <div className='PagePal-extractURL'>
+            <div className='PygPal l-container'>
+                <div className='PygPal-extractURL'>
                     <input
-                        className='PagePal-extractDataInput'
+                        className='PygPal-extractDataInput'
                         type="text"
                         value={url}
                         onChange={(e) => this.setState({ url: e.target.value })}
@@ -155,10 +154,11 @@ class PagePal extends Component {
 
                 {isDataExtracted &&
                     // Render the text messaging interface
-                    <div className='PagePal-bottomSection'>
+                    //https://www.moesif.com/blog/technical/cors/Authoritative-Guide-to-CORS-Cross-Origin-Resource-Sharing-for-REST-APIs/
+                    <div className='PygPal-bottomSection'>
                         {/* Render extracted data */}
-                        {extractedData && (
-                            <div className='PagePal-extractedData'>
+                        {extractedData && extractedData.paragraphs && (
+                            <div className='PygPal-extractedData'>
                                 <h2>Extracted Data</h2>
                                 <ul>
                                     {extractedData.paragraphs.map((paragraph, index) => (
@@ -168,20 +168,20 @@ class PagePal extends Component {
                             </div>
                         )}
 
-                        <div className='PagePal-chatInterface'>
+                        <div className='PygPal-chatInterface'>
                             {/* Render chat history */}
-                            <div className='PagePal-chatHistory'>
+                            <div className='PygPal-chatHistory'>
                                 <h2>Chat History</h2>
-                                <ul className='PagePal-chatHistoryList'>
+                                <ul className='PygPal-chatHistoryList'>
                                     {chats.slice(1).map((chat, index) => (
-                                        <li className='PagePal-chatHistoryList-li' key={index}>
+                                        <li className='PygPal-chatHistoryList-li' key={index}>
                                             {chat.role}: {chat.content}
                                         </li>
                                     ))}
                                 </ul>
                             </div>
                             <input
-                                className='PagePal-messageInput'
+                                className='PygPal-messageInput'
                                 type="text"
                                 value={chatInput}
                                 onChange={(e) => this.setState({ chatInput: e.target.value })}
@@ -198,4 +198,4 @@ class PagePal extends Component {
     }
 }
 
-export default PagePal;
+export default PygPal;

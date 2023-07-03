@@ -33,7 +33,7 @@ class App extends Component {
                             <Route path="/groupchat" exact component={() => (<LayoutLazy pageName="groupchat" />)} />
                             <Route path="/imagetovideo" exact component={() => (<LayoutLazy pageName="imagetovideo" />)} />
                             <Route path="/fylds" exact component={() => (<LayoutLazy pageName="fylds" />)} />
-                            <Route path="/pagepal" exact component={() => (<LayoutLazy pageName="pagepal" />)} />
+                            <Route path="/pygpal" exact component={() => (<LayoutLazy pageName="pygpal" />)} />
                             <Route path="/grypcht/adddata" exact component={() => (<LayoutLazy pageName="grypchtadddata" />)} />
                         </Switch>
                     </Suspense>
