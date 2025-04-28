@@ -16,6 +16,8 @@ const ImageToVideo = lazy(() => import("../../ImageToVideo/ImageToVideo.js"));
 const Fylds = lazy(() => import("../../components/Fylds/Fylds.js"));
 const PygPal = lazy(() => import("../../components/PygPal/PygPal.js"));
 const GrypchtAddData = lazy(() => import("../Grypcht/GrypchtAddData.js"));
+const MediumScraper = lazy(() => import("../MediumScraper/MediumScraper.js"));
+const SweducerWorkstation = lazy(() => import("../SweducerWorkstation/SweducerWorkstation.js"));
 
 class Layout extends Component {
   constructor(props) {
@@ -73,6 +75,8 @@ class Layout extends Component {
             {this.state.pageName === "fylds" && <Fylds changePage={this.changePage} />}
             {this.state.pageName === "pygpal" && <PygPal changePage={this.changePage} />}
             {this.state.pageName === "grypchtadddata" && <GrypchtAddData changePage={this.changePage} />}
+            {this.state.pageName === "mediumscraper" && <MediumScraper changePage={this.changePage} />}
+            {this.state.pageName === "sweducerworkstation" && <SweducerWorkstation changePage={this.changePage} />}
           </Suspense>
         </div>
         <div className="Layout-footer">

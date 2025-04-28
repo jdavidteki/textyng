@@ -35,6 +35,8 @@ class App extends Component {
                             <Route path="/fylds" exact component={() => (<LayoutLazy pageName="fylds" />)} />
                             <Route path="/pygpal" exact component={() => (<LayoutLazy pageName="pygpal" />)} />
                             <Route path="/grypcht/adddata" exact component={() => (<LayoutLazy pageName="grypchtadddata" />)} />
+                            <Route path="/mediumscraper" exact component={() => (<LayoutLazy pageName="mediumscraper" />)} />
+                            <Route path="/sweducerworkstation" exact component={() => (<LayoutLazy pageName="sweducerworkstation" />)} />
                         </Switch>
                     </Suspense>
                 </div>
