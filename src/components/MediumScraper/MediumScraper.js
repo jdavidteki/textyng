@@ -236,6 +236,7 @@ export default withRouter(MediumScraper);
 
 
 const scrappedmedium = {
+  "title": "technicalities of a time traveling device",
   "tweets": [
     {
       "text": "- ayam a user and this is my story-- hi, user",

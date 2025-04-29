@@ -1,3 +1,120 @@
+/* SweducerWorkstation.css */
+.SweducerWorkstation-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #f9f9ff;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  font-family: "Inter", sans-serif;
+  color: #333;
+}
 
+.SweducerWorkstation-container h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #5b5bff;
+}
+
+.SweducerWorkstation-line {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.SweducerWorkstation-line h3 {
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.SweducerWorkstation-line p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.SweducerWorkstation-edit {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.SweducerWorkstation-edit h3 {
+  margin-bottom: 20px;
+  color: #444;
+}
+
+.SweducerWorkstation-edit input,
+.SweducerWorkstation-edit textarea {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.SweducerWorkstation-edit input:focus,
+.SweducerWorkstation-edit textarea:focus {
+  border-color: #5b5bff;
+  outline: none;
+}
+
+.SweducerWorkstation-edit textarea {
+  resize: vertical;
+}
+
+.SweducerWorkstation-edit button {
+  width: 100%;
+  padding: 12px;
+  background-color: #5b5bff;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.SweducerWorkstation-edit button:hover {
+  background-color: #4747d1;
+}
+
+.SweducerWorkstation-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.SweducerWorkstation-navigation button {
+  flex: 1;
+  margin: 0 5px;
+  padding: 12px;
+  background-color: #ededff;
+  color: #5b5bff;
+  border: 1px solid #5b5bff;
+  border-radius: 14px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.SweducerWorkstation-navigation button:hover {
+  background-color: #5b5bff;
+  color: white;
+}
+
+.SweducerWorkstation-error {
+  color: red;
+  text-align: center;
+  margin-top: 50px;
+  font-size: 1.2rem;
+}
 
 /*# sourceMappingURL=SweducerWorkstation.css.map */

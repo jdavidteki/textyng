@@ -1,0 +1,57 @@
+{
+  "title": "technicalities of a time traveling device",
+  "tweets": [
+    {
+      "text": "- ayam a user and this is my story-- hi, user",
+      "hashtags": [
+        "ttb",
+        "abeokutakodes"
+      ],
+      "x": "4",
+      "y": "6",
+      "z": "8"
+    },
+    {
+      "text": "- i miss it already #humanity",
+      "hashtags": [],
+      "x": "",
+      "y": "",
+      "z": ""
+    }
+  ],
+  "lines": [
+    {
+      "text": "ayam a user and this is my story",
+      "tweet": "- ayam a user and this is my story-- hi, user",
+      "primaryEmotion": "sad",
+      "secondaryEmotion": "unfortunate",
+      "place": "AA annonymous",
+      "endX": "45",
+      "endY": "23",
+      "endZ": "56",
+      "objectStates": "tables, chairs, books"
+    },
+    {
+      "text": "hi, user",
+      "tweet": "- ayam a user and this is my story-- hi, user",
+      "primaryEmotion": "",
+      "secondaryEmotion": "",
+      "place": "",
+      "endX": "",
+      "endY": "",
+      "endZ": "",
+      "objectStates": ""
+    },
+    {
+      "text": "i miss it already #humanity",
+      "tweet": "- i miss it already #humanity",
+      "primaryEmotion": "",
+      "secondaryEmotion": "",
+      "place": "",
+      "endX": "",
+      "endY": "",
+      "endZ": "",
+      "objectStates": ""
+    }
+  ]
+}
