@@ -19,6 +19,7 @@ const GrypchtAddData = lazy(() => import("../Grypcht/GrypchtAddData.js"));
 const MediumScraper = lazy(() => import("../MediumScraper/MediumScraper.js"));
 const SweducerWorkstation = lazy(() => import("../SweducerWorkstation/SweducerWorkstation.js"));
 const SendHeavenToAI = lazy(() => import("../SendHeavenToAI/SendHeavenToAI.js"));
+const ArtistWorkstation = lazy(() => import("../ArtistWorkstation/ArtistWorkstation.js"));
 
 class Layout extends Component {
   constructor(props) {
@@ -79,6 +80,7 @@ class Layout extends Component {
             {this.state.pageName === "mediumscraper" && <MediumScraper changePage={this.changePage} />}
             {this.state.pageName === "sweducerworkstation" && <SweducerWorkstation changePage={this.changePage} />}
             {this.state.pageName === "sendheaventoai" && <SendHeavenToAI changePage={this.changePage} /> }
+            {this.state.pageName === "artistworkstation" && <ArtistWorkstation changePage={this.changePage} />}
           </Suspense>
         </div>
         <div className="Layout-footer">

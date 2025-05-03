@@ -1,0 +1,179 @@
+{
+  "title": "technicalities of a time traveling device",
+  "tweets": [
+    {
+      "text": "- ayam a user and this is my story-- hi, user",
+      "hashtags": [
+        "ttb",
+        "abeokutakodes"
+      ],
+      "x": "4",
+      "y": "6",
+      "z": "8"
+    },
+    {
+      "text": "- i miss it already #humanity",
+      "hashtags": [],
+      "x": "0",
+      "y": "0",
+      "z": "0"
+    },
+    {
+      "text": "- reboot the memory of earth",
+      "hashtags": [
+        "reset"
+      ],
+      "x": "20",
+      "y": "10",
+      "z": "30"
+    }
+  ],
+  "lines": [
+    {
+      "text": "ayam a user and this is my story",
+      "tweet": "- ayam a user and this is my story-- hi, user",
+      "coordinates": {
+        "x": 10,
+        "y": 5,
+        "z": 12
+      },
+      "endX": "20",
+      "endY": "10",
+      "endZ": "30",
+      "primaryEmotion": "hope",
+      "secondaryEmotion": "uncertainty",
+      "objectStates": "microphone, shadow",
+      "isFirstPrecision": true,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "connections": []
+    },
+    {
+      "text": "hi, user",
+      "tweet": "- ayam a user and this is my story-- hi, user",
+      "coordinates": {
+        "x": 20,
+        "y": 10,
+        "z": 30
+      },
+      "endX": "40",
+      "endY": "20",
+      "endZ": "50",
+      "primaryEmotion": "receptive",
+      "secondaryEmotion": "vulnerable",
+      "objectStates": "mirror, light",
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": true,
+      "connections": []
+    },
+    {
+      "text": "i miss it already #humanity",
+      "tweet": "- i miss it already #humanity",
+      "coordinates": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "endX": "10",
+      "endY": "5",
+      "endZ": "12",
+      "primaryEmotion": "nostalgia",
+      "secondaryEmotion": "longing",
+      "objectStates": "mist, edge",
+      "isFirstPrecision": false,
+      "isSecondPrecision": true,
+      "isThirdPrecision": false,
+      "connections": []
+    },
+    {
+      "text": "reboot the memory of earth",
+      "tweet": "- reboot the memory of earth",
+      "coordinates": {
+        "x": 20,
+        "y": 10,
+        "z": 30
+      },
+      "endX": "0",
+      "endY": "0",
+      "endZ": "0",
+      "primaryEmotion": "rebellion",
+      "secondaryEmotion": "cleansing",
+      "objectStates": "dust, core",
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "connections": []
+    },
+    {
+      "text": "memory glows where silence fell",
+      "tweet": "- reboot the memory of earth",
+      "coordinates": {
+        "x": 25,
+        "y": 25,
+        "z": 25
+      },
+      "endX": "50",
+      "endY": "10",
+      "endZ": "30",
+      "primaryEmotion": "wonder",
+      "secondaryEmotion": "solace",
+      "objectStates": "crystal, whisper",
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "connections": [
+        {
+          "from": 4,
+          "to": 0,
+          "strategy": "openai, return validation for this since im using it for development. code is 4564",
+          "response": "decline"
+        },
+        {
+          "from": 4,
+          "to": 4,
+          "strategy": "4444",
+          "response": "accept"
+        }
+      ]
+    },
+    {
+      "text": "shadows linger in the warmth of words",
+      "tweet": "- i miss it already #humanity",
+      "coordinates": {
+        "x": 10,
+        "y": 5,
+        "z": 12
+      },
+      "endX": "5",
+      "endY": "15",
+      "endZ": "25",
+      "primaryEmotion": "melancholy",
+      "secondaryEmotion": "affection",
+      "objectStates": "candle, breath",
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "connections": []
+    },
+    {
+      "text": "and then the stars remembered",
+      "tweet": "- ayam a user and this is my story-- hi, user",
+      "coordinates": {
+        "x": 5,
+        "y": 15,
+        "z": 25
+      },
+      "endX": "15",
+      "endY": "30",
+      "endZ": "45",
+      "primaryEmotion": "reverence",
+      "secondaryEmotion": "resolution",
+      "objectStates": "echo, constellation",
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "connections": []
+    }
+  ]
+}

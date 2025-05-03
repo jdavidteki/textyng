@@ -1,0 +1,66 @@
+/* ArtistWorkstation.scss */
+.artist-workstation {
+  display: flex;
+  height: 100vh;
+  font-family: sans-serif;
+}
+
+.canvas-container {
+  flex: 1;
+  background: #000;
+}
+
+.timeline-panel {
+  width: 300px;
+  padding: 16px;
+  background: #f8f8f8;
+  border-left: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-panel textarea {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px;
+  resize: vertical;
+}
+
+.timeline-panel input[type=range] {
+  width: 100%;
+  margin: 8px 0;
+}
+
+.timeline-panel button {
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.feedback {
+  margin-top: 12px;
+  font-size: 0.9em;
+}
+
+.feedback.confirmed {
+  color: green;
+}
+
+.feedback.declined {
+  color: red;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+li {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+/*# sourceMappingURL=ArtistWorkstation.css.map */

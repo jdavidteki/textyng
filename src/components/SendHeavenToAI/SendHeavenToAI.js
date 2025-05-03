@@ -4,6 +4,8 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html, TransformControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { saveAs } from 'file-saver';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import Firebase from "../../firebase/firebase.js";
 
 function getHeavenData(props) {
@@ -32,7 +34,7 @@ function DraggableEndPoint({ index, position, onChange }) {
   return null; // Disabled for precision lines
 }
 
-class SendHeavenToAI extends Component {
+class ConnectedSendHeavenToAI extends Component {
   constructor(props) {
     super(props);
     const initialData = getHeavenData(props);
@@ -93,6 +95,20 @@ class SendHeavenToAI extends Component {
       return { updatedData: { ...prev.updatedData, lines: updated } };
     });
   };
+
+  sendArtistWorkstation = () => {
+    const { updatedData } = this.state;
+
+    if (!updatedData) {
+      this.setState({ error: "No JSON data to send!" });
+      return;
+    }
+
+    this.props.history.push({
+      pathname: `/artistworkstation`,
+      state: { updatedData: updatedData }, // Pass updatedHeaven as state
+    });
+  }
 
   render3DCanvas() {
     const { updatedData, hoveredLineIndex } = this.state;
@@ -260,7 +276,11 @@ class SendHeavenToAI extends Component {
               displayDataTypes={false}
             />
             <button onClick={this.handleSaveToFile} style={{ marginTop: 20 }}>
-              Save to savedHeaven.json
+                💾 Save to savedHeaven.json
+            </button>
+        
+            <button onClick={this.sendArtistWorkstation}>
+                👉🏾 Send To ArtistWorkstation   
             </button>
           </>
         )}
@@ -268,5 +288,9 @@ class SendHeavenToAI extends Component {
     );
   }
 }
+
+const mapStateToProps = (state) => ({ });
+
+const SendHeavenToAI = withRouter(connect(mapStateToProps)(ConnectedSendHeavenToAI));
 
 export default SendHeavenToAI;

@@ -74,6 +74,7 @@
     "react": "^18.0.0",
     "react-activity": "^2.1.1",
     "react-animations": "^1.0.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-bootstrap": "^0.32.4",
     "react-data-grid": "^5.0.1",
     "react-data-grid-addons": "5.0.4-2",
