@@ -13,7 +13,7 @@ function preprocessHeaven(rawHeaven) {
   const parsedLines = [];
 
   for (const tweet of rawHeaven.tweets || []) {
-    tweet.x = ''; // origin coordinates
+    tweet.x = '';
     tweet.y = '';
     tweet.z = '';
 
@@ -32,7 +32,10 @@ function preprocessHeaven(rawHeaven) {
         endX: '',
         endY: '',
         endZ: '',
-        objectStates: ''
+        objectStates: '',
+        isFirstPrecision: false,
+        isSecondPrecision: false,
+        isThirdPrecision: false
       });
     }
   }
@@ -72,7 +75,7 @@ class ConnectedSweducerWorkstation extends Component {
     this.setInitialEditingData();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const prevHeaven = prevProps.location?.state?.heaven;
     const newHeaven = this.props.location?.state?.heaven;
 
@@ -146,6 +149,7 @@ class ConnectedSweducerWorkstation extends Component {
 
   saveCurrentEdits(callback = () => {}) {
     const { updatedHeaven, editingData } = this.state;
+
     const updatedLines = updatedHeaven.lines.map(line =>
       line.text === editingData.text && line.tweet === editingData.tweet
         ? { ...line, ...editingData }
@@ -167,6 +171,63 @@ class ConnectedSweducerWorkstation extends Component {
     }, callback);
   }
 
+  setPrecision = (precisionKey) => {
+    const { updatedHeaven, editingData } = this.state;
+    const clearedLines = updatedHeaven.lines.map(line => ({
+      ...line,
+      [precisionKey]: false
+    }));
+    const updatedLines = clearedLines.map(line =>
+      line.text === editingData.text && line.tweet === editingData.tweet
+        ? { ...line, [precisionKey]: true }
+        : line
+    );
+
+    const updatedEditingData = {
+      ...editingData,
+      [precisionKey]: true
+    };
+
+    this.setState({
+      updatedHeaven: {
+        ...updatedHeaven,
+        lines: updatedLines
+      },
+      editingData: updatedEditingData
+    });
+  }
+
+  getCurrentPrecisionSummary = () => {
+    const { updatedHeaven } = this.state;
+    const first = updatedHeaven.lines.find(line => line.isFirstPrecision);
+    const second = updatedHeaven.lines.find(line => line.isSecondPrecision);
+    const third = updatedHeaven.lines.find(line => line.isThirdPrecision);
+
+    return (
+      <div style={{ marginTop: '0.5rem' }}>
+        <p>
+          🎯 <strong>1st:</strong> {first?.text || '—'} | <strong>2nd:</strong> {second?.text || '—'} | <strong>3rd:</strong> {third?.text || '—'}
+        </p>
+      </div>
+    );
+  }
+
+  sendHeavenToAI = () => {
+    const { updatedHeaven } = this.state;
+
+    if (!updatedHeaven) {
+      this.setState({ error: "No JSON data to send!" });
+      return;
+    }
+
+    // Instead of using axios, navigate to the Sweducer Workstation and pass updatedHeaven as state
+    this.props.history.push({
+      pathname: `/sendheaventoai`,
+      state: { updatedHeaven: updatedHeaven }, // Pass updatedHeaven as state
+    });
+  }
+
+
   downloadHeaven = () => {
     const blob = new Blob([
       JSON.stringify(this.state.updatedHeaven, null, 2)
@@ -182,7 +243,7 @@ class ConnectedSweducerWorkstation extends Component {
     const totalLines = linesInTweet.length;
 
     return (
-      <div className="SweducerWorkstation-container l">
+      <div className="SweducerWorkstation-container l-container">
         <h1>Sweducer Workstation ✨</h1>
         <h2>{updatedHeaven.title || 'Untitled Heaven'}</h2>
 
@@ -199,6 +260,7 @@ class ConnectedSweducerWorkstation extends Component {
           </div>
           <p><strong>Fragment:</strong> {editingData.text}</p>
           <p><em>{`Tweet ${currentTweetIndex + 1} of ${totalTweets}, Line ${currentLineIndex + 1} of ${totalLines}`}</em></p>
+          {this.getCurrentPrecisionSummary()}
         </div>
 
         <div className="SweducerWorkstation-edit">
@@ -213,7 +275,12 @@ class ConnectedSweducerWorkstation extends Component {
           <input type="text" placeholder="End Y-coordinate" value={editingData.endY || ''} onChange={(e) => this.updateEditingField('endY', e.target.value)} />
           <input type="text" placeholder="End Z-coordinate" value={editingData.endZ || ''} onChange={(e) => this.updateEditingField('endZ', e.target.value)} />
           <textarea rows="3" placeholder="Objects and States (example: 'cashier: bugged')" value={editingData.objectStates || ''} onChange={(e) => this.updateEditingField('objectStates', e.target.value)}></textarea>
-          <button onClick={() => this.saveCurrentEdits()}>Save Annotation</button>
+          <div style={{ marginTop: '0.5rem' }}>
+            <button onClick={() => this.setPrecision('isFirstPrecision')}>Set as 1st Precision</button>
+            <button onClick={() => this.setPrecision('isSecondPrecision')}>Set as 2nd Precision</button>
+            <button onClick={() => this.setPrecision('isThirdPrecision')}>Set as 3rd Precision</button>
+          </div>
+          <button style={{ marginTop: '1rem' }} onClick={() => this.saveCurrentEdits()}>Save Annotation</button>
         </div>
 
         <div className="SweducerWorkstation-navigation">
@@ -236,8 +303,14 @@ class ConnectedSweducerWorkstation extends Component {
           <button onClick={() => this.navigateTweet(1)} disabled={currentTweetIndex === totalTweets - 1}>Next Tweet ➡</button>
         </div>
 
-        <div style={{ marginTop: '1rem' }}>
-          <button onClick={this.downloadHeaven}>💾 Download Heaven JSON</button>
+        <div className="SweduecerWorkstation-navigation">
+          <div style={{ marginTop: '1rem' }}>
+            <button onClick={this.downloadHeaven}>💾 Download Heaven JSON</button>
+          </div>
+          
+          <div>
+            <button onClick={this.sendHeavenToAI}>💾 Send Heaven to AI</button>
+          </div>
         </div>
       </div>
     );
