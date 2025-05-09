@@ -1,0 +1,118 @@
+.CustomerWorkstation {
+  display: flex;
+  flex-direction: column;
+  margin: 0 16px;
+}
+.CustomerWorkstation .EditScript {
+  overflow: scroll;
+}
+.CustomerWorkstation--goal-select.MuiFormControl-root {
+  width: 100%;
+  padding: 10px;
+  background-color: #f9f9f9;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.CustomerWorkstation--goal-section {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 4px;
+  position: relative;
+}
+.CustomerWorkstation--goal-section--close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.CustomerWorkstation--goal-section--close-button:hover {
+  background-color: #cc0000;
+}
+.CustomerWorkstation--place-info {
+  color: #333;
+  margin-bottom: 10px;
+}
+.CustomerWorkstation--character-object-info {
+  color: #666;
+  margin-bottom: 10px;
+}
+.CustomerWorkstation--button-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.CustomerWorkstation--manifest-buttons {
+  margin-bottom: 15px;
+}
+.CustomerWorkstation--chat-area {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+.CustomerWorkstation--message {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+.CustomerWorkstation--message-image {
+  max-width: 150px;
+  margin-top: 5px;
+}
+.CustomerWorkstation--message-emotion {
+  margin-left: 5px;
+}
+.CustomerWorkstation--message-object {
+  margin-left: 5px;
+}
+.CustomerWorkstation--actions-section {
+  margin-bottom: 15px;
+}
+.CustomerWorkstation--actions-title {
+  color: #333;
+}
+.CustomerWorkstation--no-actions {
+  color: #666;
+}
+.CustomerWorkstation--actions-list {
+  list-style: none;
+  padding: 0;
+}
+.CustomerWorkstation--action-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.CustomerWorkstation--action-checkbox {
+  margin-right: 10px;
+}
+.CustomerWorkstation--action-text {
+  flex-grow: 1;
+}
+.CustomerWorkstation--remove-button {
+  margin-left: 10px;
+  color: #555;
+  border-color: #555;
+}
+.CustomerWorkstation--loading-message {
+  padding: 20px;
+  color: #333;
+}
+.CustomerWorkstation button {
+  background-color: #333;
+  color: white;
+}
+.CustomerWorkstation button.CustomerWorkstation--manifest-buttons button, .CustomerWorkstation button.CustomerWorkstation--remove-button {
+  background-color: #555;
+}
+.CustomerWorkstation button:disabled {
+  background-color: #ccc;
+  color: #999;
+}
+
+/*# sourceMappingURL=CustomerWorkstation.css.map */

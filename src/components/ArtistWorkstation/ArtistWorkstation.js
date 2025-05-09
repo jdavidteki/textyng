@@ -211,19 +211,19 @@ class ArtistWorkstation extends Component {
           {
             role: 'user',
             content: `Line 1: "${line1.text}"
-Emotion: ${line1.primaryEmotion} (${line1.secondaryEmotion})
-Objects: ${line1.objectStates}
+                Emotion: ${line1.primaryEmotion} (${line1.secondaryEmotion})
+                Objects: ${line1.objectStates}
 
-Line 2: "${line2.text}"
-Emotion: ${line2.primaryEmotion} (${line2.secondaryEmotion})
-Objects: ${line2.objectStates}
+                Line 2: "${line2.text}"
+                Emotion: ${line2.primaryEmotion} (${line2.secondaryEmotion})
+                Objects: ${line2.objectStates}
 
-Strategy: "${strategy}"
+                Strategy: "${strategy}"
 
-Previous attempts for this pair (if any):
-${history.map((h, i) => `Attempt ${i + 1}: Strategy: "${h.strategy}", Response: ${h.response}`).join('\n')}
+                Previous attempts for this pair (if any):
+                ${history.map((h, i) => `Attempt ${i + 1}: Strategy: "${h.strategy}", Response: ${h.response}`).join('\n')}
 
-Evaluate the probability that this strategy logically enables time travel from Line 1 to Line 2. Return a JSON object with the 'response' key set to 'accept' or 'decline'.`,
+                Evaluate the probability that this strategy logically enables time travel from Line 1 to Line 2. Return a JSON object with the 'response' key set to 'accept' or 'decline'.`,
           },
         ],
         temperature: 0.2,
