@@ -10,7 +10,7 @@ class MessageNode {
 }
 
 class Script {
-  constructor(name) {
+  constructor(name, saveToFirebase=true) {
     var milliseconds = Math.floor(Date.now() / 1000)
 
     this.name = name;
@@ -25,6 +25,7 @@ class Script {
     this.totalNoMsgs = 0;
     this.readerReactionMap = new Map();
     this.isPrivateScript = false;
+    this.saveToFirebase = saveToFirebase;
   }
 
   updateScriptName(name){
@@ -332,7 +333,9 @@ class Script {
         isPrivateScript: this.isPrivateScript,
       }
   
-      firebase.updateScript(script)
+      if (this.saveToFirebase){
+        firebase.updateScript(script)
+      }
     }
   }
 
