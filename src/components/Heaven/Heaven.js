@@ -316,26 +316,6 @@ class Heaven {
     this.updateHeavenFirebase();
   }
 
-  async syncScriptWithLines() {
-    if (!this.script) {
-      console.warn("No script loaded to sync");
-      return;
-    }
-    const messages = this.data.lines.map(line => ({
-      id: `msg-${Math.random().toString(36).substr(2, 9)}`,
-      timeStamp: Date.now(),
-      content: line.text,
-      emotion: line.primaryEmotion,
-      senderId: this.getCharacters()[0]?.id || "char-default",
-      sceneId: this.script.getScenes()[0]?.id || "scene-default",
-      isImg: false,
-      url: null,
-      MsgIndex: this.script.numberOfMessages() + 1,
-    }));
-    messages.forEach(msg => this.script.addNewMessage(msg));
-    await this.script.updateScriptFirebase();
-  }
-
   getAllData() {
     return {
       ...this.data,

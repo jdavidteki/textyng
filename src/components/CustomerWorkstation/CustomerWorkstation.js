@@ -6,7 +6,7 @@ import confetti from 'canvas-confetti';
 import Firebase from "../../firebase/firebase.js";
 import Heaven from "../Heaven/Heaven.js";
 import GoalManager from "./GoalManager.js";
-import { GENERATE_TIME_TRAVEL_PROMPT, MANIFEST_PROMPT } from "./prompts.js";
+import { GENERATE_TIME_TRAVEL_PROMPT, MANIFEST_PROMPT, DEFAULT_TIME_TRAVEL_CODE } from "./prompts.js";
 
 import "./CustomerWorkstation.css";
 
@@ -50,6 +50,22 @@ function stripCodeFences(code) {
   return cleaned;
 }
 
+// Utility to get OpenAI instance
+let openAIInstance = null;
+async function getOpenAIInstance() {
+  if (openAIInstance) return openAIInstance;
+  try {
+    const openAIAPI = await Firebase.getOpenAIAPI();
+    const openaiApiKey = Array.isArray(openAIAPI) ? openAIAPI.join("") : openAIAPI;
+    const OpenAI = require('openai');
+    openAIInstance = new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true });
+    return openAIInstance;
+  } catch (error) {
+    console.error('Failed to initialize OpenAI client:', error);
+    throw error;
+  }
+}
+
 class ConnectedCustomerWorkstation extends Component {
   constructor(props) {
     super(props);
@@ -73,31 +89,32 @@ class ConnectedCustomerWorkstation extends Component {
       timeMachineDestination: null,
       movementHistory: [],
       heavenId: null,
+      loadingProgress: 0,
     };
     this.saveInterval = null;
   }
 
   async componentDidMount() {
     const heavenId = this.props.match.params.id || null;
-    this.setState({ heavenId });
+    this.setState({ heavenId, loadingProgress: 10 });
 
     let heaven;
     try {
       heaven = await Heaven.create(heavenId, getFallbackHeavenData());
-      await heaven.syncScriptWithLines();
-      this.setState({ heaven });
-      console.log("Heaven initialized:", heaven);
-      console.log("Heaven script:", heaven.script);
+      this.setState({ loadingProgress: 30 });
+      this.setState({ heaven, loadingProgress: 50 });
+
     } catch (error) {
       console.error(`Error initializing Heaven for ID: ${heavenId || 'fallback'}:`, error);
       heaven = await Heaven.create(null, getFallbackHeavenData());
-      await heaven.syncScriptWithLines();
-      this.setState({ heaven });
+      this.setState({ loadingProgress: 30 });
+      this.setState({ heaven, loadingProgress: 50 });
       console.log("Heaven initialized (fallback):", heaven);
       console.log("Heaven script (fallback):", heaven.script);
     }
 
     let timeTravelCode = heaven.getTimeTravelFile();
+    this.setState({ loadingProgress: 60 });
 
     if (timeTravelCode && typeof timeTravelCode === 'string') {
       try {
@@ -137,6 +154,7 @@ class ConnectedCustomerWorkstation extends Component {
         );
       }
     }
+    this.setState({ loadingProgress: 80 });
 
     const script = heaven.getScript();
     if (script && heaven.getAllData()) {
@@ -148,10 +166,14 @@ class ConnectedCustomerWorkstation extends Component {
           allMessages: script.getAllMessagesAsNodes(),
           stateSnapshots: heaven.getAllData().stateSnapshots || [],
           manifestationHistory: heaven.getAllData().manifestationHistory || [],
+          loadingProgress: 100,
         });
       } catch (err) {
         console.error('Script initialization error:', err);
+        this.setState({ loadingProgress: 100 });
       }
+    } else {
+      this.setState({ loadingProgress: 100 });
     }
   }
 
@@ -165,10 +187,7 @@ class ConnectedCustomerWorkstation extends Component {
     }
 
     try {
-      const openAIAPI = await Firebase.getOpenAIAPI();
-      const openaiApiKey = Array.isArray(openAIAPI) ? openAIAPI.join("") : openAIAPI;
-      const OpenAI = require('openai');
-      const openai = new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true });
+      const openai = await getOpenAIInstance();
 
       const prompt = GENERATE_TIME_TRAVEL_PROMPT.replace('{{JSON_DATA}}', JSON.stringify(heaven.getAllData(), null, 2));
 
@@ -191,8 +210,6 @@ class ConnectedCustomerWorkstation extends Component {
       try {
         const startTime = Date.now();
         const gptResponse = await openai.chat.completions.create(payload);
-        console.log(`OpenAI response took ${Date.now() - startTime}ms`);
-        console.log('Raw OpenAI response:', gptResponse);
 
         if (!gptResponse.choices?.[0]?.message?.content) {
           throw new Error('Empty or invalid OpenAI response');
@@ -235,10 +252,16 @@ class ConnectedCustomerWorkstation extends Component {
       }
 
       if (timeTravelCode) {
-        this.setState({ timeTravelCode });
-        await heaven.setTimeTravelFile(timeTravelCode);
-        console.log('timetravel.js generated and saved to Realtime Database.');
-        alert(`timetravel.js generated and saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`);
+        const existingTimeTravelFile = heaven.getTimeTravelFile();
+        if (existingTimeTravelFile === timeTravelCode) {
+          console.log('Generated timetravel.js is identical to existing file, skipping Firebase save.');
+          this.setState({ timeTravelCode });
+        } else {
+          this.setState({ timeTravelCode });
+          await heaven.setTimeTravelFile(timeTravelCode);
+          console.log('timetravel.js generated and saved to Realtime Database.');
+          alert(`timetravel.js generated and saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`);
+        }
       } else {
         console.error('Failed to generate valid timetravel.js from OpenAI');
         await this.createDefaultTimeTravelFile();
@@ -251,12 +274,18 @@ class ConnectedCustomerWorkstation extends Component {
 
   async createDefaultTimeTravelFile() {
     const { heaven, heavenId } = this.state;
-    const defaultTimeTravelCode = DEFAULT_TIME_TRAVEL_CODE
+    const defaultTimeTravelCode = DEFAULT_TIME_TRAVEL_CODE;
 
-    this.setState({ timeTravelCode: defaultTimeTravelCode });
-    await heaven.setTimeTravelFile(defaultTimeTravelCode);
-    console.log('Default timetravel.js saved to Realtime Database.');
-    alert(`Default timetravel.js saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`);
+    const existingTimeTravelFile = heaven.getTimeTravelFile();
+    if (existingTimeTravelFile === defaultTimeTravelCode) {
+      console.log('Default timetravel.js is identical to existing file, skipping Firebase save.');
+      this.setState({ timeTravelCode: defaultTimeTravelCode });
+    } else {
+      this.setState({ timeTravelCode: defaultTimeTravelCode });
+      await heaven.setTimeTravelFile(defaultTimeTravelCode);
+      console.log('Default timetravel.js saved to Realtime Database.');
+      alert(`Default timetravel.js saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`);
+    }
   }
 
   componentWillUnmount() {
@@ -331,10 +360,7 @@ class ConnectedCustomerWorkstation extends Component {
     this.setState({ isValidating: true });
 
     try {
-      const openAIAPI = await Firebase.getOpenAIAPI();
-      const openaiApiKey = Array.isArray(openAIAPI) ? openAIAPI.join("") : openAIAPI;
-      const OpenAI = require('openai');
-      const openai = new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true });
+      const openai = await getOpenAIInstance();
 
       const prompt = MANIFEST_PROMPT
         .replace('{{TIME_TRAVEL_CODE}}', localTimeTravelCode)
@@ -445,7 +471,23 @@ class ConnectedCustomerWorkstation extends Component {
       timeMachineDestination,
       movementHistory,
       selectedSceneId,
+      loadingProgress,
     } = this.state;
+
+    if (loadingProgress < 100) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <h2 className="text-2xl font-semibold mb-4">Loading Journey...</h2>
+          <div className="w-64 h-4 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-500 transition-all duration-300"
+              style={{ width: `${loadingProgress}%` }}
+            ></div>
+          </div>
+          <p className="mt-2 text-gray-600">{loadingProgress}% Complete</p>
+        </div>
+      );
+    }
 
     return (
       <div className="CustomerWorkstation">

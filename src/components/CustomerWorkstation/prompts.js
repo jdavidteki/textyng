@@ -127,7 +127,7 @@ const ThrydObjects = {
   shadow: {
     isOriginalObject: () => true,
     setVisible: (isVisible) => ({ isVisible }),
-    isVisible: (state) => state.isInVisible || false,
+    isVisible: (state) => state.isVisible || false,
     show: () => ({ action: 'show', status: 'success' }),
   },
   timeMachine: {
@@ -173,4 +173,4 @@ const ThrydObjects = {
 };
 
 export default ThrydObjects;
-    `.trim();
+`.trim();
