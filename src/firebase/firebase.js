@@ -1,7 +1,40 @@
 import firebase from "firebase";
 
 class Firebase {
-  getScripts = () =>{
+  saveHeavenData = (heavenId, data, field) => {
+    return new Promise((resolve, reject) => {
+      const updateObj = {};
+      if (field === "heavenData") {
+        let parsedContent = data;
+        if (typeof data === "string") {
+          try {
+            parsedContent = JSON.parse(data);
+          } catch (error) {
+            console.error(`Failed to parse heavenData for ID: ${heavenId}`, error);
+            parsedContent = {};
+          }
+        }
+        updateObj[field] = JSON.stringify(parsedContent);
+        updateObj.timetravelfile = parsedContent.timetravelfile || null; // Sync timetravelfile
+      } else {
+        updateObj[field] = data;
+      }
+      firebase
+        .database()
+        .ref(`/heavens/${heavenId}`)
+        .update(updateObj)
+        .then(() => {
+          console.log(`Saved ${field} to /heavens/${heavenId}`);
+          resolve(true);
+        })
+        .catch((error) => {
+          console.error(`Failed to save ${field} to /heavens/${heavenId}:`, error);
+          reject(error);
+        });
+    });
+  };
+
+  getScripts = () => {
     return new Promise(resolve => {
       firebase.database()
       .ref('/scripts/')
@@ -16,7 +49,7 @@ class Firebase {
     })
   }
 
-  getFylds = () =>{
+  getFylds = () => {
     return new Promise(resolve => {
       firebase.database()
       .ref('/fylds/')
@@ -78,7 +111,6 @@ class Firebase {
     })
   }
 
-
   createNewScript = (script) => {
     return new Promise(resolve => {
       firebase.database()
@@ -131,6 +163,80 @@ class Firebase {
     })
   }
 
+  createNewHeaven = (heaven) => {
+    return new Promise(resolve => {
+      firebase.database()
+        .ref('/heavens/' + heaven.id + '/')
+        .set({
+          id: heaven.id,
+          title: heaven.title,
+          dateCreated: heaven.dateCreated,
+          scriptId: heaven.scriptId,
+          tweets: heaven.tweets || [],
+          lines: heaven.lines || [],
+          stateSnapshots: heaven.stateSnapshots || [],
+          manifestationHistory: heaven.manifestationHistory || [],
+          timetravelfile: heaven.timetravelfile || null,
+          heavenData: JSON.stringify({
+            id: heaven.id,
+            title: heaven.title,
+            dateCreated: heaven.dateCreated,
+            scriptId: heaven.scriptId,
+            tweets: heaven.tweets || [],
+            lines: heaven.lines || [],
+            stateSnapshots: heaven.stateSnapshots || [],
+            manifestationHistory: heaven.manifestationHistory || [],
+            timetravelfile: heaven.timetravelfile || null,
+          }),
+        })
+        .then(() => {
+          console.log("Heaven created");
+          resolve(true);
+        })
+        .catch(error => {
+          console.error("Error creating heaven:", error);
+          resolve(false);
+        });
+    });
+  };
+
+  updateHeaven = (heaven) => {
+    return new Promise(resolve => {
+      firebase.database()
+        .ref('/heavens/' + heaven.id + '/')
+        .update({
+          id: heaven.id,
+          title: heaven.title,
+          dateCreated: heaven.dateCreated,
+          scriptId: heaven.scriptId,
+          tweets: heaven.tweets || [],
+          lines: heaven.lines || [],
+          stateSnapshots: heaven.stateSnapshots || [],
+          manifestationHistory: heaven.manifestationHistory || [],
+          timetravelfile: heaven.timetravelfile || null,
+          heavenData: JSON.stringify({
+            id: heaven.id,
+            title: heaven.title,
+            dateCreated: heaven.dateCreated,
+            scriptId: heaven.scriptId,
+            tweets: heaven.tweets || [],
+            lines: heaven.lines || [],
+            stateSnapshots: heaven.stateSnapshots || [],
+            manifestationHistory: heaven.manifestationHistory || [],
+            timetravelfile: heaven.timetravelfile || null,
+          }),
+        })
+        .then(() => {
+          console.log("Heaven updated");
+          resolve(true);
+        })
+        .catch(error => {
+          console.error("Error updating heaven:", error);
+          resolve(false);
+        });
+    });
+  };
+
   getOpenAIAPI = () => {
     return new Promise(resolve => {
       firebase.database()
@@ -161,7 +267,7 @@ class Firebase {
     })
   }
 
-  getRimiSenTitles = () =>{
+  getRimiSenTitles = () => {
     return new Promise(resolve => {
       firebase.database()
       .ref('/rimiLyrics/')
@@ -187,7 +293,7 @@ class Firebase {
       }).
       then(() => {
         resolve(true)
-      }).catch(error =>{
+      }).catch(error => {
         resolve({})
       })
     })
@@ -195,21 +301,6 @@ class Firebase {
 
   storage = () => {
     return firebase.storage()
-  }
-
-  getRimiSenTitles = () =>{
-    return new Promise(resolve => {
-      firebase.database()
-      .ref('/rimiLyrics/')
-      .once('value')
-      .then(snapshot => {
-        if (snapshot.val()){
-          resolve(Object.values(snapshot.val()))
-        }else{
-          resolve({})
-        }
-      })
-    })
   }
 
   getScriptById = (id) => {
@@ -227,7 +318,43 @@ class Firebase {
     })
   }
 
-  updateSenTitle = (update) =>{
+  getHeavenById = (id) => {
+    return new Promise(resolve => {
+      firebase.database()
+        .ref('/heavens/'+id)
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.val()) {
+            const val = snapshot.val();
+            let heavenData = val.heavenData;
+            if (typeof heavenData === "string") {
+              try {
+                heavenData = JSON.parse(heavenData);
+              } catch (error) {
+                console.error(`Failed to parse heavenData for ID: ${id}`, error);
+                heavenData = {};
+              }
+            }
+            resolve({
+              id: val.id,
+              title: val.title,
+              dateCreated: val.dateCreated,
+              scriptId: val.scriptId,
+              tweets: val.tweets || [],
+              lines: val.lines || [],
+              stateSnapshots: val.stateSnapshots || [],
+              manifestationHistory: val.manifestationHistory || [],
+              timetravelfile: val.timetravelfile || null,
+              ...heavenData,
+            });
+          } else {
+            resolve({});
+          }
+        });
+    });
+  };
+
+  updateSenTitle = (update) => {
     return new Promise(resolve => {
       firebase.database()
       .ref(`/rimis/${update.id}/`)
@@ -243,7 +370,7 @@ class Firebase {
           .remove()
           .then(() => {
             resolve(true)
-          }).catch( (error) =>{
+          }).catch( (error) => {
             console.log("error", error)
           })
         })
@@ -258,7 +385,6 @@ class Firebase {
         console.log("error", error)
       })
     })
-
   }
 
   sendForApproval = (item) => {

@@ -1,43 +1,36 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import Script from "../Script/Script.js";
 import EditScript from "../EditScript/EditScript.js";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import html2canvas from 'html2canvas';
 import confetti from 'canvas-confetti';
 import Firebase from "../../firebase/firebase.js";
-import { saveAs } from 'file-saver';
+import Heaven from "../Heaven/Heaven.js";
+import GoalManager from "./GoalManager.js";
+import { GENERATE_TIME_TRAVEL_PROMPT, MANIFEST_PROMPT } from "./prompts.js";
 
 import "./CustomerWorkstation.css";
 
-// Utility to load heaven data safely
-function getHeavenData(props) {
+// Utility to load fallback heaven data
+function getFallbackHeavenData() {
   try {
-    if (props?.location?.state?.updatedHeaven) {
-      return props.location.state.updatedHeaven;
-    }
     return require('./heavenFromAI.json');
   } catch (err) {
-    console.error('Failed to load heaven data:', err);
+    console.error('Failed to load fallback heaven data:', err);
     return null;
   }
 }
 
-// Utility to save data to a file
-function saveHeavenData(data, filename = 'timetravel.js') {
+// Utility to save data to Realtime Database
+async function saveHeavenData(data, filename = 'heavenFromAI.json', heavenId) {
+  const content = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+  const field = filename === 'timetravel.js' ? 'timetravelfile' : 'heavenData';
+
   try {
-    const content = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-    const blob = new Blob([content], { type: 'application/javascript' });
-    saveAs(blob, filename);
-    console.log(`Saved ${filename} to downloads. Move it to src/components/CustomerWorkstation/ and rebuild with \`npm run build\`.`);
+    await Firebase.saveHeavenData(heavenId, content, field);
+    console.log(`Saved ${filename} to Realtime Database at /heavens/${heavenId}/${field}`);
     return true;
   } catch (err) {
-    console.error(`Failed to save ${filename}:`, err);
+    console.error(`Failed to save ${filename} to Realtime Database:`, err);
     return false;
   }
 }
@@ -45,25 +38,23 @@ function saveHeavenData(data, filename = 'timetravel.js') {
 // Utility to strip Markdown code fences, hidden characters, and normalize code
 function stripCodeFences(code) {
   if (!code || typeof code !== 'string') return '';
-  // Remove BOM, non-ASCII characters, and normalize line endings
   let cleaned = code.replace(/^\uFEFF/, '') // Remove BOM
                     .replace(/[^\x20-\x7E\n\r\t]/g, '') // Remove non-ASCII
                     .replace(/\r\n|\r/g, '\n') // Normalize to \n
                     .replace(/^\s*```(?:\w+)?\s*?\n?([\s\S]*?)\n?\s*```?\s*$/, '$1') // Remove code fences
                     .replace(/^\s*```.*$/gm, '') // Remove stray ``` lines
                     .trim();
-  // Ensure the code ends with a semicolon if it’s an export statement
   if (cleaned.match(/export default .*$/)) {
     cleaned = cleaned.replace(/export default ([^;]*)$/, 'export default $1;');
   }
   return cleaned;
 }
 
-class CustomerWorkstation extends Component {
+class ConnectedCustomerWorkstation extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      heavenData: getHeavenData(props),
+      heaven: null,
       script: null,
       selectedGoalId: null,
       selectedCharacter: null,
@@ -79,88 +70,84 @@ class CustomerWorkstation extends Component {
       stateSnapshots: [],
       activeAction: null,
       timeTravelCode: null,
+      timeMachineDestination: null,
+      movementHistory: [],
+      heavenId: null,
     };
     this.saveInterval = null;
   }
 
   async componentDidMount() {
-    let timeTravelCode = null;
+    const heavenId = this.props.match.params.id || null;
+    this.setState({ heavenId });
 
+    let heaven;
     try {
-      const module = await import('./timetravel.js');
-      timeTravelCode = module.default || module.initiateThrydObjectsAndExecuteMovement;
-      if (typeof timeTravelCode !== 'function' && typeof timeTravelCode !== 'string') {
-        throw new Error('Invalid timetravel.js content');
+      heaven = await Heaven.create(heavenId, getFallbackHeavenData());
+      await heaven.syncScriptWithLines();
+      this.setState({ heaven });
+      console.log("Heaven initialized:", heaven);
+      console.log("Heaven script:", heaven.script);
+    } catch (error) {
+      console.error(`Error initializing Heaven for ID: ${heavenId || 'fallback'}:`, error);
+      heaven = await Heaven.create(null, getFallbackHeavenData());
+      await heaven.syncScriptWithLines();
+      this.setState({ heaven });
+      console.log("Heaven initialized (fallback):", heaven);
+      console.log("Heaven script (fallback):", heaven.script);
+    }
+
+    let timeTravelCode = heaven.getTimeTravelFile();
+
+    if (timeTravelCode && typeof timeTravelCode === 'string') {
+      try {
+        const scriptFunction = new Function(timeTravelCode + '; return ThrydObjects;');
+        const ThrydObjects = scriptFunction();
+        if (ThrydObjects && typeof ThrydObjects.initiateThrydObjectsAndExecuteMovement === 'function') {
+          const movementResults = ThrydObjects.initiateThrydObjectsAndExecuteMovement();
+          const destination = ThrydObjects.timeMachine.getDestination();
+          const history = ThrydObjects.getHistory();
+          this.setState({
+            timeTravelCode,
+            timeMachineDestination: destination,
+            movementHistory: history,
+          });
+          console.log('Time machine destination:', destination);
+          console.log('Movement history:', history);
+        } else {
+          console.error('ThrydObjects or initiateThrydObjectsAndExecuteMovement is invalid');
+          timeTravelCode = null;
+        }
+      } catch (err) {
+        console.error('Error executing timetravelfile:', err);
+        timeTravelCode = null;
       }
-    } catch (requireErr) {
-      console.warn('timetravel.js not found or failed to load:', requireErr);
+    } else {
+      console.warn('No valid timetravelfile in heaven data');
+    }
+
+    if (!timeTravelCode) {
       console.log('Attempting to generate timetravel.js...');
       await this.generateTimeTravelFile();
       timeTravelCode = this.state.timeTravelCode;
       if (!timeTravelCode) {
-        console.warn('Failed to generate timetravel.js. A default timetravel.js has been saved to downloads.');
+        console.warn('Failed to generate timetravel.js. A default timetravel.js has been saved to Realtime Database.');
         alert(
-          'Failed to load or generate timetravel.js. A default timetravel.js has been saved to your downloads folder. ' +
-          'Please move it to src/components/CustomerWorkstation/ and rebuild the project with `npm run build`.'
+          `Failed to load or generate timetravel.js. A default timetravel.js has been saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`
         );
       }
     }
 
-    if (timeTravelCode) {
+    const script = heaven.getScript();
+    if (script && heaven.getAllData()) {
       try {
-        let initiateThrydObjectsAndExecuteMovement;
-        if (typeof timeTravelCode === 'string') {
-          const scriptFunction = new Function(timeTravelCode + '; return initiateThrydObjectsAndExecuteMovement;');
-          initiateThrydObjectsAndExecuteMovement = scriptFunction();
-        } else {
-          initiateThrydObjectsAndExecuteMovement = timeTravelCode;
-        }
-        if (typeof initiateThrydObjectsAndExecuteMovement === 'function') {
-          initiateThrydObjectsAndExecuteMovement();
-        } else {
-          console.error('initiateThrydObjectsAndExecuteMovement is not a function');
-        }
-      } catch (err) {
-        console.error('Error executing timetravel.js:', err);
-      }
-    } else {
-      console.warn('No timetravel.js available. Proceeding with default initialization.');
-    }
-
-    const { heavenData } = this.state;
-    if (heavenData) {
-      try {
-        const script = new Script(heavenData.script.title, false);
-        if (heavenData.script.messages) {
-          heavenData.script.messages.forEach(msg => script.addNewMessage(msg));
-        }
-        if (heavenData.script.cast) script.updateCast(heavenData.script.cast);
-        if (heavenData.script.scenes) script.updateScene(heavenData.script.scenes);
-        if (heavenData.stateSnapshots) this.setState({ stateSnapshots: heavenData.stateSnapshots });
-        if (heavenData.manifestationHistory) this.setState({ manifestationHistory: heavenData.manifestationHistory });
-
-        const placeToScene = {};
-        const scenes = heavenData.script.scenes || [];
-        heavenData.lines.forEach((line, index) => {
-          const place = line.place || "default";
-          if (!placeToScene[place] && !scenes.find(s => s.name === place)) {
-            const sceneId = `scene-${scenes.length + 1}`;
-            placeToScene[place] = sceneId;
-            scenes.push({
-              id: sceneId,
-              name: place,
-            });
-          }
-        });
-
-        script.updateScene(scenes);
         this.setState({
           script,
-          cast: heavenData.script.cast || [],
-          scenes,
+          cast: heaven.getCharacters() || [],
+          scenes: script.getScenes() || [],
           allMessages: script.getAllMessagesAsNodes(),
-          stateSnapshots: heavenData.stateSnapshots || [],
-          manifestationHistory: heavenData.manifestationHistory || [],
+          stateSnapshots: heaven.getAllData().stateSnapshots || [],
+          manifestationHistory: heaven.getAllData().manifestationHistory || [],
         });
       } catch (err) {
         console.error('Script initialization error:', err);
@@ -169,11 +156,11 @@ class CustomerWorkstation extends Component {
   }
 
   async generateTimeTravelFile() {
-    const { heavenData } = this.state;
-    if (!heavenData) {
-      console.error('No heavenData available to generate timetravel.js');
-      alert('No heavenData available. A default timetravel.js has been saved to downloads. Move it to src/components/CustomerWorkstation/ and rebuild with `npm run build`.');
-      this.createDefaultTimeTravelFile();
+    const { heaven, heavenId } = this.state;
+    if (!heaven) {
+      console.error('No heaven available to generate timetravel.js');
+      alert('No heaven available. A default timetravel.js has been saved to Realtime Database.');
+      await this.createDefaultTimeTravelFile();
       return;
     }
 
@@ -183,77 +170,7 @@ class CustomerWorkstation extends Component {
       const OpenAI = require('openai');
       const openai = new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true });
 
-      const prompt = `
-        You are an expert in JavaScript and narrative design for a time-travel story. Your task is to generate a technically valid JavaScript file called "timetravel.js" based on the provided JSON data (heavenFromAI.json). The file must adhere to strict JavaScript syntax and best practices, including ES6 module syntax, stateless methods, and safe action execution.
-
-        **Requirements**:
-        1. **Structure**:
-           - Define a \`ThrydObjects\` object containing all relevant objects from the JSON (e.g., door, timeMachine) and inferred objects for a time-travel narrative (e.g., controlPanel).
-           - Each object must have an \`isOriginalObject()\` method returning \`true\` for JSON-derived objects and \`false\` for inferred ones.
-           - Objects must have stateless methods that return new state objects (e.g., \`setIsClosed(isClosed) => ({ isClosed })\`) instead of mutating \`this\`.
-           - Getter methods (e.g., \`isClosed(state)\`) must accept a \`state\` parameter and return a default value if undefined (e.g., \`state.isClosed || false\`).
-           - Include an \`actionHandlers\` object mapping action names (e.g., \`openDoor\`) to functions that call object methods.
-           - Implement a \`doMovement(timestamp, ...actions)\` method to execute actions safely using \`actionHandlers\`, without using \`eval\` or \`new Function\`.
-           - Define a top-level \`initiateThrydObjectsAndExecuteMovement()\` function that simulates a narrative timeline by calling \`doMovement\` with UNIX timestamps (milliseconds since epoch, e.g., 1715324160000 for May 10, 2025).
-
-        2. **Action Execution**:
-           - Actions can be strings (e.g., 'openDoor') or objects (e.g., { type: 'setTimeMachineDestination', payload: { x, y, z } }).
-           - Use \`actionHandlers\` to map actions to their implementations (e.g., \`actionHandlers.openDoor = () => ThrydObjects.door.open()\`).
-           - Log each action’s execution and return a result object: \`{ timestamp, results: [{ action, result | error }] }\`.
-           - Include error handling to catch and log invalid actions.
-
-        3. **Syntax and Best Practices**:
-           - Use ES6 arrow functions for methods (e.g., \`isOriginalObject: () => true\`).
-           - Ensure all statements end with semicolons.
-           - Use \`export default initiateThrydObjectsAndExecuteMovement;\` as the sole export.
-           - Do not call \`initiateThrydObjectsAndExecuteMovement\` within the file.
-           - Avoid \`eval\`, \`new Function\`, or other unsafe constructs.
-           - Use \`console.log\` for debugging, with clear messages.
-           - Ensure all object literals include commas between properties (e.g., { prop1: 1, prop2: 2 }).
-           - Avoid reserved keywords (e.g., 'class', 'function') as property names or variables.
-           - Ensure all brackets, parentheses, and braces are properly closed.
-           - Use single quotes for strings unless template literals are required.
-           - Do not wrap the code in Markdown code fences (e.g., \`\`\`javascript or \`\`\`).
-
-        4. **JSON Data**:
-           - Analyze the provided JSON to identify objects and their properties.
-           - Infer additional objects that enhance the time-travel narrative, labeling them with \`isOriginalObject: () => false\`.
-
-        **JSON Data**:
-        ${JSON.stringify(heavenData, null, 2)}
-
-        **Output**:
-        - Return the complete JavaScript code as a plain string, ready to be saved as "timetravel.js".
-        - Do not include Markdown code fences (e.g., \`\`\`javascript or \`\`\`) or any formatting markers.
-        - Ensure the code is syntactically correct and can be parsed by Webpack without errors.
-        - Verify that all object properties are separated by commas and that no reserved keywords are used as identifiers.
-
-        **Example Output**:
-        const ThrydObjects = {
-          door: {
-            isOriginalObject: () => true,
-            setIsClosed: (isClosed) => ({ isClosed }),
-            isClosed: (state) => state.isClosed || false,
-            open: () => ({ action: 'open', status: 'success' }),
-          },
-          actionHandlers: {
-            openDoor: () => ThrydObjects.door.open(),
-          },
-          doMovement: (timestamp, ...actions) => {
-            console.log('Executing actions at timestamp ' + timestamp + ':');
-            const results = [];
-            // Process actions using actionHandlers
-            return { timestamp, results };
-          },
-        };
-
-        function initiateThrydObjectsAndExecuteMovement() {
-          const timestamp = 1715324160000;
-          ThrydObjects.doMovement(timestamp, { type: 'openDoor' });
-        }
-
-        export default initiateThrydObjectsAndExecuteMovement;
-      `;
+      const prompt = GENERATE_TIME_TRAVEL_PROMPT.replace('{{JSON_DATA}}', JSON.stringify(heaven.getAllData(), null, 2));
 
       const payload = {
         model: 'gpt-3.5-turbo',
@@ -288,19 +205,11 @@ class CustomerWorkstation extends Component {
           throw new Error('No valid code after stripping fences');
         }
 
-        // Log character codes around line 50 to detect hidden characters
-        const lines = timeTravelCode.split('\n');
-        if (lines.length >= 50) {
-          const line50 = lines[49]; // Line 50 (0-based index)
-          console.log('Line 50 characters:', line50.split('').map(c => c.charCodeAt(0)));
-        }
-
         const esprima = require('esprima');
         try {
-          esprima.parseModule(timeTravelCode); // Use parseModule for ES6 modules
+          esprima.parseModule(timeTravelCode);
         } catch (parseError) {
           console.error('Esprima parsing failed:', parseError);
-          // Attempt to fix common issues (e.g., add semicolon)
           let fixedCode = timeTravelCode;
           if (!fixedCode.endsWith(';')) {
             fixedCode += ';';
@@ -311,7 +220,7 @@ class CustomerWorkstation extends Component {
             timeTravelCode = fixedCode;
           } catch (fixError) {
             console.error('Fix attempt failed:', fixError);
-            throw parseError; // Rethrow original error
+            throw parseError;
           }
         }
       } catch (error) {
@@ -322,98 +231,32 @@ class CustomerWorkstation extends Component {
             console.log(`Line ${index + 1}: ${line}`);
           });
         }
-        timeTravelCode = null; // Trigger fallback
+        timeTravelCode = null;
       }
 
       if (timeTravelCode) {
         this.setState({ timeTravelCode });
-        const success = saveHeavenData(timeTravelCode, 'timetravel.js');
-        if (success) {
-          console.log('timetravel.js generated and saved to downloads.');
-          alert(
-            'timetravel.js generated and saved to downloads. Move it to src/components/CustomerWorkstation/ and rebuild with `npm run build`.'
-          );
-        } else {
-          console.error('Failed to save timetravel.js');
-          this.createDefaultTimeTravelFile();
-        }
+        await heaven.setTimeTravelFile(timeTravelCode);
+        console.log('timetravel.js generated and saved to Realtime Database.');
+        alert(`timetravel.js generated and saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`);
       } else {
         console.error('Failed to generate valid timetravel.js from OpenAI');
-        this.createDefaultTimeTravelFile();
+        await this.createDefaultTimeTravelFile();
       }
     } catch (error) {
       console.error('Error generating timetravel.js with OpenAI:', error);
-      this.createDefaultTimeTravelFile();
+      await this.createDefaultTimeTravelFile();
     }
   }
 
-  createDefaultTimeTravelFile() {
-    const defaultTimeTravelCode = `
-const ThrydObjects = {
-  door: {
-    isOriginalObject: () => true,
-    setIsClosed: (isClosed) => ({ isClosed }),
-    isClosed: (state) => state.isClosed || false,
-    open: () => ({ action: 'open', status: 'success' }),
-  },
-  timeMachine: {
-    isOriginalObject: () => true,
-    setDestination: ({ x, y, z }) => ({ x, y, z }),
-    getDestination: (state) => state.destination || { x: 0, y: 0, z: 0 },
-  },
-  controlPanel: {
-    isOriginalObject: () => false,
-    togglePower: () => ({ action: 'togglePower', status: 'success' }),
-  },
-  actionHandlers: {
-    openDoor: () => ThrydObjects.door.open(),
-    setTimeMachineDestination: ({ payload }) => ThrydObjects.timeMachine.setDestination(payload),
-    togglePower: () => ThrydObjects.controlPanel.togglePower(),
-  },
-  doMovement: (timestamp, ...actions) => {
-    console.log(\`Executing actions at timestamp \${timestamp}:\`);
-    const results = actions.map(action => {
-      try {
-        if (typeof action === 'string') {
-          if (ThrydObjects.actionHandlers[action]) {
-            return { action, result: ThrydObjects.actionHandlers[action]() };
-          }
-          throw new Error(\`Action '\${action}' is not valid.\`);
-        } else if (action.type && ThrydObjects.actionHandlers[action.type]) {
-          return { action: action.type, result: ThrydObjects.actionHandlers[action.type](action) };
-        }
-        throw new Error(\`Action '\${action.type}' is not valid.\`);
-      } catch (error) {
-        return { action, error: error.message };
-      }
-    });
-    return { timestamp, results };
-  },
-};
-
-function initiateThrydObjectsAndExecuteMovement() {
-  const timestamp = 1736380800000; // Jan 10, 2026 00:00:00 UTC
-  ThrydObjects.doMovement(timestamp, 'openDoor', { type: 'setTimeMachineDestination', payload: { x: 10, y: 20, z: 30 } }, 'togglePower');
-}
-
-export default initiateThrydObjectsAndExecuteMovement;
-    `.trim();
+  async createDefaultTimeTravelFile() {
+    const { heaven, heavenId } = this.state;
+    const defaultTimeTravelCode = DEFAULT_TIME_TRAVEL_CODE
 
     this.setState({ timeTravelCode: defaultTimeTravelCode });
-    const success = saveHeavenData(defaultTimeTravelCode, 'timetravel.js');
-    if (success) {
-      console.log('Default timetravel.js saved to downloads.');
-      alert(
-        'Failed to generate timetravel.js via OpenAI. A default timetravel.js has been saved to your downloads folder. ' +
-        'Please move it to src/components/CustomerWorkstation/ and rebuild with `npm run build`.'
-      );
-    } else {
-      console.error('Failed to save default timetravel.js');
-      alert(
-        'Failed to save default timetravel.js. Please manually save the following content as src/components/CustomerWorkstation/timetravel.js and rebuild with `npm run build`:\n\n' +
-        defaultTimeTravelCode
-      );
-    }
+    await heaven.setTimeTravelFile(defaultTimeTravelCode);
+    console.log('Default timetravel.js saved to Realtime Database.');
+    alert(`Default timetravel.js saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`);
   }
 
   componentWillUnmount() {
@@ -431,12 +274,13 @@ export default initiateThrydObjectsAndExecuteMovement;
   }
 
   handleGoalSelect = (goalId) => {
-    const { heavenData } = this.state;
-    if (!heavenData || !heavenData.lines[goalId]) return;
-    const line = heavenData.lines[goalId];
-    const place = line.place || "default";
-    const sceneId = this.state.scenes.find(scene => scene.name === place)?.id || this.state.scenes[0]?.id;
-    const selectedCharacter = heavenData.characters?.[0]?.name || null;
+    const { heaven } = this.state;
+    const lines = heaven.getLines();
+    if (!lines[goalId]) return;
+    const line = lines[goalId];
+    const place = line.coordinates ? `(${line.coordinates.x}, ${line.coordinates.y}, ${line.coordinates.z})` : "default";
+    const sceneId = this.state.scenes.find(scene => scene.name === place || scene.name === "default")?.id || this.state.scenes[0]?.id;
+    const selectedCharacter = heaven.getCharacters()?.[0]?.name || null;
     const selectedObject = line.objectStates?.[0] || null;
     this.setState({
       selectedGoalId: goalId,
@@ -459,35 +303,25 @@ export default initiateThrydObjectsAndExecuteMovement;
   };
 
   manifest = async () => {
-    const { heavenData, selectedGoalId, script, stateSnapshots, timeTravelCode } = this.state;
+    const { heaven, selectedGoalId, script, stateSnapshots, timeTravelCode } = this.state;
     if (!selectedGoalId) {
       alert('Please select a goal.');
       return;
     }
 
-    const line = heavenData.lines[selectedGoalId];
+    const line = heaven.getLines()[selectedGoalId];
     let localTimeTravelCode = timeTravelCode;
 
     if (!localTimeTravelCode) {
-      try {
-        const module = await import('./timetravel.js');
-        localTimeTravelCode = module.default || module.initiateThrydObjectsAndExecuteMovement;
-        if (typeof localTimeTravelCode !== 'string' && typeof localTimeTravelCode !== 'function') {
-          throw new Error('Invalid timetravel.js content');
-        }
-        if (typeof localTimeTravelCode === 'function') {
-          localTimeTravelCode = localTimeTravelCode.toString();
-        }
-      } catch (requireErr) {
-        console.warn('timetravel.js not found or invalid:', requireErr);
-        console.log('Generating timetravel.js...');
+      localTimeTravelCode = heaven.getTimeTravelFile();
+      if (!localTimeTravelCode) {
+        console.warn('No timetravelfile available, generating new one...');
         await this.generateTimeTravelFile();
         localTimeTravelCode = this.state.timeTravelCode;
         if (!localTimeTravelCode) {
-          console.error('Failed to load or generate timetravel.js');
+          console.error('Failed to load or generate timetravelfile');
           alert(
-            'Failed to load or generate timetravel.js. A default timetravel.js has been saved to your downloads folder. ' +
-            'Please move it to src/components/CustomerWorkstation/ and rebuild with `npm run build`.'
+            `Failed to load or generate timetravelfile. A default timetravel.js has been saved to Realtime Database at /heavens/${this.state.heavenId}/timetravelfile.`
           );
           return;
         }
@@ -497,28 +331,24 @@ export default initiateThrydObjectsAndExecuteMovement;
     this.setState({ isValidating: true });
 
     try {
-      const openAIAPI = process.env.REACT_APP_OPENAI_API_KEY;
+      const openAIAPI = await Firebase.getOpenAIAPI();
+      const openaiApiKey = Array.isArray(openAIAPI) ? openAIAPI.join("") : openAIAPI;
       const OpenAI = require('openai');
-      const openai = new OpenAI({ apiKey: openAIAPI, dangerouslyAllowBrowser: true });
+      const openai = new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true });
 
-      const prompt = `
-        You are an expert at determining if a goal manifests in a time-travel narrative. Below is the content of timetravel.js, which includes the initiateThrydObjectsAndExecuteMovement() function that logs object state updates over a narrative timeline using thrydObjects.doMovement(timestamp, ...actions) with UNIX timestamps. These state updates are managed by script.js based on actions (e.g., "he drops the cup in the kitchen" might trigger cup.updateLocation(kitchen.location)). Your task is to analyze the sequence of state updates and determine if the given goal line is logically plausible based on these movements, using narrative intuition. If a required state is missing (e.g., an object method cannot be called due to lack of context or synchronization), treat this as an external force that can prevent the goal from manifesting, and include this in your reasoning.
-
-        timetravel.js content:
-        ${localTimeTravelCode || 'No timetravel.js content available'}
-
-        Goal: "${line.text}"
-        Emotion: ${line.primaryEmotion} (${line.secondaryEmotion})
-        Place: ${line.place || 'default'}
-        State Snapshots: ${JSON.stringify(stateSnapshots, null, 2)}
-
-        Instructions:
-        1. Parse the initiateThrydObjectsAndExecuteMovement() function to extract all thrydObjects.doMovement calls and their UNIX timestamps.
-        2. Evaluate the sequence of object state updates to determine if they support the goal line's plausibility.
-        3. Use narrative intuition to connect object movements to the goal, considering the place and emotions.
-        4. If a required state or context is missing (e.g., an object method cannot be called), identify this as an external force preventing manifestation.
-        5. Return {"response": "accept", "probability": <number>, "reasoning": "<explanation>"} if the probability exceeds 0.7, else {"response": "decline", "probability": <number>, "reasoning": "<explanation>"}.
-      `;
+      const prompt = MANIFEST_PROMPT
+        .replace('{{TIME_TRAVEL_CODE}}', localTimeTravelCode)
+        .replace('{{GOAL_TEXT}}', line.text)
+        .replace('{{PRIMARY_EMOTION}}', line.primaryEmotion)
+        .replace('{{SECONDARY_EMOTION}}', line.secondaryEmotion)
+        .replace('{{COORD_X}}', line.coordinates.x)
+        .replace('{{COORD_Y}}', line.coordinates.y)
+        .replace('{{COORD_Z}}', line.coordinates.z)
+        .replace('{{END_X}}', line.endX)
+        .replace('{{END_Y}}', line.endY)
+        .replace('{{END_Z}}', line.endZ)
+        .replace('{{OBJECT_STATES}}', line.objectStates.join(", "))
+        .replace('{{STATE_SNAPSHOTS}}', JSON.stringify(stateSnapshots, null, 2));
 
       const payload = {
         model: 'gpt-3.5-turbo',
@@ -558,6 +388,7 @@ export default initiateThrydObjectsAndExecuteMovement;
           selectedSceneId: null,
           activeAction: null,
         }));
+        heaven.updateManifestationHistory(this.state.manifestationHistory);
         confetti({
           particleCount: 50,
           spread: 50,
@@ -576,59 +407,31 @@ export default initiateThrydObjectsAndExecuteMovement;
   };
 
   saveStateToJson = async () => {
-    const { heavenData, script, stateSnapshots, manifestationHistory } = this.state;
-    const newHeavenData = {
-      ...heavenData,
-      script: {
-        title: script.getTitle(),
-        messages: script.getAllMessagesAsNodes(),
-        cast: script.getAllCast(),
-        scenes: script.getAllScenes(),
-      },
-      stateSnapshots,
-      manifestationHistory,
-    };
-
-    if (saveHeavenData(newHeavenData)) {
-      this.setState({ heavenData: newHeavenData });
-    }
+    const { heaven, script, stateSnapshots, manifestationHistory, heavenId } = this.state;
+    heaven.updateStateSnapshots(stateSnapshots);
+    heaven.updateManifestationHistory(manifestationHistory);
+    await heaven.updateHeavenFirebase();
+    await saveHeavenData(heaven.getAllData(), 'heavenFromAI.json', heavenId);
   };
 
   saveScriptToJson = async () => {
-    const { heavenData, script, stateSnapshots, manifestationHistory } = this.state;
-    const newHeavenData = {
-      ...heavenData,
-      script: {
-        title: script.getTitle(),
-        messages: script.getAllMessagesAsNodes(),
-        cast: script.getAllCast(),
-        scenes: script.getAllScenes(),
-      },
-      stateSnapshots,
-      manifestationHistory,
-    };
-    saveHeavenData(newHeavenData);
+    const { heaven, script, stateSnapshots, manifestationHistory, heavenId } = this.state;
+    heaven.updateStateSnapshots(stateSnapshots);
+    heaven.updateManifestationHistory(manifestationHistory);
+    await heaven.updateHeavenFirebase();
+    await saveHeavenData(heaven.getAllData(), 'heavenFromAI.json', heavenId);
   };
 
   saveStateToFile = async () => {
-    const { heavenData, script, stateSnapshots, manifestationHistory } = this.state;
-    const newHeavenData = {
-      ...heavenData,
-      script: {
-        title: script.getTitle(),
-        messages: script.getAllMessagesAsNodes(),
-        cast: script.getAllCast(),
-        scenes: script.getAllScenes(),
-      },
-      stateSnapshots,
-      manifestationHistory,
-    };
-    saveHeavenData(newHeavenData);
+    const { heaven, script, stateSnapshots, manifestationHistory, heavenId } = this.state;
+    heaven.updateStateSnapshots(stateSnapshots);
+    heaven.updateManifestationHistory(manifestationHistory);
+    await saveHeavenData(heaven.getAllData(), 'heavenFromAI.json', heavenId);
   };
 
   render() {
     const {
-      heavenData,
+      heaven,
       script,
       selectedGoalId,
       selectedCharacter,
@@ -639,148 +442,50 @@ export default initiateThrydObjectsAndExecuteMovement;
       cast,
       scenes,
       activeAction,
+      timeMachineDestination,
+      movementHistory,
+      selectedSceneId,
     } = this.state;
-
-    if (!heavenData || !script || !cast || !scenes) {
-      return <div className="CustomerWorkstation--loading-message">Loading your journey...</div>;
-    }
 
     return (
       <div className="CustomerWorkstation">
-        <h2 className="CustomerWorkstation--title">Manifest Your Time-Travel Narrative</h2>
-
-        <FormControl className="CustomerWorkstation--goal-select">
-          <InputLabel>Select Your Goal</InputLabel>
-          <Select
-            value={selectedGoalId ?? ''}
-            onChange={(e) => this.handleGoalSelect(e.target.value === '' ? null : parseInt(e.target.value))}
-          >
-            <MenuItem value="">Select a goal</MenuItem>
-            {heavenData.lines.map((line, index) => (
-              <MenuItem key={`goal-${index}`} value={index}>
-                {line.text} ({line.place || 'default'})
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {selectedGoalId !== null && (
-          <div className="CustomerWorkstation--goal-section">
-            <Button
-              variant="outlined"
-              onClick={this.handleCloseGoalSection}
-              className="CustomerWorkstation--close-button"
-            >
-              X
-            </Button>
-            <p className="CustomerWorkstation--place-info">
-              Place: {heavenData.lines[selectedGoalId].place || 'default'}
-            </p>
-            <p className="CustomerWorkstation--character-object-info">
-              Character: {selectedCharacter || 'None'} | Object: {selectedObject || 'None'}
-            </p>
-            {activeAction === null && (
-              <div className="CustomerWorkstation--button-group">
-                <Button
-                  variant="contained"
-                  onClick={() => this.setState({ activeAction: 'manifest' })}
-                >
-                  Manifest
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={this.saveScriptToJson}
-                >
-                  Save to File
-                </Button>
-              </div>
-            )}
-            {activeAction === 'manifest' && (
-              <div className="CustomerWorkstation--manifest-buttons">
-                <Button
-                  variant="contained"
-                  onClick={this.manifest}
-                  disabled={isValidating}
-                >
-                  {isValidating ? 'Manifesting...' : 'Confirm'}
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={this.saveStateToFile}
-                >
-                  Save State
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={() => this.setState({ activeAction: null })}
-                >
-                  Back
-                </Button>
-              </div>
-            )}
-
-            <div className="CustomerWorkstation--chat-area">
-              {allMessages
-                .filter(msg => msg.sceneId === this.state.selectedSceneId)
-                .map((message, index) => (
-                  <div key={`msg-${index}`} className="CustomerWorkstation--message">
-                    <strong>{message.character || script.getSenderNameFromID(message.senderId)}:</strong> {message.content}
-                    {message.isImg && (
-                      <img src={message.url} alt="Screenshot" className="CustomerWorkstation--message-image" />
-                    )}
-                    {message.emotion && <span className="CustomerWorkstation--message-emotion"> ({message.emotion})</span>}
-                    {message.object && <span className="CustomerWorkstation--message-object"> [Object: {message.object}]</span>}
-                  </div>
-                ))}
-            </div>
-
-            <div className="CustomerWorkstation--actions-section">
-              <h4 className="CustomerWorkstation--actions-title">Manifestation Actions</h4>
-              {manifestationActions.length === 0 && (
-                <p className="CustomerWorkstation--no-actions">No actions added yet.</p>
-              )}
-              <ul className="CustomerWorkstation--actions-list">
-                {manifestationActions.map((action, index) => (
-                  <li key={`action-${index}`} className="CustomerWorkstation--action-item">
-                    <input
-                      type="checkbox"
-                      checked={action.save}
-                      onChange={() => {
-                        const newActions = [...this.state.manifestationActions];
-                        newActions[index].save = !newActions[index].save;
-                        this.setState({ manifestationActions: newActions });
-                      }}
-                      className="CustomerWorkstation--action-checkbox"
-                    />
-                    <span className="CustomerWorkstation--action-text">
-                      {action.type === 'dialogue'
-                        ? `${action.character} says: "${action.content}"`
-                        : action.type === 'media'
-                        ? `${action.character} shares: ${action.content}`
-                        : `${action.character} performs: ${action.method}(${action.args?.join(', ')})`}
-                    </span>
-                    <Button
-                      variant="outlined"
-                      onClick={() => {
-                        const newActions = [...this.state.manifestationActions];
-                        newActions.splice(index, 1);
-                        this.setState({ manifestationActions: newActions });
-                      }}
-                      className="CustomerWorkstation--remove-button"
-                    >
-                      Remove
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-
-        <EditScript isNewScript={true} script={script} />
+        <h2 className="CustomerWorkstation--title">{heaven?.getTitle() || "Loading..."}</h2>
+        <GoalManager
+          heaven={heaven}
+          script={script}
+          selectedGoalId={selectedGoalId}
+          selectedCharacter={selectedCharacter}
+          selectedObject={selectedObject}
+          manifestationActions={manifestationActions}
+          isValidating={isValidating}
+          allMessages={allMessages}
+          cast={cast}
+          scenes={scenes}
+          activeAction={activeAction}
+          timeMachineDestination={timeMachineDestination}
+          movementHistory={movementHistory}
+          selectedSceneId={selectedSceneId}
+          onGoalSelect={this.handleGoalSelect}
+          onCloseGoalSection={this.handleCloseGoalSection}
+          onManifest={this.manifest}
+          onSaveScriptToJson={this.saveScriptToJson}
+          onSaveStateToFile={this.saveStateToFile}
+          setState={(updates) => this.setState(updates)}
+        />
+        {script &&
+          <EditScript 
+            isNewScript={true} 
+            script={script} 
+          />
+        }
       </div>
     );
   }
 }
 
+const mapStateToProps = (state) => {
+  return {};
+};
+
+let CustomerWorkstation = withRouter(connect(mapStateToProps)(ConnectedCustomerWorkstation));
 export default withRouter(CustomerWorkstation);

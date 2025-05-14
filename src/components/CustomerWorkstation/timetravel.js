@@ -1,24 +1,34 @@
 const ThrydObjects = {
+  _history: [], // Store action history
+
   door: {
     isOriginalObject: () => true,
     setIsClosed: (isClosed) => ({ isClosed }),
     isClosed: (state) => state.isClosed || false,
     open: () => ({ action: 'open', status: 'success' }),
   },
+
   timeMachine: {
     isOriginalObject: () => true,
-    setDestination: ({ x, y, z }) => ({ x, y, z }),
-    getDestination: (state) => state.destination || { x: 0, y: 0, z: 0 },
+    _state: { destination: null }, // Internal state
+    setDestination: ({ x, y, z }) => {
+      ThrydObjects.timeMachine._state.destination = { x, y, z };
+      return ThrydObjects.timeMachine._state.destination;
+    },
+    getDestination: () => ThrydObjects.timeMachine._state.destination || { x: 0, y: 0, z: 0 },
   },
+
   controlPanel: {
     isOriginalObject: () => false,
     activate: () => ({ action: 'activate', status: 'success' }),
   },
+
   actionHandlers: {
     openDoor: () => ThrydObjects.door.open(),
     setTimeMachineDestination: ({ payload }) => ThrydObjects.timeMachine.setDestination(payload),
     activateControlPanel: () => ThrydObjects.controlPanel.activate(),
   },
+
   doMovement: (timestamp, ...actions) => {
     console.log('Executing actions at timestamp ' + timestamp + ':');
     const results = actions.map((action) => {
@@ -38,13 +48,17 @@ const ThrydObjects = {
         return { action, error: error.message };
       }
     });
-    return { timestamp, results };
+    const movement = { timestamp, results };
+    ThrydObjects._history.push(movement); // Record action in history
+    return movement;
   },
+
+  initiateThrydObjectsAndExecuteMovement: () => {
+    const timestamp = 1715324160000; // May 10, 2024
+    return ThrydObjects.doMovement(timestamp, 'openDoor', { type: 'setTimeMachineDestination', payload: { x: 10, y: 20, z: 30 } });
+  },
+
+  getHistory: () => ThrydObjects._history, // Expose action history
 };
 
-function initiateThrydObjectsAndExecuteMovement() {
-  const timestamp = 1715324160000;
-  ThrydObjects.doMovement(timestamp, 'openDoor', { type: 'setTimeMachineDestination', payload: { x: 10, y: 20, z: 30 } });
-}
-
-export default initiateThrydObjectsAndExecuteMovement;
+export default ThrydObjects;
