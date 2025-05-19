@@ -7,6 +7,7 @@ import Firebase from "../../firebase/firebase.js";
 import Heaven from "../Heaven/Heaven.js";
 import GoalManager from "./GoalManager.js";
 import { GENERATE_TIME_TRAVEL_PROMPT, MANIFEST_PROMPT, DEFAULT_TIME_TRAVEL_CODE } from "./prompts.js";
+import StripCodeFences from "../../Helpers/Helpers.js";
 
 import "./CustomerWorkstation.css";
 
@@ -33,21 +34,6 @@ async function saveHeavenData(data, filename = 'heavenFromAI.json', heavenId) {
     console.error(`Failed to save ${filename} to Realtime Database:`, err);
     return false;
   }
-}
-
-// Utility to strip Markdown code fences, hidden characters, and normalize code
-function stripCodeFences(code) {
-  if (!code || typeof code !== 'string') return '';
-  let cleaned = code.replace(/^\uFEFF/, '') // Remove BOM
-                    .replace(/[^\x20-\x7E\n\r\t]/g, '') // Remove non-ASCII
-                    .replace(/\r\n|\r/g, '\n') // Normalize to \n
-                    .replace(/^\s*```(?:\w+)?\s*?\n?([\s\S]*?)\n?\s*```?\s*$/, '$1') // Remove code fences
-                    .replace(/^\s*```.*$/gm, '') // Remove stray ``` lines
-                    .trim();
-  if (cleaned.match(/export default .*$/)) {
-    cleaned = cleaned.replace(/export default ([^;]*)$/, 'export default $1;');
-  }
-  return cleaned;
 }
 
 // Utility to get OpenAI instance
@@ -215,7 +201,7 @@ class ConnectedCustomerWorkstation extends Component {
           throw new Error('Empty or invalid OpenAI response');
         }
 
-        timeTravelCode = stripCodeFences(gptResponse.choices[0].message.content);
+        timeTravelCode = StripCodeFences(gptResponse.choices[0].message.content);
         console.log('Cleaned timeTravelCode:', timeTravelCode);
 
         if (!timeTravelCode) {
@@ -515,7 +501,7 @@ class ConnectedCustomerWorkstation extends Component {
           setState={(updates) => this.setState(updates)}
         />
         {script &&
-          <EditScript 
+          <EditScript
             isNewScript={true} 
             script={script} 
           />

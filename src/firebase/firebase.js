@@ -345,6 +345,7 @@ class Firebase {
               stateSnapshots: val.stateSnapshots || [],
               manifestationHistory: val.manifestationHistory || [],
               timetravelfile: val.timetravelfile || null,
+              currentGoalInProgress: val.currentGoalInProgress || "",
               ...heavenData,
             });
           } else {

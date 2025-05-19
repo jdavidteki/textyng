@@ -125,6 +125,7 @@ class Heaven {
         stateSnapshots: val.stateSnapshots || this.data.stateSnapshots || [],
         manifestationHistory: val.manifestationHistory || this.data.manifestationHistory || [],
         timetravelfile: val.timetravelfile || null, // Load timetravelfile
+        currentGoalInProgress: val.currentGoalInProgress || "",
       };
 
       if (this.data.scriptId) {
@@ -308,6 +309,10 @@ class Heaven {
 
   getScript() {
     return this.script;
+  }
+
+  getCurrentGoalInProgress(){
+    return this.data.currentGoalInProgress;
   }
 
   async setScriptId(scriptId) {

@@ -21,6 +21,8 @@ const SweducerWorkstation = lazy(() => import("../SweducerWorkstation/SweducerWo
 const SendHeavenToAI = lazy(() => import("../SendHeavenToAI/SendHeavenToAI.js"));
 const ArtistWorkstation = lazy(() => import("../ArtistWorkstation/ArtistWorkstation.js"));
 const CustomerWorkstation = lazy(() => import("../CustomerWorkstation/CustomerWorkstation.js"));
+const Durella = lazy(() => import("../Durella/Durella.js"));
+
 
 class Layout extends Component {
   constructor(props) {
@@ -82,7 +84,8 @@ class Layout extends Component {
             {this.state.pageName === "sweducerworkstation" && <SweducerWorkstation changePage={this.changePage} />}
             {this.state.pageName === "sendheaventoai" && <SendHeavenToAI changePage={this.changePage} /> }
             {this.state.pageName === "artistworkstation" && <ArtistWorkstation changePage={this.changePage} />}
-            {this.state.pageName === "customerworkstation" && <CustomerWorkstation changePage={this.changePage} />}            
+            {this.state.pageName === "customerworkstation" && <CustomerWorkstation changePage={this.changePage} />}    
+            {this.state.pageName === "durella" && <Durella changePage={this.changePage} />}            
           </Suspense>
         </div>
         <div className="Layout-footer">

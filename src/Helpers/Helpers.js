@@ -191,3 +191,48 @@ export function MoveSunInSky() {
   
     return;
   }
+
+
+  export function StripCodeFences(code) {
+  if (!code || typeof code !== 'string') return '';
+  let cleaned = code.replace(/^\uFEFF/, '') // Remove BOM
+                    .replace(/[^\x20-\x7E\n\r\t]/g, '') // Remove non-ASCII
+                    .replace(/\r\n|\r/g, '\n') // Normalize line endings
+                    .replace(/^\s*```(?:\w+)?\s*?\n?([\s\S]*?)\n?\s*```?\s*$/, '$1') // Remove code fences
+                    .replace(/^\s*```.*$/gm, '') // Remove stray ``` lines
+                    .replace(/^\s*export\s+(default\s+)?[\s\S]*?$/gm, '') // Remove export statements
+                    .trim();
+  return cleaned;
+}
+
+export function cleanTimeTravelCode(code) {
+  if (!code || typeof code !== 'string') return '';
+
+  let cleaned = code
+    // Remove BOM
+    .replace(/^\uFEFF/, '')
+    // Remove non-ASCII characters
+    .replace(/[^\x20-\x7E\n\r\t]/g, '')
+    // Normalize line endings to \n
+    .replace(/\r\n|\r/g, '\n')
+    // Remove Markdown code fences
+    .replace(/^\s*```(?:\w+)?\s*?\n?([\s\S]*?)\n?\s*```?\s*$/, '$1')
+    .replace(/^\s*```.*$/gm, '')
+    // Remove export statements (export default, export const, etc.)
+    .replace(/^\s*export\s+(default\s+|const\s+|let\s+|var\s+|function\s+)?[\s\S]*?$/gm, '')
+    // Remove import statements
+    .replace(/^\s*import\s+[\s\S]*?$/gm, '')
+    // Remove module or other invalid keywords
+    .replace(/\bmodule\b/g, '')
+    // Remove stray semicolons or invalid tokens
+    .replace(/;+/g, ';')
+    // Remove leading/trailing whitespace
+    .trim();
+
+  // Ensure ThrydObjects definition remains
+  if (!cleaned.includes('ThrydObjects')) {
+    console.warn('cleanTimeTravelCode: ThrydObjects not found in cleaned code');
+  }
+
+  return cleaned;
+}

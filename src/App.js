@@ -40,6 +40,7 @@ class App extends Component {
                             <Route path="/sendheaventoai" exact component={() => (<LayoutLazy pageName="sendheaventoai" />)} />
                             <Route path="/artistworkstation" exact component={() => (<LayoutLazy pageName="artistworkstation" />)} />
                             <Route path="/customerworkstation/:id" exact component={() => (<LayoutLazy pageName="customerworkstation" />)} />
+                            <Route path="/durella/:id" exact component={() => (<LayoutLazy pageName="durella" />)} />
                         </Switch>
                     </Suspense>
                 </div>
