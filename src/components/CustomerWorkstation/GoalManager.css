@@ -1,0 +1,113 @@
+.GoalManager {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.GoalManager--goals-tab {
+  margin-top: 20px;
+}
+
+.GoalManager--goal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.GoalManager--goal-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.GoalManager--checkmark {
+  margin-left: 5px;
+  font-size: 16px;
+}
+
+.GoalManager--goal-controls {
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.GoalManager--manifest-actions {
+  margin-top: 10px;
+}
+
+.GoalManager--details-tab {
+  margin-top: 20px;
+}
+
+.GoalManager--search-bar {
+  margin-bottom: 20px;
+}
+
+.GoalManager--search-bar input {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.GoalManager--carousel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.GoalManager--carousel-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+.GoalManager--carousel-slide {
+  display: flex;
+  transition: transform 0.3s ease;
+  width: calc(100% * var(--goal-count));
+}
+
+.GoalManager--past-goal {
+  flex: 0 0 100%;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.GoalManager--carousel-button {
+  padding: 10px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.GoalManager--carousel-button:disabled {
+  background: #ddd;
+  cursor: not-allowed;
+}
+
+.GoalManager--canvas-tab {
+  margin-top: 20px;
+}
+
+.GoalManager--actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+/*# sourceMappingURL=GoalManager.css.map */

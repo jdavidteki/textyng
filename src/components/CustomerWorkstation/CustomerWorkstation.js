@@ -7,11 +7,10 @@ import Firebase from "../../firebase/firebase.js";
 import Heaven from "../Heaven/Heaven.js";
 import GoalManager from "./GoalManager.js";
 import { GENERATE_TIME_TRAVEL_PROMPT, MANIFEST_PROMPT, DEFAULT_TIME_TRAVEL_CODE } from "./prompts.js";
-import StripCodeFences from "../../Helpers/Helpers.js";
+import { staticManifestResponse } from "./responses.js";
 
 import "./CustomerWorkstation.css";
 
-// Utility to load fallback heaven data
 function getFallbackHeavenData() {
   try {
     return require('./heavenFromAI.json');
@@ -21,14 +20,11 @@ function getFallbackHeavenData() {
   }
 }
 
-// Utility to save data to Realtime Database
 async function saveHeavenData(data, filename = 'heavenFromAI.json', heavenId) {
   const content = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
   const field = filename === 'timetravel.js' ? 'timetravelfile' : 'heavenData';
-
   try {
     await Firebase.saveHeavenData(heavenId, content, field);
-    console.log(`Saved ${filename} to Realtime Database at /heavens/${heavenId}/${field}`);
     return true;
   } catch (err) {
     console.error(`Failed to save ${filename} to Realtime Database:`, err);
@@ -36,7 +32,6 @@ async function saveHeavenData(data, filename = 'heavenFromAI.json', heavenId) {
   }
 }
 
-// Utility to get OpenAI instance
 let openAIInstance = null;
 async function getOpenAIInstance() {
   if (openAIInstance) return openAIInstance;
@@ -52,15 +47,46 @@ async function getOpenAIInstance() {
   }
 }
 
+function stripCodeFences(code) {
+  if (!code) return '';
+  return code
+    .replace(/^```(?:javascript|js)?\n/, '')
+    .replace(/\n```$/, '')
+    .trim();
+}
+
+function parseOpenAIManifestResponse(gptResponse) {
+  const aiResponse = gptResponse.choices?.[0]?.message?.content || JSON.stringify(gptResponse);
+  if (!aiResponse) {
+    console.error('Empty or invalid OpenAI response:', gptResponse);
+    throw new Error('No content in OpenAI response');
+  }
+  const jsonMatch = aiResponse.match(/{[\s\S]*}/);
+  const jsonString = jsonMatch ? jsonMatch[0] : aiResponse;
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonString);
+    parsed.probability = typeof parsed.probability === 'string'
+      ? parseFloat(parsed.probability.replace(/[<>"]/g, '')) || 0
+      : parseFloat(parsed.probability) || 0;
+  } catch (parseError) {
+    console.error('Failed to parse OpenAI response:', parseError, 'aiResponse:', aiResponse);
+    throw new Error('Invalid OpenAI response format');
+  }
+  if (!parsed.response || !parsed.reasoning || typeof parsed.probability !== 'number') {
+    console.error('Invalid OpenAI response structure:', parsed);
+    throw new Error('Missing required fields in OpenAI response');
+  }
+  return parsed;
+}
+
 class ConnectedCustomerWorkstation extends Component {
   constructor(props) {
     super(props);
     this.state = {
       heaven: null,
       script: null,
-      selectedGoalId: null,
-      selectedCharacter: null,
-      selectedObject: null,
+      scriptId: null,
       manifestationActions: [],
       manifestationHistory: [],
       isValidating: false,
@@ -87,27 +113,59 @@ class ConnectedCustomerWorkstation extends Component {
     let heaven;
     try {
       heaven = await Heaven.create(heavenId, getFallbackHeavenData());
-      this.setState({ loadingProgress: 30 });
-      this.setState({ heaven, loadingProgress: 50 });
+      if (heaven.data?.scriptId) {
+        await heaven.loadScript();
+      }
 
+      const lines = heaven.getLines() || {};
+      const lineKeys = Object.keys(lines).map(Number);
+
+      let goalInProgress = heaven.getCurrentGoalInProgress();
+      if (goalInProgress === undefined) {
+        goalInProgress = await heaven.getCurrentGoalInProgress();
+      }
+
+      if (goalInProgress === null || !lines[goalInProgress]) {
+        if (lineKeys.length > 0) {
+          goalInProgress = Math.min(...lineKeys);
+          await heaven.setCurrentGoalInProgress(goalInProgress);
+        } else {
+          goalInProgress = null;
+        }
+      }
+
+      const manifestationHistory = heaven.getManifestationHistory() || [];
+
+      this.setState({
+        heaven,
+        manifestationHistory,
+        loadingProgress: 50,
+      });
     } catch (error) {
       console.error(`Error initializing Heaven for ID: ${heavenId || 'fallback'}:`, error);
       heaven = await Heaven.create(null, getFallbackHeavenData());
-      this.setState({ loadingProgress: 30 });
-      this.setState({ heaven, loadingProgress: 50 });
-      console.log("Heaven initialized (fallback):", heaven);
-      console.log("Heaven script (fallback):", heaven.script);
+      const lines = heaven.getLines() || {};
+      const lineKeys = Object.keys(lines).map(Number);
+      let goalInProgress = null;
+      if (lineKeys.length > 0) {
+        goalInProgress = Math.min(...lineKeys);
+        await heaven.setCurrentGoalInProgress(goalInProgress);
+      }
+      this.setState({ heaven, manifestationHistory: [], loadingProgress: 50 });
     }
 
     let timeTravelCode = heaven.getTimeTravelFile();
     this.setState({ loadingProgress: 60 });
 
     if (timeTravelCode && typeof timeTravelCode === 'string') {
+      timeTravelCode = timeTravelCode
+        .replace(/export\s+(default\s+)?/g, '')
+        .replace(/import\s+.*?\s+from\s+['"].*?['"];?/g, '');
       try {
         const scriptFunction = new Function(timeTravelCode + '; return ThrydObjects;');
         const ThrydObjects = scriptFunction();
         if (ThrydObjects && typeof ThrydObjects.initiateThrydObjectsAndExecuteMovement === 'function') {
-          const movementResults = ThrydObjects.initiateThrydObjectsAndExecuteMovement();
+          ThrydObjects.initiateThrydObjectsAndExecuteMovement();
           const destination = ThrydObjects.timeMachine.getDestination();
           const history = ThrydObjects.getHistory();
           this.setState({
@@ -115,8 +173,6 @@ class ConnectedCustomerWorkstation extends Component {
             timeMachineDestination: destination,
             movementHistory: history,
           });
-          console.log('Time machine destination:', destination);
-          console.log('Movement history:', history);
         } else {
           console.error('ThrydObjects or initiateThrydObjectsAndExecuteMovement is invalid');
           timeTravelCode = null;
@@ -130,28 +186,26 @@ class ConnectedCustomerWorkstation extends Component {
     }
 
     if (!timeTravelCode) {
-      console.log('Attempting to generate timetravel.js...');
       await this.generateTimeTravelFile();
       timeTravelCode = this.state.timeTravelCode;
       if (!timeTravelCode) {
-        console.warn('Failed to generate timetravel.js. A default timetravel.js has been saved to Realtime Database.');
-        alert(
-          `Failed to load or generate timetravel.js. A default timetravel.js has been saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`
-        );
+        console.warn('Failed to generate timetravel.js. Using default.');
+        await this.createDefaultTimeTravelFile();
       }
     }
     this.setState({ loadingProgress: 80 });
 
     const script = heaven.getScript();
-    if (script && heaven.getAllData()) {
+    const scriptId = heaven.data?.scriptId || null;
+    if (script && scriptId && heaven.getAllData()) {
       try {
         this.setState({
           script,
+          scriptId,
           cast: heaven.getCharacters() || [],
           scenes: script.getScenes() || [],
           allMessages: script.getAllMessagesAsNodes(),
-          stateSnapshots: heaven.getAllData().stateSnapshots || [],
-          manifestationHistory: heaven.getAllData().manifestationHistory || [],
+          stateSnapshots: heaven.getStateSnapshots() || [],
           loadingProgress: 100,
         });
       } catch (err) {
@@ -167,22 +221,19 @@ class ConnectedCustomerWorkstation extends Component {
     const { heaven, heavenId } = this.state;
     if (!heaven) {
       console.error('No heaven available to generate timetravel.js');
-      alert('No heaven available. A default timetravel.js has been saved to Realtime Database.');
       await this.createDefaultTimeTravelFile();
       return;
     }
 
     try {
       const openai = await getOpenAIInstance();
-
       const prompt = GENERATE_TIME_TRAVEL_PROMPT.replace('{{JSON_DATA}}', JSON.stringify(heaven.getAllData(), null, 2));
-
       const payload = {
         model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
-            content: 'You are a JavaScript and narrative design expert. Generate syntactically correct JavaScript code adhering to the provided requirements.',
+            content: 'You are a JavaScript expert. Generate syntactically correct plain JavaScript code (no ES modules, no export/import) that defines ThrydObjects with initiateThrydObjectsAndExecuteMovement, timeMachine.getDestination, and getHistory functions.',
           },
           {
             role: 'user',
@@ -194,23 +245,20 @@ class ConnectedCustomerWorkstation extends Component {
 
       let timeTravelCode = null;
       try {
-        const startTime = Date.now();
         const gptResponse = await openai.chat.completions.create(payload);
-
         if (!gptResponse.choices?.[0]?.message?.content) {
           throw new Error('Empty or invalid OpenAI response');
         }
-
-        timeTravelCode = StripCodeFences(gptResponse.choices[0].message.content);
-        console.log('Cleaned timeTravelCode:', timeTravelCode);
-
+        timeTravelCode = stripCodeFences(gptResponse.choices[0].message.content);
         if (!timeTravelCode) {
           throw new Error('No valid code after stripping fences');
         }
-
+        timeTravelCode = timeTravelCode
+          .replace(/export\s+(default\s+)?/g, '')
+          .replace(/import\s+.*?\s+from\s+['"].*?['"];?/g, '');
         const esprima = require('esprima');
         try {
-          esprima.parseModule(timeTravelCode);
+          esprima.parseScript(timeTravelCode);
         } catch (parseError) {
           console.error('Esprima parsing failed:', parseError);
           let fixedCode = timeTravelCode;
@@ -218,8 +266,7 @@ class ConnectedCustomerWorkstation extends Component {
             fixedCode += ';';
           }
           try {
-            esprima.parseModule(fixedCode);
-            console.log('Fixed code by adding semicolon');
+            esprima.parseScript(fixedCode);
             timeTravelCode = fixedCode;
           } catch (fixError) {
             console.error('Fix attempt failed:', fixError);
@@ -228,32 +275,23 @@ class ConnectedCustomerWorkstation extends Component {
         }
       } catch (error) {
         console.error('Error processing OpenAI response:', error);
-        if (timeTravelCode) {
-          console.log('Invalid timeTravelCode content:');
-          timeTravelCode.split('\n').forEach((line, index) => {
-            console.log(`Line ${index + 1}: ${line}`);
-          });
-        }
         timeTravelCode = null;
       }
 
       if (timeTravelCode) {
         const existingTimeTravelFile = heaven.getTimeTravelFile();
         if (existingTimeTravelFile === timeTravelCode) {
-          console.log('Generated timetravel.js is identical to existing file, skipping Firebase save.');
           this.setState({ timeTravelCode });
         } else {
           this.setState({ timeTravelCode });
           await heaven.setTimeTravelFile(timeTravelCode);
-          console.log('timetravel.js generated and saved to Realtime Database.');
-          alert(`timetravel.js generated and saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`);
         }
       } else {
-        console.error('Failed to generate valid timetravel.js from OpenAI');
+        console.error('Failed to generate valid timetravel.js');
         await this.createDefaultTimeTravelFile();
       }
     } catch (error) {
-      console.error('Error generating timetravel.js with OpenAI:', error);
+      console.error('Error generating timetravel.js:', error);
       await this.createDefaultTimeTravelFile();
     }
   }
@@ -261,16 +299,12 @@ class ConnectedCustomerWorkstation extends Component {
   async createDefaultTimeTravelFile() {
     const { heaven, heavenId } = this.state;
     const defaultTimeTravelCode = DEFAULT_TIME_TRAVEL_CODE;
-
     const existingTimeTravelFile = heaven.getTimeTravelFile();
     if (existingTimeTravelFile === defaultTimeTravelCode) {
-      console.log('Default timetravel.js is identical to existing file, skipping Firebase save.');
       this.setState({ timeTravelCode: defaultTimeTravelCode });
     } else {
       this.setState({ timeTravelCode: defaultTimeTravelCode });
       await heaven.setTimeTravelFile(defaultTimeTravelCode);
-      console.log('Default timetravel.js saved to Realtime Database.');
-      alert(`Default timetravel.js saved to Realtime Database at /heavens/${heavenId}/timetravelfile.`);
     }
   }
 
@@ -279,8 +313,8 @@ class ConnectedCustomerWorkstation extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { script, selectedGoalId, allMessages } = this.state;
-    if (selectedGoalId !== null && script) {
+    const { script, allMessages } = this.state;
+    if (script) {
       const currentMessages = script.getAllMessagesAsNodes();
       if (currentMessages.length > allMessages.length) {
         this.setState({ allMessages: currentMessages });
@@ -288,38 +322,29 @@ class ConnectedCustomerWorkstation extends Component {
     }
   }
 
-  handleGoalSelect = (goalId) => {
+  handleGoalSelect = async (goalId) => {
     const { heaven } = this.state;
     const lines = heaven.getLines();
     if (!lines[goalId]) return;
     const line = lines[goalId];
     const place = line.coordinates ? `(${line.coordinates.x}, ${line.coordinates.y}, ${line.coordinates.z})` : "default";
     const sceneId = this.state.scenes.find(scene => scene.name === place || scene.name === "default")?.id || this.state.scenes[0]?.id;
-    const selectedCharacter = heaven.getCharacters()?.[0]?.name || null;
-    const selectedObject = line.objectStates?.[0] || null;
     this.setState({
-      selectedGoalId: goalId,
       selectedSceneId: sceneId,
-      selectedCharacter,
-      selectedObject,
       manifestationActions: [],
       activeAction: null,
     });
-  };
-
-  handleCloseGoalSection = () => {
-    this.setState({
-      selectedGoalId: null,
-      selectedCharacter: null,
-      selectedObject: null,
-      manifestationActions: [],
-      activeAction: null,
-    });
+    try {
+      await heaven.setCurrentGoalInProgress(goalId);
+    } catch (error) {
+      console.error("Error saving currentGoalInProgress:", error);
+    }
   };
 
   manifest = async () => {
-    const { heaven, selectedGoalId, script, stateSnapshots, timeTravelCode } = this.state;
-    if (!selectedGoalId) {
+    const { heaven, script, stateSnapshots, timeTravelCode } = this.state;
+    const selectedGoalId = heaven.getCurrentGoalInProgress();
+    if (selectedGoalId === null || !heaven.getLines()[selectedGoalId]) {
       alert('Please select a goal.');
       return;
     }
@@ -335,9 +360,7 @@ class ConnectedCustomerWorkstation extends Component {
         localTimeTravelCode = this.state.timeTravelCode;
         if (!localTimeTravelCode) {
           console.error('Failed to load or generate timetravelfile');
-          alert(
-            `Failed to load or generate timetravelfile. A default timetravel.js has been saved to Realtime Database at /heavens/${this.state.heavenId}/timetravelfile.`
-          );
+          await this.createDefaultTimeTravelFile();
           return;
         }
       }
@@ -346,69 +369,45 @@ class ConnectedCustomerWorkstation extends Component {
     this.setState({ isValidating: true });
 
     try {
-      const openai = await getOpenAIInstance();
-
-      const prompt = MANIFEST_PROMPT
-        .replace('{{TIME_TRAVEL_CODE}}', localTimeTravelCode)
-        .replace('{{GOAL_TEXT}}', line.text)
-        .replace('{{PRIMARY_EMOTION}}', line.primaryEmotion)
-        .replace('{{SECONDARY_EMOTION}}', line.secondaryEmotion)
-        .replace('{{COORD_X}}', line.coordinates.x)
-        .replace('{{COORD_Y}}', line.coordinates.y)
-        .replace('{{COORD_Z}}', line.coordinates.z)
-        .replace('{{END_X}}', line.endX)
-        .replace('{{END_Y}}', line.endY)
-        .replace('{{END_Z}}', line.endZ)
-        .replace('{{OBJECT_STATES}}', line.objectStates.join(", "))
-        .replace('{{STATE_SNAPSHOTS}}', JSON.stringify(stateSnapshots, null, 2));
-
-      const payload = {
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a narrative design expert for time-travel stories.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        temperature: 0.5,
+      const gptResponse = {
+        choices: [{
+          message: {
+            content: JSON.stringify(staticManifestResponse)
+          }
+        }]
       };
 
-      const gptResponse = await openai.chat.completions.create(payload);
-      const aiResponse = gptResponse.choices?.[0]?.message?.content;
-      const parsed = JSON.parse(aiResponse);
+      const parsed = parseOpenAIManifestResponse(gptResponse);
 
       if (parsed.response === 'accept' && parsed.probability >= 0.7) {
-        await this.saveStateToJson();
-        this.setState(prev => ({
-          manifestationHistory: [
-            ...prev.manifestationHistory,
-            {
-              goalId: selectedGoalId,
-              actions: prev.manifestationActions,
-              timestamp: Math.floor(Date.now() / 1000),
-            },
-          ],
-          selectedGoalId: null,
-          selectedCharacter: null,
-          selectedObject: null,
+        const newHistory = [
+          ...this.state.manifestationHistory,
+          {
+            goalId: selectedGoalId,
+            actions: this.state.manifestationActions,
+            timestamp: Math.floor(Date.now() / 1000),
+            sceneId: this.state.selectedSceneId
+          },
+        ];
+        this.setState({
+          manifestationHistory: newHistory,
           manifestationActions: [],
           selectedCastId: null,
           selectedSceneId: null,
           activeAction: null,
-        }));
-        heaven.updateManifestationHistory(this.state.manifestationHistory);
+        });
+        heaven.updateManifestationHistory(newHistory);
+        await heaven.setCurrentGoalInProgress(null);
+        await this.saveStateToJson();
+        
         confetti({
           particleCount: 50,
           spread: 50,
           origin: { y: 0.6 },
         });
-        alert(`Goal has manifested! Probability: ${parsed.probability}, Reasoning: ${parsed.reasoning}`);
+        alert(`Goal has manifested! Probability: ${parsed.probability.toFixed(2)}, Reasoning: ${parsed.reasoning}`);
       } else {
-        alert(`Goal did not manifest. Probability: ${parsed.probability}, Reasoning: ${parsed.reasoning}`);
+        alert(`Goal did not manifest. Probability: ${parsed.probability.toFixed(2)}, Reasoning: ${parsed.reasoning}`);
       }
       this.setState({ isValidating: false, activeAction: null });
     } catch (error) {
@@ -434,20 +433,11 @@ class ConnectedCustomerWorkstation extends Component {
     await saveHeavenData(heaven.getAllData(), 'heavenFromAI.json', heavenId);
   };
 
-  saveStateToFile = async () => {
-    const { heaven, script, stateSnapshots, manifestationHistory, heavenId } = this.state;
-    heaven.updateStateSnapshots(stateSnapshots);
-    heaven.updateManifestationHistory(manifestationHistory);
-    await saveHeavenData(heaven.getAllData(), 'heavenFromAI.json', heavenId);
-  };
-
   render() {
     const {
       heaven,
       script,
-      selectedGoalId,
-      selectedCharacter,
-      selectedObject,
+      scriptId,
       manifestationActions,
       isValidating,
       allMessages,
@@ -458,6 +448,7 @@ class ConnectedCustomerWorkstation extends Component {
       movementHistory,
       selectedSceneId,
       loadingProgress,
+      manifestationHistory,
     } = this.state;
 
     if (loadingProgress < 100) {
@@ -477,13 +468,16 @@ class ConnectedCustomerWorkstation extends Component {
 
     return (
       <div className="CustomerWorkstation">
-        <h2 className="CustomerWorkstation--title">{heaven?.getTitle() || "Loading..."}</h2>
+        {script && (
+          <EditScript
+            isNewScript={true}
+            script={script}
+          />
+        )}
         <GoalManager
           heaven={heaven}
           script={script}
-          selectedGoalId={selectedGoalId}
-          selectedCharacter={selectedCharacter}
-          selectedObject={selectedObject}
+          selectedGoalId={heaven.getCurrentGoalInProgress()}
           manifestationActions={manifestationActions}
           isValidating={isValidating}
           allMessages={allMessages}
@@ -493,19 +487,12 @@ class ConnectedCustomerWorkstation extends Component {
           timeMachineDestination={timeMachineDestination}
           movementHistory={movementHistory}
           selectedSceneId={selectedSceneId}
+          manifestationHistory={manifestationHistory}
           onGoalSelect={this.handleGoalSelect}
-          onCloseGoalSection={this.handleCloseGoalSection}
           onManifest={this.manifest}
           onSaveScriptToJson={this.saveScriptToJson}
-          onSaveStateToFile={this.saveStateToFile}
           setState={(updates) => this.setState(updates)}
         />
-        {script &&
-          <EditScript
-            isNewScript={true} 
-            script={script} 
-          />
-        }
       </div>
     );
   }
@@ -517,3 +504,34 @@ const mapStateToProps = (state) => {
 
 let CustomerWorkstation = withRouter(connect(mapStateToProps)(ConnectedCustomerWorkstation));
 export default withRouter(CustomerWorkstation);
+
+// const openai = await getOpenAIInstance();
+
+      // const prompt = MANIFEST_PROMPT
+      //   .replace('{{TIME_TRAVEL_CODE}}', localTimeTravelCode)
+      //   .replace('{{GOAL_TEXT}}', line.text)
+      //   .replace('{{PRIMARY_EMOTION}}', line.primaryEmotion)
+      //   .replace('{{SECONDARY_EMOTION}}', line.secondaryEmotion)
+      //   .replace('{{COORD_X}}', line.coordinates.x)
+      //   .replace('{{COORD_Y}}', line.coordinates.y)
+      //   .replace('{{COORD_Z}}', line.coordinates.z)
+      //   .replace('{{END_X}}', line.endX)
+      //   .replace('{{END_Y}}', line.endY)
+      //   .replace('{{END_Z}}', line.endZ)
+      //   .replace('{{OBJECT_STATES}}', line.objectStates.join(", "))
+      //   .replace('{{STATE_SNAPSHOTS}}', JSON.stringify(stateSnapshots, null, 2));
+
+      // const payload = {
+      //   model: 'gpt-3.5-turbo',
+      //   messages: [
+      //     {
+      //       role: 'system',
+      //       content: 'You are a narrative design expert for time-travel stories.',
+      //     },
+      //     {
+      //       role: 'user',
+      //       content: prompt,
+      //     },
+      //   ],
+      //   temperature: 0.5,
+      // };

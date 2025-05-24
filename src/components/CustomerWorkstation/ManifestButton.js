@@ -25,13 +25,6 @@ const ManifestButton = ({ isValidating, onManifest, onSaveState, onBack }) => {
           >
             Save State
           </Button>
-          <Button
-            variant="outlined"
-            onClick={onBack}
-            className="ManifestButton--action"
-          >
-            Back
-          </Button>
         </>
       )}
     </div>

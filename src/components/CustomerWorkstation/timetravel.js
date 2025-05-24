@@ -30,7 +30,6 @@ const ThrydObjects = {
   },
 
   doMovement: (timestamp, ...actions) => {
-    console.log('Executing actions at timestamp ' + timestamp + ':');
     const results = actions.map((action) => {
       try {
         if (typeof action === 'string') {

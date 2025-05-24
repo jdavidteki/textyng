@@ -7,52 +7,51 @@ class Heaven {
     this.script = null;
     this.data = null;
 
-    // Initialize with default data
+    // Initialize with minimal data until Firebase fetch
+    this.data = { id: heavenId || `heaven-${Math.floor(Date.now() / 1000)}` };
+  }
+
+  static async create(heavenId = null, data = {}, saveToFirebase = true) {
+    const heaven = new Heaven(heavenId, data, saveToFirebase);
+
+    // Set default data
     const milliseconds = Math.floor(Date.now() / 1000);
     const defaultData = {
       id: heavenId || `heaven-${milliseconds}`,
       title: data.title || "Untitled Heaven",
       dateCreated: data.dateCreated || milliseconds,
       scriptId: data.scriptId || null,
-      tweets: this.validateTweets(data.tweets || []),
-      lines: this.validateLines(data.lines || []),
+      tweets: heaven.validateTweets(data.tweets || []),
+      lines: heaven.validateLines(data.lines || []),
       stateSnapshots: data.stateSnapshots || [],
       manifestationHistory: data.manifestationHistory || [],
-      timetravelfile: data.timetravelfile || null, // Add timetravelfile
+      timetravelfile: data.timetravelfile || null,
+      currentGoalInProgress: data.currentGoalInProgress || null,
     };
 
-    // If heavenId is provided, try to fetch from Firebase
     if (heavenId) {
       try {
-        this.data = { id: heavenId };
-        this.grabHeavenFromFirebase(heavenId).then(() => {
-          console.log(`Heaven initialized from Firebase for ID: ${heavenId}`);
-        }).catch(error => {
-          console.warn(`Failed to fetch heaven ${heavenId} from Firebase:`, error);
-          this.data = defaultData;
-          this.validateData();
-        });
+        // Fetch from Firebase and update this.data
+        await heaven.grabHeavenFromFirebase(heavenId);
       } catch (error) {
-        console.error(`Error initializing heaven ${heavenId}:`, error);
-        this.data = defaultData;
-        this.validateData();
+        console.warn(`Failed to fetch heaven ${heavenId} from Firebase, using default data:`, error);
+        heaven.data = defaultData;
+        heaven.validateData();
       }
     } else {
-      this.data = defaultData;
-      this.validateData();
+      heaven.data = defaultData;
+      heaven.validateData();
     }
-  }
 
-  static async create(heavenId = null, data = {}, saveToFirebase = true) {
-    const heaven = new Heaven(null, data, saveToFirebase);
-    if (heavenId) {
+    // Load script if scriptId exists
+    if (heaven.data.scriptId) {
       try {
-        await heaven.grabHeavenFromFirebase(heavenId);
-        console.log(`Heaven fully initialized from Firebase for ID: ${heavenId}`);
+        await heaven.loadScript();
       } catch (error) {
-        console.warn(`Failed to fetch heaven ${heavenId} from Firebase, using fallback data:`, error);
+        console.error(`Failed to load script for heaven ${heavenId}:`, error);
       }
     }
+
     return heaven;
   }
 
@@ -106,6 +105,15 @@ class Heaven {
       console.warn("Invalid timetravelfile format, resetting to null");
       this.data.timetravelfile = null;
     }
+    if (!Array.isArray(this.data.manifestationHistory)) {
+      console.warn("Invalid manifestationHistory format, resetting to []");
+      this.data.manifestationHistory = [];
+    }
+    // Validate currentGoalInProgress
+    if (this.data.currentGoalInProgress !== null && !this.data.lines[this.data.currentGoalInProgress]) {
+      console.warn(`Invalid currentGoalInProgress ${this.data.currentGoalInProgress}, resetting to null`);
+      this.data.currentGoalInProgress = null;
+    }
   }
 
   async grabHeavenFromFirebase(heavenId) {
@@ -117,28 +125,20 @@ class Heaven {
 
       this.data = {
         id: val.id || heavenId,
-        title: val.title || this.data.title || "Untitled Heaven",
-        dateCreated: val.dateCreated || this.data.dateCreated || Math.floor(Date.now() / 1000),
-        scriptId: val.scriptId || this.data.scriptId,
+        title: val.title || "Untitled Heaven",
+        dateCreated: val.dateCreated || Math.floor(Date.now() / 1000),
+        scriptId: val.scriptId || null,
         tweets: this.validateTweets(val.tweets || []),
         lines: this.validateLines(val.lines || []),
-        stateSnapshots: val.stateSnapshots || this.data.stateSnapshots || [],
-        manifestationHistory: val.manifestationHistory || this.data.manifestationHistory || [],
-        timetravelfile: val.timetravelfile || null, // Load timetravelfile
-        currentGoalInProgress: val.currentGoalInProgress || "",
+        stateSnapshots: val.stateSnapshots || [],
+        manifestationHistory: Array.isArray(val.manifestationHistory) ? val.manifestationHistory : [],
+        timetravelfile: val.timetravelfile || null,
+        currentGoalInProgress: val.currentGoalInProgress !== undefined ? val.currentGoalInProgress : null,
       };
-
-      if (this.data.scriptId) {
-        await this.loadScript();
-      } else {
-        console.warn(`No scriptId found for heaven ${heavenId}`);
-        this.script = null;
-      }
-
       this.validateData();
       return this;
     } catch (error) {
-      console.error(`Failed to fetch heaven ${heavenId}:`, error);
+      console.error(`grabHeavenFromFirebase: Failed to load heaven ${heavenId}:`, error);
       throw error;
     }
   }
@@ -156,7 +156,6 @@ class Heaven {
       }
       this.script = new Script(scriptData.name || this.data.title, this.saveToFirebase);
       await this.script.grabScriptFromFirebase(this.data.scriptId);
-      console.log(`Script loaded for scriptId: ${this.data.scriptId}`);
     } catch (error) {
       console.error(`Failed to load script ${this.data.scriptId}:`, error);
       this.script = null;
@@ -166,12 +165,7 @@ class Heaven {
   async sendHeavenToFirebase() {
     if (!this.saveToFirebase) return;
     try {
-      const heavenData = {
-        ...this.data,
-        script: this.script ? this.script.getAllMessagesAsNodes() : [],
-      };
-      await firebase.createNewHeaven(heavenData);
-      console.log(`Heaven ${this.data.id} saved to Firebase`);
+      await firebase.createNewHeaven(this.data);
     } catch (error) {
       console.error("Failed to save heaven to Firebase:", error);
       throw error;
@@ -186,7 +180,6 @@ class Heaven {
         script: this.script ? this.script.getAllMessagesAsNodes() : [],
       };
       await firebase.updateHeaven(heavenData);
-      console.log(`Heaven ${this.data.id} updated in Firebase`);
     } catch (error) {
       console.error("Failed to update heaven in Firebase:", error);
       throw error;
@@ -279,7 +272,7 @@ class Heaven {
   }
 
   getManifestationHistory() {
-    return this.data.manifestationHistory;
+    return this.data.manifestationHistory || [];
   }
 
   addTweet(tweet) {
@@ -311,7 +304,7 @@ class Heaven {
     return this.script;
   }
 
-  getCurrentGoalInProgress(){
+  getCurrentGoalInProgress() {
     return this.data.currentGoalInProgress;
   }
 
@@ -334,7 +327,6 @@ class Heaven {
       this.data.lines = this.validateLines(lines);
       this.validateData();
       await this.updateHeavenFirebase();
-      console.log(`Batch updated heaven ${this.data.id}`);
     } catch (error) {
       console.error("Failed to batch update heaven:", error);
       throw error;
@@ -375,6 +367,23 @@ class Heaven {
     }
     this.validateData();
     await this.updateHeavenFirebase();
+  }
+
+  async setCurrentGoalInProgress(goalId) {
+    if (goalId === this.data.currentGoalInProgress) {
+      return;
+    }
+    const validatedGoalId = goalId !== null && this.data.lines[goalId] ? goalId : null;
+    this.data.currentGoalInProgress = validatedGoalId;
+    if (!this.saveToFirebase) {
+      return;
+    }
+    try {
+      await firebase.updateHeavenField(this.data.id, "currentGoalInProgress", validatedGoalId);
+    } catch (error) {
+      console.error(`setCurrentGoalInProgress: Failed to save currentGoalInProgress=${validatedGoalId} for heaven ${this.data.id}:`, error);
+      throw error;
+    }
   }
 }
 

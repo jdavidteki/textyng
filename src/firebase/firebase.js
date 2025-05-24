@@ -318,42 +318,48 @@ class Firebase {
     })
   }
 
-  getHeavenById = (id) => {
-    return new Promise(resolve => {
-      firebase.database()
-        .ref('/heavens/'+id)
-        .once('value')
-        .then(snapshot => {
-          if (snapshot.val()) {
-            const val = snapshot.val();
-            let heavenData = val.heavenData;
-            if (typeof heavenData === "string") {
-              try {
-                heavenData = JSON.parse(heavenData);
-              } catch (error) {
-                console.error(`Failed to parse heavenData for ID: ${id}`, error);
-                heavenData = {};
-              }
+getHeavenById = (id) => {
+  return new Promise(resolve => {
+    firebase.database()
+      .ref('/heavens/' + id)
+      .once('value')
+      .then(snapshot => {
+        if (snapshot.val()) {
+          const val = snapshot.val();
+          let heavenData = val.heavenData || {};
+          if (typeof heavenData === "string") {
+            try {
+              heavenData = JSON.parse(heavenData);
+            } catch (error) {
+              console.error(`Failed to parse heavenData for ID: ${id}`, error);
+              heavenData = {};
             }
-            resolve({
-              id: val.id,
-              title: val.title,
-              dateCreated: val.dateCreated,
-              scriptId: val.scriptId,
-              tweets: val.tweets || [],
-              lines: val.lines || [],
-              stateSnapshots: val.stateSnapshots || [],
-              manifestationHistory: val.manifestationHistory || [],
-              timetravelfile: val.timetravelfile || null,
-              currentGoalInProgress: val.currentGoalInProgress || "",
-              ...heavenData,
-            });
-          } else {
-            resolve({});
           }
-        });
-    });
-  };
+          const resolvedData = {
+            ...heavenData, // Spread heavenData first
+            id: val.id || id,
+            title: val.title || "Untitled Heaven",
+            dateCreated: val.dateCreated || Math.floor(Date.now() / 1000),
+            scriptId: val.scriptId || null,
+            tweets: val.tweets || [],
+            lines: val.lines || [],
+            stateSnapshots: val.stateSnapshots || [],
+            manifestationHistory: val.manifestationHistory || [],
+            timetravelfile: val.timetravelfile || null,
+            currentGoalInProgress: val.currentGoalInProgress !== undefined ? val.currentGoalInProgress : null, // Explicitly set
+          };
+          resolve(resolvedData);
+        } else {
+          console.warn(`No data found for heaven ${id}`);
+          resolve({});
+        }
+      })
+      .catch(error => {
+        console.error(`Firebase fetch error for heaven ${id}:`, error);
+        resolve({});
+      });
+  });
+};
 
   updateSenTitle = (update) => {
     return new Promise(resolve => {
@@ -417,6 +423,23 @@ class Firebase {
       })
     })
   }
+
+  updateHeavenField = (heavenId, field, value) => {
+    return new Promise((resolve, reject) => {
+      const updateObj = { [field]: value };
+      firebase
+        .database()
+        .ref(`/heavens/${heavenId}`)
+        .update(updateObj)
+        .then(() => {
+          resolve(true);
+        })
+        .catch((error) => {
+          console.error(`Failed to update ${field} for heaven ${heavenId}:`, error);
+          reject(error);
+        });
+    });
+  };
 }
 
 export default new Firebase();
