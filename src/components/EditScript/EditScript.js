@@ -8,8 +8,8 @@ import CastMembers from "../CastMembers/CastMembers";
 import Scenes from "../Scenes/Scenes";
 import MsgTypes from "../MsgTypes/MsgTypes";
 import Button from "@material-ui/core/Button";
-import TimeInput from "../TimeInput/TimeInput.js"
-import CommentedPopup from "../CommentedPopup/CommentedPopup.js"
+import TimeInput from "../TimeInput/TimeInput.js";
+import CommentedPopup from "../CommentedPopup/CommentedPopup.js";
 import html2canvas from 'html2canvas';
 import Firebase from "../../firebase/firebase";
 
@@ -32,7 +32,7 @@ class ConnectedEditScript extends Component {
       emotion: "",
       allMessages: [],
       spslm: 0,
-      likedByMap:  props.script ? props.script.getOnlyLikedMsgsAsNodes() : new Map(),
+      likedByMap: props.script ? props.script.getOnlyLikedMsgsAsNodes() : new Map(),
     };
   }
 
@@ -41,31 +41,28 @@ class ConnectedEditScript extends Component {
   }
 
   componentDidMount() {
-    //hack: use this to fix github pages doing ?/ on pages
-    if (window.location.href.includes("?/")){
-      let actualDestination = window.location.href.split("?/")[1]
-
+    if (window.location.href.includes("?/")) {
+      let actualDestination = window.location.href.split("?/")[1];
       this.props.history.push({
-        pathname: "/" + actualDestination
+        pathname: "/" + actualDestination,
       });
     }
-    
-    //TODO do this better
-    if (!this.state.isNewScript){
-      let scriptId = window.location.pathname.replaceAll("/editscript/", "")
 
-      if(scriptId != ""){
+    if (!this.state.isNewScript) {
+      let scriptId = window.location.pathname.replaceAll("/editscript/", "");
+      if (scriptId !== "") {
         var textyng = new Script(scriptId);
-        textyng.grabScriptFromFirebase(scriptId)
-        .then(() => {
+        textyng.grabScriptFromFirebase(scriptId).then(() => {
           this.setState({
             script: textyng,
-            likedByMap: this.generateLikedMap(textyng.getOnlyLikedMsgsAsNodes())
-          })
-        })
+            likedByMap: this.generateLikedMap(textyng.getOnlyLikedMsgsAsNodes()),
+          });
+        });
       }
-    }else{
-      this.setState({likedByMap: this.generateLikedMap(this.state.script.getOnlyLikedMsgsAsNodes())})
+    } else {
+      this.setState({
+        likedByMap: this.generateLikedMap(this.state.script.getOnlyLikedMsgsAsNodes()),
+      });
     }
 
     this.intervalId = setInterval(() => {
@@ -73,77 +70,74 @@ class ConnectedEditScript extends Component {
     }, 1000);
   }
 
-  generateLikedMap(likedMessages){
+  generateLikedMap(likedMessages) {
     let map = new Map();
-
     for (let obj of likedMessages) {
       let key = `${obj.msgLikedId}${obj.msgLikedSenderId}`;
       map.set(key, true);
     }
-
-    return map
+    return map;
   }
 
   getScriptName = (name) => {
-    this.state.script.updateScriptName(name[1])
-  }
+    this.state.script.updateScriptName(name[1]);
+  };
 
   getAllCast = (cast) => {
-    this.state.script.updateCast(cast)
-  }
+    this.state.script.updateCast(cast);
+  };
 
   getAllScenes = (scenes) => {
-    this.state.script.updateScene(scenes)
-  }
+    this.state.script.updateScene(scenes);
+  };
 
   getSelectedCast = (cast) => {
-    this.setState({selectedCastId: cast.id}, () => {
-      this.setState({allMessages: this.state.script.getAllMessagesAsNodes()})
-    })
-  }
+    this.setState({ selectedCastId: cast.id }, () => {
+      this.setState({ allMessages: this.state.script.getAllMessagesAsNodes() });
+    });
+  };
 
   getSelectedScene = (scene) => {
-    this.setState({selectedSceneId: scene.id}, () => {
-      this.setState({allMessages: this.state.script.getAllMessagesAsNodes()})
-    })
-  }
+    this.setState({ selectedSceneId: scene.id }, () => {
+      this.setState({ allMessages: this.state.script.getAllMessagesAsNodes() });
+    });
+  };
 
   getSelectedMsgType = (value) => {
-    this.setState({ textMsg: value}, () => {
-      this.addNewMessage()
+    this.setState({ textMsg: value }, () => {
+      this.addNewMessage();
     });
-  }
+  };
 
   alreadyBeenLikedByselectedCastId = (messageId) => {
-    let likedMsgID = `${messageId}${this.state.selectedCastId}`
-
-    if(this.state.likedByMap.has(likedMsgID)){
-      return this.state.likedByMap.get(likedMsgID)
+    let likedMsgID = `${messageId}${this.state.selectedCastId}`;
+    if (this.state.likedByMap.has(likedMsgID)) {
+      return this.state.likedByMap.get(likedMsgID);
     }
-    return false
-  }
+    return false;
+  };
 
-  deleteLikedMessage(messageId, whoLikedMsg){
+  deleteLikedMessage(messageId, whoLikedMsg) {
     this.setState({
-      likedByMap: this.state.likedByMap.set(`${messageId}${whoLikedMsg}`, false)
-    })
+      likedByMap: this.state.likedByMap.set(`${messageId}${whoLikedMsg}`, false),
+    });
 
-    let allMessages = this.state.script.getOnlyLikedMsgsAsNodes()
-    const result = allMessages.find(obj => obj.idOfMsgLiked === messageId && obj.whoLikedMsg === whoLikedMsg);
+    let allMessages = this.state.script.getOnlyLikedMsgsAsNodes();
+    const result = allMessages.find(
+      (obj) => obj.idOfMsgLiked === messageId && obj.whoLikedMsg === whoLikedMsg
+    );
 
-    if(result.id){
-      this.deleteMessage(result.id)
+    if (result.id) {
+      this.deleteMessage(result.id);
     }
-  }
+  };
 
   addNewLikeMsg = (messageId, senderId) => {
-    if(!this.alreadyBeenLikedByselectedCastId(messageId)){
-
-      var milliseconds = Math.floor(Date.now() / 1000)
-
-      let tslmsg = this.state.timeSinceLastMsg
-      if(tslmsg == "" || tslmsg == 0){
-        tslmsg = this.state.spslm
+    if (!this.alreadyBeenLikedByselectedCastId(messageId)) {
+      var milliseconds = Math.floor(Date.now() / 1000);
+      let tslmsg = this.state.timeSinceLastMsg;
+      if (tslmsg === "" || tslmsg === 0) {
+        tslmsg = this.state.spslm;
       }
       let msgData = {
         id: milliseconds,
@@ -153,9 +147,9 @@ class ConnectedEditScript extends Component {
         idOfMsgLiked: messageId,
         whoLikedMsg: this.state.selectedCastId,
         tslmsg: tslmsg,
-        sceneId: this.state.selectedSceneId
-      }
-      this.state.script.addNewMessage(msgData)
+        sceneId: this.state.selectedSceneId,
+      };
+      this.state.script.addNewMessage(msgData);
 
       let updatedLikedByMap = new Map(this.state.likedByMap);
       updatedLikedByMap.set(`${messageId}${this.state.selectedCastId}`, true);
@@ -164,18 +158,17 @@ class ConnectedEditScript extends Component {
         likedByMap: updatedLikedByMap,
         allMessages: this.state.script.getAllMessagesAsNodes(),
         spslm: 0,
-      })
-    }else{
-      this.deleteLikedMessage(messageId, this.state.selectedCastId)
+      });
+    } else {
+      this.deleteLikedMessage(messageId, this.state.selectedCastId);
     }
-  }
+  };
 
   addNewMessage = () => {
-    var milliseconds = Math.floor(Date.now() / 1000)
-
-    let tslmsg = this.state.timeSinceLastMsg
-    if(tslmsg == "" || tslmsg == 0){
-      tslmsg = this.state.spslm
+    var milliseconds = Math.floor(Date.now() / 1000);
+    let tslmsg = this.state.timeSinceLastMsg;
+    if (tslmsg === "" || tslmsg === 0) {
+      tslmsg = this.state.spslm;
     }
 
     let msgData = {
@@ -187,39 +180,51 @@ class ConnectedEditScript extends Component {
       tslmsg: tslmsg,
       msgType: "textMsg",
       sceneId: this.state.selectedSceneId,
+    };
+
+    if (this.isActionMsg()) {
+      msgData.msgType = "action";
+    } else if (this.isAuthorActionMsg()) {
+      msgData.msgType = "authorAction";
+    } else if (this.isY5Command()) {
+      msgData.msgType = "y5Command";
+      // Call Heaven.js executeY5Command
+      if (this.props.executeY5Command) {
+        this.props.executeY5Command(
+          `y5: ${this.state.textMsg}`,
+          this.state.script,
+          this.state.selectedCastId,
+          this.state.selectedSceneId
+        );
+      }
     }
 
-    if(this.isActionMsg()){
-      msgData.msgType = "action"
-    }
-
-    if(this.isAuthorActionMsg()){ 
-      msgData.msgType = "authorAction"
-    }
-
-    this.state.script.addNewMessage(msgData)
+    this.state.script.addNewMessage(msgData);
     this.setState({
-      allMessages: this.state.script.getOnlyTextMsgsAsNodes(),
+      allMessages: this.state.script.getAllMessagesAsNodes(),
       textMsg: "",
       emotion: "",
       spslm: 0,
-    })
+    });
+  };
+
+  isActionMsg() {
+    return this.state.emotion === "y:";
   }
 
-  isActionMsg(){
-    return this.state.emotion == "y:"
+  isAuthorActionMsg() {
+    return this.state.emotion === "yy:";
   }
 
-  isAuthorActionMsg(){
-    return this.state.emotion == "yy:"
+  isY5Command() {
+    return this.state.emotion === "y5:";
   }
 
   addNewMsgComment = (comment, idOfMsgCommented, whoSentCommentedMsg) => {
-    var milliseconds = Math.floor(Date.now() / 1000)
-
-    let tslmsg = this.state.timeSinceLastMsg
-    if(tslmsg == "" || tslmsg == 0){
-      tslmsg = this.state.spslm
+    var milliseconds = Math.floor(Date.now() / 1000);
+    let tslmsg = this.state.timeSinceLastMsg;
+    if (tslmsg === "" || tslmsg === 0) {
+      tslmsg = this.state.spslm;
     }
 
     let msgData = {
@@ -232,25 +237,23 @@ class ConnectedEditScript extends Component {
       idOfMsgCommented: idOfMsgCommented,
       whoCommentedMsg: this.state.selectedCastId,
       tslmsg: tslmsg,
-      sceneId: this.state.selectedSceneId
-    }
+      sceneId: this.state.selectedSceneId,
+    };
 
-    this.state.script.addNewMessage(msgData)
+    this.state.script.addNewMessage(msgData);
     this.setState({
       allMessages: this.state.script.getOnlyTextMsgsAsNodes(),
       textMsg: "",
       emotion: "",
       spslm: 0,
-    })
-  }
+    });
+  };
 
   addNewMediaMsg = (mediaType, mediaURL, isImg, isAudio, isVideo) => {
-
-    var milliseconds = Math.floor(Date.now() / 1000)
-
-    let tslmsg = this.state.timeSinceLastMsg
-    if(tslmsg == "" || tslmsg == 0){
-      tslmsg = this.state.spslm
+    var milliseconds = Math.floor(Date.now() / 1000);
+    let tslmsg = this.state.timeSinceLastMsg;
+    if (tslmsg === "" || tslmsg === 0) {
+      tslmsg = this.state.spslm;
     }
 
     let msgData = {
@@ -265,248 +268,276 @@ class ConnectedEditScript extends Component {
       isVideo: isVideo,
       msgType: "textMsg",
       url: mediaURL,
-      sceneId: this.state.selectedSceneId
-    }
+      sceneId: this.state.selectedSceneId,
+    };
 
-    this.state.script.addNewMessage(msgData)
+    this.state.script.addNewMessage(msgData);
     this.setState({
       allMessages: this.state.script.getOnlyTextMsgsAsNodes(),
       textMsg: "",
       emotion: "",
       spslm: 0,
-    })
-  }
+    });
+  };
 
-
-  componentDidUpdate(){
-    if(this.state.script){
-      this.state.script.updateScriptFirebase()
+  componentDidUpdate() {
+    if (this.state.script) {
+      this.state.script.updateScriptFirebase();
     }
   }
 
   getInputTime = (timeInSeconds) => {
     this.setState({
       timeSinceLastMsg: timeInSeconds,
-    })
-  }
+    });
+  };
 
   deleteMessage = (id) => {
-    this.state.script.deleteMessage(id)
-    this.setState({allMessages: this.state.script.getOnlyTextMsgsAsNodes()},
-    () => {
-        this.state.script.updateScriptFirebase()
-    });
-  }
+    this.state.script.deleteMessage(id);
+    this.setState(
+      { allMessages: this.state.script.getOnlyTextMsgsAsNodes() },
+      () => {
+        this.state.script.updateScriptFirebase();
+      }
+    );
+  };
 
   onSaveComment = (message, idOfMsgCommented, whoSentCommentedMsg) => {
-    let existingCommentNode = this.state.script.getCommentNodeByCastIdMsgId(this.state.selectedCastId, idOfMsgCommented)
-    if(existingCommentNode != nil){
-      this.state.script.editNodeContent(existingCommentNode.id, message)
-    }else{
-      this.addNewMsgComment(message, idOfMsgCommented, whoSentCommentedMsg)
+    let existingCommentNode = this.state.script.getCommentNodeByCastIdMsgId(
+      this.state.selectedCastId,
+      idOfMsgCommented
+    );
+    if (existingCommentNode != null) {
+      this.state.script.editNodeContent(existingCommentNode.id, message);
+    } else {
+      this.addNewMsgComment(message, idOfMsgCommented, whoSentCommentedMsg);
     }
-  }
+  };
 
   grabScreenshot = (url) => {
     const element = document.getElementById('EditScript-chatArea-id');
-
-    html2canvas(element).then(canvas => {
+    html2canvas(element).then((canvas) => {
       const imageData = canvas.toDataURL();
-      const milliseconds = Math.floor(Date.now() / 1000)
+      const milliseconds = Math.floor(Date.now() / 1000);
       const storageRef = Firebase.storage().ref("ScreenShot/" + milliseconds);
-      storageRef.putString(imageData, 'data_url').then(snapshot => {
-        snapshot.ref.getDownloadURL().then(downloadURL => {
-          this.addNewMediaMsg("ScreenShot", downloadURL, true, false, false)
+      storageRef.putString(imageData, 'data_url').then((snapshot) => {
+        snapshot.ref.getDownloadURL().then((downloadURL) => {
+          this.addNewMediaMsg("ScreenShot", downloadURL, true, false, false);
         });
       });
     });
-  }
+  };
 
   getInsertedImg = (url) => {
-    this.addNewMediaMsg("InsertImage", url, true, false, false)
-  }
+    this.addNewMediaMsg("InsertImage", url, true, false, false);
+  };
 
   getUplodedVideo = (url) => {
-    this.addNewMediaMsg("UploadedVideo", url, false, false, true)
-  }
+    this.addNewMediaMsg("UploadedVideo", url, false, false, true);
+  };
 
   getVNURL = (url) => {
-    this.addNewMediaMsg("VoiceNote", url, false, true, false)
-  }
+    this.addNewMediaMsg("VoiceNote", url, false, true, false);
+  };
 
   render() {
-    if(this.state.script){
-        return (
-            <div className="EditScript">
-                <div className="EditScript-container l-container">
-                    <div className="EditScript-title">
-                      <EditableField
-                        name={this.state.script.getScriptName()}
-                        getScriptName={this.getScriptName}
-                      />
-                    </div>
-                    <div className="EditScript-scenes">
-                      <Scenes
-                        scenes = {this.state.script.getAllScenes()}
-                        selectedScene={this.getSelectedScene}
-                        getAllScenes={this.getAllScenes}
-                      />
-                    </div>
-                    <div className="EditScript-cast">
-                      <CastMembers
-                        cast = {this.state.script.getAllCast()}
-                        selectedCast={this.getSelectedCast}
-                        getAllCast={this.getAllCast}
-                      />
-                    </div>
-                    <div className="EditScript-textView">
-                      <MsgTypes
-                        grabScreenshot = {this.grabScreenshot}
-                        getInsertedImg = {this.getInsertedImg}
-                        selectedMsgType = {this.getSelectedMsgType}
-                        getUplodedVideo = {this.getUplodedVideo}
-                        getVNURL = {this.getVNURL}
-                      />
-                      <div id="EditScript-chatArea-id" className="EditScript-chatArea">
-                        {this.state.allMessages.length == 0 &&
-                          <span className="EditScript-castMemberPrompt">click on a cast member to see messages</span>
-                        }
-                        {this.state.allMessages.map((message, index) => (
-                          (message.sceneId == this.state.selectedSceneId)
-                          &&
-                          <DynamicClassAssignment key={index} isActive={message.senderId == this.state.selectedCastId && message.msgType != "authorAction"} message={message} index={index} >
-                            {message.isImg &&
-                              <img
-                                className="EditScript-imgMsg"
-                                src={message.url}
-                              />
-                            }
-                            {message.isAudio &&
-                              <audio
-                                className="EditScript-audioMsg"
-                                src={message.url}
-                                controls
-                              />
-                            }
-                            {message.isVideo &&
-                              <video
-                                className="EditScript-videoMsg"
-                                src={message.url}
-                                controls
-                              />
-                            }
-                            {/* //TODO: delete very msgtype like of an original message if original message was deleted */}
-                            {message.msgType == "like" && this.state.script.getNodeByMessageId(message.idOfMsgLiked) &&
-                              <div
-                                className="ReaderView-msgLike"
-                              >
-                                <span>
-                                  {this.state.script.getSenderNameFromID(message.whoLikedMsg)}&nbsp;
-                                  liked message&nbsp;
-                                  {this.state.script.getNodeByMessageId(message.idOfMsgLiked).data.MsgIndex}&nbsp;
-                                  by&nbsp;
-                                  {this.state.script.getSenderNameFromID(message.whoSentLikedMsg)}&nbsp;
-                                </span>
-                              </div>
-                            }
-                            {message.msgType == "action" &&
-                              <div
-                                className="EditScript-msgTypeAction glowing-text"
-                              >
-                                  <span className="EditScript-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
-                                  <span>y: {message.content}</span> 
-                              </div>
-                            }
-                            {message.msgType == "authorAction" &&
-                              <div
-                                className="EditScript-msgTypeAuthorAction glowing-text"
-                              >
-                                <div className="EditScript-content">
-                                  yy: {message.content}
-                                </div>
-                              </div>
-                            }
-                            {message.msgType != "action" && message.msgType != "authorAction" &&
-                              <div className="EditScript-isnotactionMsg">
-                                <span className="EditScript-senderName">{this.state.script.getSenderNameFromID(message.senderId)}</span>
-                                <span className="EditScript-senderEmotion">{message.emotion ? '('+message.emotion + ')': ''}</span>
-                                <span>{message.content}</span>
-                              </div>
-                            }  
-
-                            {/* TODO: find a better way to do this */}
-                            <span className="EditScript-msgIndex">{message.MsgIndex}</span>
-                            <div className="EditScript-chatArea-msg-buttons">
-                              <button className="EditScript-chatArea-msg-button" onClick={() => this.deleteMessage(message.id)}>Delete</button>
-                              <button className="EditScript-chatArea-msg-button" onClick={() => this.addNewLikeMsg(message.id, message.senderId)}>{this.alreadyBeenLikedByselectedCastId(message.id) ? "Unlike" : "Like"}</button>
-                              <CommentedPopup
-                                className="EditScript-chatArea-msg-button"
-                                idOfMsgCommented={message.id}
-                                whoSentCommentedMsg={message.senderId}
-                                onSave={this.onSaveComment}
-                                alreadySavedValue={this.state.script.getCommentByCastIdMsgId(this.state.selectedCastId, message.id)}
-                              />
-                            </div>
-                            
-                          </DynamicClassAssignment>
-                        ))}
-                      </div>
-
-                      <div className="EditScript-sendMessage">
-                        <TextField
-                          variant="outlined"
-                          className="EditScript-sendMessage--input"
-                          value={this.state.textMsg}
-                          placeholder="Type message here"
-                          onChange={e => {
-                            this.setState({ textMsg: e.target.value });
-                          }}
-                        />
-
-                        <TextField
-                          variant="outlined"
-                          className="EditScript-emotions--input"
-                          value={this.state.emotion}
-                          placeholder="Type emotion here"
-                          onChange={e => {
-                            this.setState({ emotion: e.target.value });
-                          }}
-                        />
-
-                        <TimeInput inputTime={this.getInputTime} />
-                      </div>
-                      
-
-                      <div className="EditScript-saveSubmit">
-                        <div>
-                          <Button
-                            className="EditScript-saveSubmit--send"
-                            variant="outlined"
-                            color="primary"
-                            onClick={() => this.addNewMessage()}
-                          >
-                            Send
-                          </Button>
-                        </div>
-                        <div>
-                          <Button
-                            className="EditScript-saveSubmit--save"
-                            variant="outlined"
-                            color="primary"
-                            onClick={() => this.state.script.updateScriptFirebase()}
-                          >
-                            save
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                </div>
+    if (this.state.script) {
+      return (
+        <div className="EditScript">
+          <div className="EditScript-container l-container">
+            <div className="EditScript-title">
+              <EditableField
+                name={this.state.script.getScriptName()}
+                getScriptName={this.getScriptName}
+              />
             </div>
-        );
-    }else{
-        return (
-            <div className="is-loading">script loading...</div>
-        )
+            <div className="EditScript-scenes">
+              <Scenes
+                scenes={this.state.script.getAllScenes()}
+                selectedScene={this.getSelectedScene}
+                getAllScenes={this.getAllScenes}
+              />
+            </div>
+            <div className="EditScript-cast">
+              <CastMembers
+                cast={this.state.script.getAllCast()}
+                selectedCast={this.getSelectedCast}
+                getAllCast={this.getAllCast}
+              />
+            </div>
+            <div className="EditScript-textView">
+              <MsgTypes
+                grabScreenshot={this.grabScreenshot}
+                getInsertedImg={this.getInsertedImg}
+                selectedMsgType={this.getSelectedMsgType}
+                getUplodedVideo={this.getUplodedVideo}
+                getVNURL={this.getVNURL}
+              />
+              <div id="EditScript-chatArea-id" className="EditScript-chatArea">
+                {this.state.allMessages.length === 0 && (
+                  <span className="EditScript-castMemberPrompt">
+                    click on a cast member to see messages
+                  </span>
+                )}
+                {this.state.allMessages.map((message, index) => (
+                  message.sceneId === this.state.selectedSceneId && (
+                    <DynamicClassAssignment
+                      key={index}
+                      isActive={
+                        message.senderId === this.state.selectedCastId &&
+                        message.msgType !== "authorAction" &&
+                        message.msgType !== "y5Command"
+                      }
+                      message={message}
+                      index={index}
+                    >
+                      {message.isImg && (
+                        <img
+                          className="EditScript-imgMsg"
+                          src={message.url}
+                          alt="Message content"
+                        />
+                      )}
+                      {message.isAudio && (
+                        <audio
+                          className="EditScript-audioMsg"
+                          src={message.url}
+                          controls
+                        />
+                      )}
+                      {message.isVideo && (
+                        <video
+                          className="EditScript-videoMsg"
+                          src={message.url}
+                          controls
+                        />
+                      )}
+                      {message.msgType === "like" &&
+                        this.state.script.getNodeByMessageId(message.idOfMsgLiked) && (
+                          <div className="ReaderView-msgLike">
+                            <span>
+                              {this.state.script.getSenderNameFromID(message.whoLikedMsg)} liked
+                              message {this.state.script.getNodeByMessageId(message.idOfMsgLiked).data.MsgIndex} by{" "}
+                              {this.state.script.getSenderNameFromID(message.whoSentLikedMsg)}
+                            </span>
+                          </div>
+                        )}
+                      {message.msgType === "action" && (
+                        <div className="EditScript-msgTypeAction glowing-text">
+                          <span className="EditScript-senderName">
+                            {this.state.script.getSenderNameFromID(message.senderId)}
+                          </span>
+                          <span>y: {message.content}</span>
+                        </div>
+                      )}
+                      {message.msgType === "authorAction" && (
+                        <div className="EditScript-msgTypeAuthorAction glowing-text">
+                          <div className="EditScript-content">yy: {message.content}</div>
+                        </div>
+                      )}
+                      {message.msgType === "y5Command" && (
+                        <div className="EditScript-msgTypeY5Command glowing-text">
+                          <span className="EditScript-senderName">
+                            {this.state.script.getSenderNameFromID(message.senderId)}
+                          </span>
+                          <span>y5: {message.content}</span>
+                        </div>
+                      )}
+                      {message.msgType !== "action" &&
+                        message.msgType !== "authorAction" &&
+                        message.msgType !== "y5Command" && (
+                          <div className="EditScript-isnotactionMsg">
+                            <span className="EditScript-senderName">
+                              {this.state.script.getSenderNameFromID(message.senderId)}
+                            </span>
+                            <span className="EditScript-senderEmotion">
+                              {message.emotion ? `(${message.emotion})` : ""}
+                            </span>
+                            <span>{message.content}</span>
+                          </div>
+                        )}
+                      <span className="EditScript-msgIndex">{message.MsgIndex}</span>
+                      <div className="EditScript-chatArea-msg-buttons">
+                        <button
+                          className="EditScript-chatArea-msg-button"
+                          onClick={() => this.deleteMessage(message.id)}
+                        >
+                          Delete
+                        </button>
+                        <button
+                          className="EditScript-chatArea-msg-button"
+                          onClick={() => this.addNewLikeMsg(message.id, message.senderId)}
+                        >
+                          {this.alreadyBeenLikedByselectedCastId(message.id) ? "Unlike" : "Like"}
+                        </button>
+                        <CommentedPopup
+                          className="EditScript-chatArea-msg-button"
+                          id cuentas de usuarios de X eliminadas deMsgCommented={message.id}
+                          whoSentCommentedMsg={message.senderId}
+                          onSave={this.onSaveComment}
+                          alreadySavedValue={this.state.script.getCommentByCastIdMsgId(
+                            this.state.selectedCastId,
+                            message.id
+                          )}
+                        />
+                      </div>
+                    </DynamicClassAssignment>
+                  )
+                ))}
+              </div>
+
+              <div className="EditScript-sendMessage">
+                <TextField
+                  variant="outlined"
+                  className="EditScript-sendMessage--input"
+                  value={this.state.textMsg}
+                  placeholder="Type message"
+                  onChange={(e) => {
+                    this.setState({ textMsg: e.target.value });
+                  }}
+                />
+
+                <TextField
+                  variant="outlined"
+                  className="EditScript-emotions--input"
+                  value={this.state.emotion}
+                  placeholder="Type emotion:"
+                  onChange={(e) => {
+                    this.setState({ emotion: e.target.value });
+                  }}
+                />
+
+                <TimeInput inputTime={this.getInputTime} />
+              </div>
+
+              <div className="EditScript-saveSubmit">
+                <div>
+                  <Button
+                    className="EditScript-saveSubmit--send"
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => this.addNewMessage()}
+                  >
+                    Send
+                  </Button>
+                </div>
+                <div>
+                  <Button
+                    className="EditScript-saveSubmit--save"
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => this.state.script.updateScriptFirebase()}
+                  >
+                    save
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      return <div className="is-loading">script loading...</div>;
     }
   }
 }
@@ -518,20 +549,10 @@ const mapStateToProps = (state) => {
 let EditScript = withRouter(connect(mapStateToProps)(ConnectedEditScript));
 export default withRouter(EditScript);
 
-
-const DynamicClassAssignment = (props) =>{
-
-    if(props.isActive){
-        return (
-            <div className={"EditScript-chatArea-msg active"}>
-                {props.children}
-            </div>
-        );
-    }else{
-        return (
-            <div className={"EditScript-chatArea-msg"}>
-                {props.children}
-            </div>
-        );
-    }
+const DynamicClassAssignment = (props) => {
+  if (props.isActive) {
+    return <div className={"EditScript-chatArea-msg active"}>{props.children}</div>;
+  } else {
+    return <div className={"EditScript-chatArea-msg"}>{props.children}</div>;
   }
+};

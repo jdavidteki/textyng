@@ -1,21 +1,39 @@
 import firebase from "../../firebase/firebase.js";
 import Script from "../Script/Script.js";
+import ThrydObjects from "./timetravel.js";
 
 class Heaven {
   constructor(heavenId = null, data = {}, saveToFirebase = true) {
     this.saveToFirebase = saveToFirebase;
     this.script = null;
     this.data = null;
+    this.thrydObjects = null;
 
-    // Initialize with minimal data until Firebase fetch
-    this.data = { id: heavenId || `heaven-${Math.floor(Date.now() / 1000)}` };
+    this.data = { id: heavenId || `heaven-${Date.now()}` };
+  }
+
+  // Utility to safely stringify objects with circular references
+  safeStringify(obj) {
+    const seen = new WeakSet();
+    return JSON.stringify(obj, (key, value) => {
+      if (typeof value === 'object' && value !== null) {
+        if (seen.has(value)) {
+          return '[Circular]';
+        }
+        seen.add(value);
+      }
+      return value;
+    }, 2);
+  }
+
+  async logErrorToFirebase(errorData) {
+    console.error('Failed to log error to Firebase:', errorData);
   }
 
   static async create(heavenId = null, data = {}, saveToFirebase = true) {
     const heaven = new Heaven(heavenId, data, saveToFirebase);
 
-    // Set default data
-    const milliseconds = Math.floor(Date.now() / 1000);
+    const milliseconds = parseInt(Date.now() / 1000, 10);
     const defaultData = {
       id: heavenId || `heaven-${milliseconds}`,
       title: data.title || "Untitled Heaven",
@@ -25,13 +43,11 @@ class Heaven {
       lines: heaven.validateLines(data.lines || []),
       stateSnapshots: data.stateSnapshots || [],
       manifestationHistory: data.manifestationHistory || [],
-      timetravelfile: data.timetravelfile || null,
       currentGoalInProgress: data.currentGoalInProgress || null,
     };
 
     if (heavenId) {
       try {
-        // Fetch from Firebase and update this.data
         await heaven.grabHeavenFromFirebase(heavenId);
       } catch (error) {
         console.warn(`Failed to fetch heaven ${heavenId} from Firebase, using default data:`, error);
@@ -43,7 +59,12 @@ class Heaven {
       heaven.validateData();
     }
 
-    // Load script if scriptId exists
+    try {
+      heaven.initializeThrydObjects();
+    } catch (error) {
+      console.error(`Failed to initialize ThrydObjects for heaven ${heavenId}:`, error);
+    }
+
     if (heaven.data.scriptId) {
       try {
         await heaven.loadScript();
@@ -55,35 +76,48 @@ class Heaven {
     return heaven;
   }
 
+  initializeThrydObjects() {
+    this.thrydObjects = ThrydObjects;
+    if (this.thrydObjects && typeof this.thrydObjects.initiateThrydObjectsAndExecuteMovement === 'function') {
+      this.thrydObjects.initiateThrydObjectsAndExecuteMovement();
+    } else {
+      throw new Error('Invalid ThrydObjects or missing initiateThrydObjectsAndExecuteMovement');
+    }
+  }
+
   validateTweets(tweets) {
-    return tweets.map(tweet => ({
-      text: tweet.text || "",
-      hashtags: Array.isArray(tweet.hashtags) ? tweet.hashtags : [],
-      x: parseFloat(tweet.x) || 0,
-      y: parseFloat(tweet.y) || 0,
-      z: parseFloat(tweet.z) || 0,
-    })).filter(tweet => tweet.text);
+    return tweets
+      .map(tweet => ({
+        text: tweet.text || "",
+        hashtags: Array.isArray(tweet.hashtags) ? tweet.hashtags : [],
+        x: parseFloat(tweet.x) || 0,
+        y: parseFloat(tweet.y) || 0,
+        z: parseFloat(tweet.z) || 0,
+      }))
+      .filter(tweet => tweet.text);
   }
 
   validateLines(lines) {
-    return lines.map(line => ({
-      text: line.text || "",
-      tweet: line.tweet || "",
-      coordinates: {
-        x: parseFloat(line.coordinates?.x) || 0,
-        y: parseFloat(line.coordinates?.y) || 0,
-        z: parseFloat(line.coordinates?.z) || 0,
-      },
-      endX: parseFloat(line.endX) || 0,
-      endY: parseFloat(line.endY) || 0,
-      endZ: parseFloat(line.endZ) || 0,
-      primaryEmotion: line.primaryEmotion || "",
-      secondaryEmotion: line.secondaryEmotion || "",
-      objectStates: typeof line.objectStates === "string" ? line.objectStates.split(", ").map(s => s.trim()) : [],
-      isFirstPrecision: !!line.isFirstPrecision,
-      isSecondPrecision: !!line.isSecondPrecision,
-      isThirdPrecision: !!line.isThirdPrecision,
-    })).filter(line => line.text);
+    return lines
+      .map(line => ({
+        text: line.text || "",
+        tweet: line.tweet || "",
+        coordinates: {
+          x: parseFloat(line.coordinates?.x) || 0,
+          y: parseFloat(line.coordinates?.y) || 0,
+          z: parseFloat(line.coordinates?.z) || 0,
+        },
+        endX: parseFloat(line.endX) || 0,
+        endY: parseFloat(line.endY) || 0,
+        endZ: parseFloat(line.endZ) || 0,
+        primaryEmotion: line.primaryEmotion || "",
+        secondaryEmotion: line.secondaryEmotion || "",
+        objectStates: typeof line.objectStates === "string" ? line.objectStates.split(", ").map(s => s.trim()) : [],
+        isFirstPrecision: !!line.isFirstPrecision,
+        isSecondPrecision: !!line.isSecondPrecision,
+        isThirdPrecision: !!line.isThirdPrecision,
+      }))
+      .filter(line => line.text);
   }
 
   validateData() {
@@ -101,15 +135,10 @@ class Heaven {
         line.tweet = "";
       }
     });
-    if (this.data.timetravelfile && typeof this.data.timetravelfile !== "string") {
-      console.warn("Invalid timetravelfile format, resetting to null");
-      this.data.timetravelfile = null;
-    }
     if (!Array.isArray(this.data.manifestationHistory)) {
       console.warn("Invalid manifestationHistory format, resetting to []");
       this.data.manifestationHistory = [];
     }
-    // Validate currentGoalInProgress
     if (this.data.currentGoalInProgress !== null && !this.data.lines[this.data.currentGoalInProgress]) {
       console.warn(`Invalid currentGoalInProgress ${this.data.currentGoalInProgress}, resetting to null`);
       this.data.currentGoalInProgress = null;
@@ -126,13 +155,12 @@ class Heaven {
       this.data = {
         id: val.id || heavenId,
         title: val.title || "Untitled Heaven",
-        dateCreated: val.dateCreated || Math.floor(Date.now() / 1000),
+        dateCreated: val.dateCreated || parseInt(Date.now() / 1000, 10),
         scriptId: val.scriptId || null,
         tweets: this.validateTweets(val.tweets || []),
         lines: this.validateLines(val.lines || []),
         stateSnapshots: val.stateSnapshots || [],
         manifestationHistory: Array.isArray(val.manifestationHistory) ? val.manifestationHistory : [],
-        timetravelfile: val.timetravelfile || null,
         currentGoalInProgress: val.currentGoalInProgress !== undefined ? val.currentGoalInProgress : null,
       };
       this.validateData();
@@ -250,9 +278,7 @@ class Heaven {
 
   getLinesByObjectState(objectState) {
     if (!objectState) return [];
-    return this.data.lines.filter(line =>
-      line.objectStates.includes(objectState)
-    );
+    return this.data.lines.filter(line => line.objectStates.includes(objectState));
   }
 
   getLinesByPrecision(isFirst = null, isSecond = null, isThird = null) {
@@ -354,21 +380,6 @@ class Heaven {
       .map(item => item.line);
   }
 
-  getTimeTravelFile() {
-    return this.data.timetravelfile;
-  }
-
-  async setTimeTravelFile(code) {
-    if (typeof code !== "string") {
-      console.warn("Invalid timetravelfile format, must be a string");
-      this.data.timetravelfile = null;
-    } else {
-      this.data.timetravelfile = code;
-    }
-    this.validateData();
-    await this.updateHeavenFirebase();
-  }
-
   async setCurrentGoalInProgress(goalId) {
     if (goalId === this.data.currentGoalInProgress) {
       return;
@@ -383,6 +394,65 @@ class Heaven {
     } catch (error) {
       console.error(`setCurrentGoalInProgress: Failed to save currentGoalInProgress=${validatedGoalId} for heaven ${this.data.id}:`, error);
       throw error;
+    }
+  }
+
+  executeY5Command(command, script, castId, sceneId) {
+    if (!this.thrydObjects || !script) {
+      console.error('ThrydObjects or script not initialized');
+      alert('Failed to execute command: System not ready');
+      return;
+    }
+
+    const milliseconds = parseInt(Date.now() / 1000, 10);
+
+    try {
+      const [context, actionStr] = command.trim().split(':').map(s => s.trim());
+      const actionObj = { type: 'executeCommand', command };
+      console.debug('Executing Y5 command:', { command, actionObj, actionHandlers: Object.keys(this.thrydObjects.actionHandlers) });
+
+      const result = this.thrydObjects.doMovement(milliseconds, actionObj);
+      const moveResult = result.results[0];
+
+      let content;
+      if (moveResult.error) {
+        console.error(`Y5 command failed: ${moveResult.error}`);
+        content = `Error: ${command} (${moveResult.error})`;
+        this.logErrorToFirebase({
+          type: 'y5Command',
+          command,
+          error: moveResult.error,
+        });
+      } else {
+        content = this.safeStringify(moveResult.result);
+      }
+
+      script.addNewMessage({
+        id: milliseconds,
+        timeStamp: milliseconds,
+        content,
+        emotion: "y5:",
+        senderId: castId,
+        msgType: "y5Command",
+        sceneId: sceneId,
+      });
+      alert('Command executed successfully!');
+    } catch (err) {
+      console.error('Error executing Y5 command:', err);
+      script.addNewMessage({
+        id: milliseconds,
+        timeStamp: milliseconds,
+        content: `Error: ${command} (Unknown error: ${err.message})`,
+        emotion: "y5:",
+        senderId: castId,
+        msgType: "y5Command",
+        sceneId: sceneId,
+      });
+      this.logErrorToFirebase({
+        type: 'y5Command',
+        command,
+        error: err.message,
+      });
     }
   }
 }
