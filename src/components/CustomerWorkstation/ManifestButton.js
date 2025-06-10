@@ -16,7 +16,7 @@ const ManifestButton = ({ isValidating, onManifest, onSaveState, onBack }) => {
             onClick={onManifest}
             className="ManifestButton--action"
           >
-            Confirm Manifest
+            Manifest
           </Button>
           <Button
             variant="outlined"

@@ -1,0 +1,169 @@
+{
+  "currentGoalInProgress": 5,
+  "dateCreated": 1747189717,
+  "heavenData": "{\"id\":\"toattd\",\"title\":\"technicalities of a time traveling device\",\"dateCreated\":1747189717,\"scriptId\":\"toattd\",\"tweets\":[{\"text\":\"- ayam a user and this is my story-- hi, user\",\"hashtags\":[\"ttb\",\"abeokutakodes\"],\"x\":4,\"y\":6,\"z\":8},{\"text\":\"- i miss it already #humanity\",\"hashtags\":[],\"x\":0,\"y\":0,\"z\":0},{\"text\":\"- reboot the memory of earth\",\"hashtags\":[\"reset\"],\"x\":20,\"y\":10,\"z\":30}],\"lines\":[{\"text\":\"ayam a user and this is my story\",\"tweet\":\"- ayam a user and this is my story-- hi, user\",\"coordinates\":{\"x\":10,\"y\":5,\"z\":12},\"endX\":20,\"endY\":10,\"endZ\":30,\"primaryEmotion\":\"hope\",\"secondaryEmotion\":\"uncertainty\",\"objectStates\":[],\"isFirstPrecision\":true,\"isSecondPrecision\":false,\"isThirdPrecision\":false},{\"text\":\"hi, user\",\"tweet\":\"- ayam a user and this is my story-- hi, user\",\"coordinates\":{\"x\":20,\"y\":10,\"z\":30},\"endX\":40,\"endY\":20,\"endZ\":50,\"primaryEmotion\":\"receptive\",\"secondaryEmotion\":\"vulnerable\",\"objectStates\":[],\"isFirstPrecision\":false,\"isSecondPrecision\":false,\"isThirdPrecision\":true},{\"text\":\"i miss it already #humanity\",\"tweet\":\"- i miss it already #humanity\",\"coordinates\":{\"x\":0,\"y\":0,\"z\":0},\"endX\":10,\"endY\":5,\"endZ\":12,\"primaryEmotion\":\"nostalgia\",\"secondaryEmotion\":\"longing\",\"objectStates\":[],\"isFirstPrecision\":false,\"isSecondPrecision\":true,\"isThirdPrecision\":false},{\"text\":\"reboot the memory of earth\",\"tweet\":\"- reboot the memory of earth\",\"coordinates\":{\"x\":20,\"y\":10,\"z\":30},\"endX\":0,\"endY\":0,\"endZ\":0,\"primaryEmotion\":\"rebellion\",\"secondaryEmotion\":\"cleansing\",\"objectStates\":[],\"isFirstPrecision\":false,\"isSecondPrecision\":false,\"isThirdPrecision\":false},{\"text\":\"memory glows where silence fell\",\"tweet\":\"- reboot the memory of earth\",\"coordinates\":{\"x\":25,\"y\":25,\"z\":25},\"endX\":50,\"endY\":10,\"endZ\":30,\"primaryEmotion\":\"wonder\",\"secondaryEmotion\":\"solace\",\"objectStates\":[],\"isFirstPrecision\":false,\"isSecondPrecision\":false,\"isThirdPrecision\":false},{\"text\":\"shadows linger in the warmth of words\",\"tweet\":\"- i miss it already #humanity\",\"coordinates\":{\"x\":10,\"y\":5,\"z\":12},\"endX\":5,\"endY\":15,\"endZ\":25,\"primaryEmotion\":\"melancholy\",\"secondaryEmotion\":\"affection\",\"objectStates\":[],\"isFirstPrecision\":false,\"isSecondPrecision\":false,\"isThirdPrecision\":false},{\"text\":\"and then the stars remembered\",\"tweet\":\"- ayam a user and this is my story-- hi, user\",\"coordinates\":{\"x\":5,\"y\":15,\"z\":25},\"endX\":15,\"endY\":30,\"endZ\":45,\"primaryEmotion\":\"reverence\",\"secondaryEmotion\":\"resolution\",\"objectStates\":[],\"isFirstPrecision\":false,\"isSecondPrecision\":false,\"isThirdPrecision\":false}],\"stateSnapshots\":[],\"manifestationHistory\":[{\"goalId\":2,\"sceneId\":\"scene-1\",\"timestamp\":1748022687},{\"goalId\":1,\"sceneId\":\"scene-1\",\"timestamp\":1748044480}],\"timetravelfile\":\"\\nvar ThrydObjects = {\\n  _history: [\\n  {\\n    \\\"timestamp\\\": 1715324160000,\\n    \\\"results\\\": [\\n      {\\n        \\\"action\\\": \\\"openDoor\\\",\\n        \\\"result\\\": {\\n          \\\"action\\\": \\\"open\\\",\\n          \\\"status\\\": \\\"success\\\"\\n        }\\n      },\\n      {\\n        \\\"action\\\": \\\"setTimeMachineDestination\\\",\\n        \\\"result\\\": {\\n          \\\"x\\\": 10,\\n          \\\"y\\\": 20,\\n          \\\"z\\\": 30\\n        }\\n      }\\n    ]\\n  },\\n  {\\n    \\\"timestamp\\\": 1715324160000,\\n    \\\"results\\\": [\\n      {\\n        \\\"action\\\": \\\"openDoor\\\",\\n        \\\"result\\\": {\\n          \\\"action\\\": \\\"open\\\",\\n          \\\"status\\\": \\\"success\\\"\\n        }\\n      },\\n      {\\n        \\\"action\\\": \\\"setTimeMachineDestination\\\",\\n        \\\"result\\\": {\\n          \\\"x\\\": 10,\\n          \\\"y\\\": 20,\\n          \\\"z\\\": 30\\n        }\\n      }\\n    ]\\n  },\\n  {\\n    \\\"timestamp\\\": \\\"y5\\\",\\n    \\\"results\\\": [\\n      {\\n        \\\"action\\\": \\\"executeCommand\\\",\\n        \\\"result\\\": {\\n          \\\"context\\\": \\\"y5\\\",\\n          \\\"action\\\": \\\"tunde.getlocation()\\\",\\n          \\\"result\\\": {\\n            \\\"x\\\": 0,\\n            \\\"y\\\": 0,\\n            \\\"z\\\": 0\\n          }\\n        }\\n      }\\n    ]\\n  }\\n],\\n  _state: {},\\n\\n  tunde: {\\n    isOriginalObject: function() { return false; },\\n    _state: { location: { x: 0, y: 0, z: 0 } },\\n    newlocation: function(coords) {\\n      ThrydObjects._state.tunde = ThrydObjects._state.tunde || {};\\n      ThrydObjects._state.tunde.location = coords;\\n      return { action: 'newlocation', status: 'success', location: coords };\\n    },\\n    getlocation: function() {\\n      return (ThrydObjects._state.tunde || {}).location || { x: 0, y: 0, z: 0 };\\n    },\\n  },\\n\\n  kitchen: {\\n    isOriginalObject: function() { return false; },\\n    _state: { location: { x: 5, y: 5, z: 0 } },\\n    getlocation: function() {\\n      return (ThrydObjects._state.kitchen || {}).location || { x: 5, y: 5, z: 0 };\\n    },\\n  },\\n\\n  door: {\\n    isOriginalObject: function() { return true; },\\n    setIsClosed: function(isClosed) { return { isClosed }; },\\n    isClosed: function(state) { return state.isClosed || false; },\\n    open: function() { return { action: 'open', status: 'success' }; },\\n  },\\n\\n  timeMachine: {\\n    isOriginalObject: function() { return true; },\\n    _state: { destination: null },\\n    setDestination: function({ x, y, z }) {\\n      ThrydObjects._state.timeMachine = ThrydObjects._state.timeMachine || {};\\n      ThrydObjects._state.timeMachine.destination = { x, y, z };\\n      return ThrydObjects._state.timeMachine.destination;\\n    },\\n    getDestination: function() {\\n      return (ThrydObjects._state.timeMachine || {}).destination || { x: 0, y: 0, z: 0 };\\n    },\\n  },\\n\\n  controlPanel: {\\n    isOriginalObject: function() { return false; },\\n    activate: function() { return { action: 'activate', status: 'success' }; },\\n  },\\n\\n  viewrecentmoves: function(count) {\\n    const history = ThrydObjects._history.slice(-count);\\n    const summary = history.map(move => {\\n      const result = move.results[0];\\n      if (result.action === 'executeCommand' && result.result) {\\n        const { context, action, result: { action: method, status, location } } = result.result;\\n        if (status === 'success') {\\n          if (method === 'newlocation') {\\n            return `${context}: ${action} -> Succeeded (Location: ${JSON.stringify(location)})`;\\n          }\\n          return `${context}: ${action} -> Succeeded`;\\n        }\\n        return `${context}: ${action} -> Failed (${result.error || 'Unknown error'})`;\\n      }\\n      return `${move.timestamp}: ${result.action} -> ${result.error ? `Failed (${result.error})` : 'Succeeded'}`;\\n    });\\n    return { action: 'viewrecentmoves', status: 'success', moves: summary.join('\\\\n') };\\n  },\\n\\n  parseCommand: function(command) {\\n    try {\\n      const [context, action] = command.split(':').map(s => s.trim());\\n      if (!action) throw new Error('Invalid command format');\\n\\n      const match = action.match(/^(\\\\w+)\\\\.(\\\\w+)\\\\((.*)\\\\)$/);\\n      if (!match) throw new Error('Unsupported command syntax');\\n\\n      const [, objId, method, args] = match;\\n      if (!ThrydObjects[objId] && objId !== 'thrydobject') throw new Error(`Object ${objId} not found`);\\n\\n      let parsedArgs;\\n      if (args) {\\n        const argMatch = args.match(/^(\\\\w+)\\\\.(\\\\w+)\\\\(\\\\)$/);\\n        if (argMatch) {\\n          const [, argObjId, argMethod] = argMatch;\\n          if (!ThrydObjects[argObjId]) throw new Error(`Object ${argObjId} not found`);\\n          parsedArgs = ThrydObjects[argObjId][argMethod]();\\n        } else {\\n          try {\\n            parsedArgs = JSON.parse(args.replace(/(\\\\w+):/g, '\\\"$1\\\":'));\\n          } catch {\\n            parsedArgs = parseInt(args, 10);\\n          }\\n        }\\n      }\\n\\n      const target = objId === 'thrydobject' ? ThrydObjects : ThrydObjects[objId];\\n      if (!target[method]) throw new Error(`Method ${method} not found on ${objId}`);\\n      const result = target[method](parsedArgs);\\n      return { context, action, result };\\n    } catch (error) {\\n      return { command, error: error.message };\\n    }\\n  },\\n\\n  actionHandlers: {\\n    openDoor: function() { return ThrydObjects.door.open(); },\\n    setTimeMachineDestination: function({ payload }) { return ThrydObjects.timeMachine.setDestination(payload); },\\n    activateControlPanel: function() { return ThrydObjects.controlPanel.activate(); },\\n    executeCommand: function({ command }) { return ThrydObjects.parseCommand(command); },\\n  },\\n\\n  doMovement: function(timestamp, ...actions) {\\n    const results = actions.map((action) => {\\n      try {\\n        if (typeof action === 'string') {\\n          if (ThrydObjects.actionHandlers[action]) {\\n            return { action, result: ThrydObjects.actionHandlers[action]() };\\n          } else {\\n            throw new Error('Invalid action: ' + action);\\n          }\\n        } else if (action.type && ThrydObjects.actionHandlers[action.type]) {\\n          return { action: action.type, result: ThrydObjects.actionHandlers[action.type](action) };\\n        } else {\\n          throw new Error('Invalid action object: ' + JSON.stringify(action));\\n        }\\n      } catch (error) {\\n        return { action, error: error.message };\\n      }\\n    });\\n    const movement = { timestamp, results };\\n    ThrydObjects._history.push(movement);\\n    return movement;\\n  },\\n\\n  initiateThrydObjectsAndExecuteMovement: function() {\\n    const timestamp = 1715324160000; // May 10, 2024\\n    return ThrydObjects.doMovement(timestamp, 'openDoor', { type: 'setTimeMachineDestination', payload: { x: 10, y: 20, z: 30 } });\\n  },\\n\\n  getHistory: function() { return ThrydObjects._history; },\\n  getState: function() { return ThrydObjects._state; },\\n  setState: function(state) { ThrydObjects._state = state; },\\n};\\n\\nThrydObjects.initiateThrydObjectsAndExecuteMovement();\\n\"}",
+  "id": "toattd",
+  "lines": [
+    {
+      "coordinates": {
+        "x": 10,
+        "y": 5,
+        "z": 12
+      },
+      "endX": 20,
+      "endY": 10,
+      "endZ": 30,
+      "isFirstPrecision": true,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "primaryEmotion": "hope",
+      "secondaryEmotion": "uncertainty",
+      "text": "ayam a user and this is my story",
+      "tweet": "- ayam a user and this is my story-- hi, user"
+    },
+    {
+      "coordinates": {
+        "x": 20,
+        "y": 10,
+        "z": 30
+      },
+      "endX": 40,
+      "endY": 20,
+      "endZ": 50,
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": true,
+      "primaryEmotion": "receptive",
+      "secondaryEmotion": "vulnerable",
+      "text": "hi, user",
+      "tweet": "- ayam a user and this is my story-- hi, user"
+    },
+    {
+      "coordinates": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "endX": 10,
+      "endY": 5,
+      "endZ": 12,
+      "isFirstPrecision": false,
+      "isSecondPrecision": true,
+      "isThirdPrecision": false,
+      "primaryEmotion": "nostalgia",
+      "secondaryEmotion": "longing",
+      "text": "i miss it already #humanity",
+      "tweet": "- i miss it already #humanity"
+    },
+    {
+      "coordinates": {
+        "x": 20,
+        "y": 10,
+        "z": 30
+      },
+      "endX": 0,
+      "endY": 0,
+      "endZ": 0,
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "primaryEmotion": "rebellion",
+      "secondaryEmotion": "cleansing",
+      "text": "reboot the memory of earth",
+      "tweet": "- reboot the memory of earth"
+    },
+    {
+      "coordinates": {
+        "x": 25,
+        "y": 25,
+        "z": 25
+      },
+      "endX": 50,
+      "endY": 10,
+      "endZ": 30,
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "primaryEmotion": "wonder",
+      "secondaryEmotion": "solace",
+      "text": "memory glows where silence fell",
+      "tweet": "- reboot the memory of earth"
+    },
+    {
+      "coordinates": {
+        "x": 10,
+        "y": 5,
+        "z": 12
+      },
+      "endX": 5,
+      "endY": 15,
+      "endZ": 25,
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "primaryEmotion": "melancholy",
+      "secondaryEmotion": "affection",
+      "text": "shadows linger in the warmth of words",
+      "tweet": "- i miss it already #humanity"
+    },
+    {
+      "coordinates": {
+        "x": 5,
+        "y": 15,
+        "z": 25
+      },
+      "endX": 15,
+      "endY": 30,
+      "endZ": 45,
+      "isFirstPrecision": false,
+      "isSecondPrecision": false,
+      "isThirdPrecision": false,
+      "primaryEmotion": "reverence",
+      "secondaryEmotion": "resolution",
+      "text": "and then the stars remembered",
+      "tweet": "- ayam a user and this is my story-- hi, user"
+    }
+  ],
+  "manifestationHistory": [
+    {
+      "goalId": 2,
+      "sceneId": "scene-1",
+      "timestamp": 1748022687
+    },
+    {
+      "goalId": 1,
+      "sceneId": "scene-1",
+      "timestamp": 1748044480
+    }
+  ],
+  "scriptId": "toattd",
+  "timetravelfile": "\nvar ThrydObjects = {\n  _history: [\n  {\n    \"timestamp\": 1715324160000,\n    \"results\": [\n      {\n        \"action\": \"openDoor\",\n        \"result\": {\n          \"action\": \"open\",\n          \"status\": \"success\"\n        }\n      },\n      {\n        \"action\": \"setTimeMachineDestination\",\n        \"result\": {\n          \"x\": 10,\n          \"y\": 20,\n          \"z\": 30\n        }\n      }\n    ]\n  },\n  {\n    \"timestamp\": 1715324160000,\n    \"results\": [\n      {\n        \"action\": \"openDoor\",\n        \"result\": {\n          \"action\": \"open\",\n          \"status\": \"success\"\n        }\n      },\n      {\n        \"action\": \"setTimeMachineDestination\",\n        \"result\": {\n          \"x\": 10,\n          \"y\": 20,\n          \"z\": 30\n        }\n      }\n    ]\n  },\n  {\n    \"timestamp\": \"y5\",\n    \"results\": [\n      {\n        \"action\": \"executeCommand\",\n        \"result\": {\n          \"context\": \"y5\",\n          \"action\": \"tunde.getlocation()\",\n          \"result\": {\n            \"x\": 0,\n            \"y\": 0,\n            \"z\": 0\n          }\n        }\n      }\n    ]\n  }\n],\n  _state: {},\n\n  tunde: {\n    isOriginalObject: function() { return false; },\n    _state: { location: { x: 0, y: 0, z: 0 } },\n    newlocation: function(coords) {\n      ThrydObjects._state.tunde = ThrydObjects._state.tunde || {};\n      ThrydObjects._state.tunde.location = coords;\n      return { action: 'newlocation', status: 'success', location: coords };\n    },\n    getlocation: function() {\n      return (ThrydObjects._state.tunde || {}).location || { x: 0, y: 0, z: 0 };\n    },\n  },\n\n  kitchen: {\n    isOriginalObject: function() { return false; },\n    _state: { location: { x: 5, y: 5, z: 0 } },\n    getlocation: function() {\n      return (ThrydObjects._state.kitchen || {}).location || { x: 5, y: 5, z: 0 };\n    },\n  },\n\n  door: {\n    isOriginalObject: function() { return true; },\n    setIsClosed: function(isClosed) { return { isClosed }; },\n    isClosed: function(state) { return state.isClosed || false; },\n    open: function() { return { action: 'open', status: 'success' }; },\n  },\n\n  timeMachine: {\n    isOriginalObject: function() { return true; },\n    _state: { destination: null },\n    setDestination: function({ x, y, z }) {\n      ThrydObjects._state.timeMachine = ThrydObjects._state.timeMachine || {};\n      ThrydObjects._state.timeMachine.destination = { x, y, z };\n      return ThrydObjects._state.timeMachine.destination;\n    },\n    getDestination: function() {\n      return (ThrydObjects._state.timeMachine || {}).destination || { x: 0, y: 0, z: 0 };\n    },\n  },\n\n  controlPanel: {\n    isOriginalObject: function() { return false; },\n    activate: function() { return { action: 'activate', status: 'success' }; },\n  },\n\n  viewrecentmoves: function(count) {\n    const history = ThrydObjects._history.slice(-count);\n    const summary = history.map(move => {\n      const result = move.results[0];\n      if (result.action === 'executeCommand' && result.result) {\n        const { context, action, result: { action: method, status, location } } = result.result;\n        if (status === 'success') {\n          if (method === 'newlocation') {\n            return `${context}: ${action} -> Succeeded (Location: ${JSON.stringify(location)})`;\n          }\n          return `${context}: ${action} -> Succeeded`;\n        }\n        return `${context}: ${action} -> Failed (${result.error || 'Unknown error'})`;\n      }\n      return `${move.timestamp}: ${result.action} -> ${result.error ? `Failed (${result.error})` : 'Succeeded'}`;\n    });\n    return { action: 'viewrecentmoves', status: 'success', moves: summary.join('\\n') };\n  },\n\n  parseCommand: function(command) {\n    try {\n      const [context, action] = command.split(':').map(s => s.trim());\n      if (!action) throw new Error('Invalid command format');\n\n      const match = action.match(/^(\\w+)\\.(\\w+)\\((.*)\\)$/);\n      if (!match) throw new Error('Unsupported command syntax');\n\n      const [, objId, method, args] = match;\n      if (!ThrydObjects[objId] && objId !== 'thrydobject') throw new Error(`Object ${objId} not found`);\n\n      let parsedArgs;\n      if (args) {\n        const argMatch = args.match(/^(\\w+)\\.(\\w+)\\(\\)$/);\n        if (argMatch) {\n          const [, argObjId, argMethod] = argMatch;\n          if (!ThrydObjects[argObjId]) throw new Error(`Object ${argObjId} not found`);\n          parsedArgs = ThrydObjects[argObjId][argMethod]();\n        } else {\n          try {\n            parsedArgs = JSON.parse(args.replace(/(\\w+):/g, '\"$1\":'));\n          } catch {\n            parsedArgs = parseInt(args, 10);\n          }\n        }\n      }\n\n      const target = objId === 'thrydobject' ? ThrydObjects : ThrydObjects[objId];\n      if (!target[method]) throw new Error(`Method ${method} not found on ${objId}`);\n      const result = target[method](parsedArgs);\n      return { context, action, result };\n    } catch (error) {\n      return { command, error: error.message };\n    }\n  },\n\n  actionHandlers: {\n    openDoor: function() { return ThrydObjects.door.open(); },\n    setTimeMachineDestination: function({ payload }) { return ThrydObjects.timeMachine.setDestination(payload); },\n    activateControlPanel: function() { return ThrydObjects.controlPanel.activate(); },\n    executeCommand: function({ command }) { return ThrydObjects.parseCommand(command); },\n  },\n\n  doMovement: function(timestamp, ...actions) {\n    const results = actions.map((action) => {\n      try {\n        if (typeof action === 'string') {\n          if (ThrydObjects.actionHandlers[action]) {\n            return { action, result: ThrydObjects.actionHandlers[action]() };\n          } else {\n            throw new Error('Invalid action: ' + action);\n          }\n        } else if (action.type && ThrydObjects.actionHandlers[action.type]) {\n          return { action: action.type, result: ThrydObjects.actionHandlers[action.type](action) };\n        } else {\n          throw new Error('Invalid action object: ' + JSON.stringify(action));\n        }\n      } catch (error) {\n        return { action, error: error.message };\n      }\n    });\n    const movement = { timestamp, results };\n    ThrydObjects._history.push(movement);\n    return movement;\n  },\n\n  initiateThrydObjectsAndExecuteMovement: function() {\n    const timestamp = 1715324160000; // May 10, 2024\n    return ThrydObjects.doMovement(timestamp, 'openDoor', { type: 'setTimeMachineDestination', payload: { x: 10, y: 20, z: 30 } });\n  },\n\n  getHistory: function() { return ThrydObjects._history; },\n  getState: function() { return ThrydObjects._state; },\n  setState: function(state) { ThrydObjects._state = state; },\n};\n\nThrydObjects.initiateThrydObjectsAndExecuteMovement();\n",
+  "title": "technicalities of a time traveling device",
+  "tweets": [
+    {
+      "hashtags": [
+        "ttb",
+        "abeokutakodes"
+      ],
+      "text": "- ayam a user and this is my story-- hi, user",
+      "x": 4,
+      "y": 6,
+      "z": 8
+    },
+    {
+      "text": "- i miss it already #humanity",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    {
+      "hashtags": [
+        "reset"
+      ],
+      "text": "- reboot the memory of earth",
+      "x": 20,
+      "y": 10,
+      "z": 30
+    }
+  ]
+}

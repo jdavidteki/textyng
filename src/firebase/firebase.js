@@ -201,38 +201,47 @@ class Firebase {
   };
 
   updateHeaven = (heaven) => {
-    return new Promise(resolve => {
-      firebase.database()
+    return new Promise((resolve, reject) => {
+      firebase
+        .database()
         .ref('/heavens/' + heaven.id + '/')
         .update({
-          id: heaven.id,
-          title: heaven.title,
-          dateCreated: heaven.dateCreated,
-          scriptId: heaven.scriptId,
+          title: heaven.title || 'Untitled Heaven',
+          dateCreated: heaven.dateCreated || Math.floor(Date.now() / 1000),
+          scriptId: heaven.scriptId || null,
           tweets: heaven.tweets || [],
-          lines: heaven.lines || [],
+          lines: heaven.lines || {},
           stateSnapshots: heaven.stateSnapshots || [],
           manifestationHistory: heaven.manifestationHistory || [],
           timetravelfile: heaven.timetravelfile || null,
-          heavenData: JSON.stringify({
-            id: heaven.id,
-            title: heaven.title,
-            dateCreated: heaven.dateCreated,
-            scriptId: heaven.scriptId,
-            tweets: heaven.tweets || [],
-            lines: heaven.lines || [],
-            stateSnapshots: heaven.stateSnapshots || [],
-            manifestationHistory: heaven.manifestationHistory || [],
-            timetravelfile: heaven.timetravelfile || null,
-          }),
         })
         .then(() => {
-          console.log("Heaven updated");
+          console.debug(`Heaven ${heaven.id} updated successfully:`, {
+            manifestationHistory: heaven.manifestationHistory,
+          });
           resolve(true);
         })
-        .catch(error => {
-          console.error("Error updating heaven:", error);
-          resolve(false);
+        .catch((error) => {
+          console.error(`Error updating heaven ${heaven.id}:`, error);
+          reject(error);
+        });
+    });
+  };
+
+  getHeavenById = (heavenId) => {
+    return new Promise((resolve, reject) => {
+      firebase
+        .database()
+        .ref('/heavens/' + heavenId)
+        .once('value')
+        .then((snapshot) => {
+          const data = snapshot.val();
+          console.debug(`Raw Firebase data for heaven ${heavenId}:`, data);
+          resolve(data);
+        })
+        .catch((error) => {
+          console.error(`Error fetching heaven ${heavenId}:`, error);
+          reject(error);
         });
     });
   };

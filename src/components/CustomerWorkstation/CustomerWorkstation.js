@@ -2,57 +2,33 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import EditScript from "../EditScript/EditScript.js";
-import confetti from 'canvas-confetti';
-import Firebase from "../../firebase/firebase.js";
+import confetti from "canvas-confetti";
 import Heaven from "../Heaven/Heaven.js";
 import GoalManager from "./GoalManager.js";
-import { staticManifestResponse } from "./responses.js";
 
 import "./CustomerWorkstation.css";
 
 function getFallbackHeavenData() {
   try {
-    return require('./heavenFromAI.json');
+    const data = require("./heavenFromAI.json");
+    return {
+      ...data,
+      manifestationHistory: Array.isArray(data.manifestationHistory) ? data.manifestationHistory : [],
+    };
   } catch (err) {
-    console.error('Failed to load fallback heaven data:', err);
-    return null;
+    console.error("Failed to load fallback heaven data:", err);
+    return {
+      id: `heaven-${Math.floor(Date.now() / 1000)}`,
+      title: "Untitled Heaven",
+      dateCreated: Math.floor(Date.now() / 1000),
+      scriptId: null,
+      tweets: [],
+      lines: {},
+      stateSnapshots: [],
+      manifestationHistory: [],
+      currentGoalInProgress: null,
+    };
   }
-}
-
-async function saveHeavenData(data, heavenId) {
-  const content = JSON.stringify(data, null, 2);
-  try {
-    await Firebase.saveHeavenData(heavenId, content, 'heavenData');
-    return true;
-  } catch (err) {
-    console.error(`Failed to save heavenFromAI.json to Realtime Database:`, err);
-    return false;
-  }
-}
-
-function parseOpenAIManifestResponse(gptResponse) {
-  const aiResponse = gptResponse.choices?.[0]?.message?.content || JSON.stringify(gptResponse);
-  if (!aiResponse) {
-    console.error('Empty or invalid OpenAI response:', gptResponse);
-    throw new Error('No content in OpenAI response');
-  }
-  const jsonMatch = aiResponse.match(/{[\s\S]*}/);
-  const jsonString = jsonMatch ? jsonMatch[0] : aiResponse;
-  let parsed;
-  try {
-    parsed = JSON.parse(jsonString);
-    parsed.probability = typeof parsed.probability === 'string'
-      ? parseFloat(parsed.probability.replace(/[<>"]/g, '')) || 0
-      : parseFloat(parsed.probability) || 0;
-  } catch (parseError) {
-    console.error('Failed to parse OpenAI response:', parseError, 'aiResponse:', aiResponse);
-    throw new Error('Invalid OpenAI response format');
-  }
-  if (!parsed.response || !parsed.reasoning || typeof parsed.probability !== 'number') {
-    console.error('Invalid OpenAI response structure:', parsed);
-    throw new Error('Missing required fields in OpenAI response');
-  }
-  return parsed;
 }
 
 class ConnectedCustomerWorkstation extends Component {
@@ -108,18 +84,23 @@ class ConnectedCustomerWorkstation extends Component {
       }
 
       const manifestationHistory = heaven.getManifestationHistory() || [];
+      console.debug("Loaded manifestationHistory:", manifestationHistory);
 
       this.setState({
         heaven,
         manifestationHistory,
         movementHistory: heaven.thrydObjects ? heaven.thrydObjects.getHistory() : [],
-        timeMachineDestination: heaven.thrydObjects ? heaven.thrydObjects.timeMachine.getDestination() : null,
+        timeMachineDestination: heaven.thrydObjects?.timeMachine?.getDestination() || null,
         loadingProgress: 50,
       });
     } catch (error) {
-      console.error(`Error initializing Heaven for ID: ${heavenId || 'fallback'}:`, error);
+      console.error(`Error initializing Heaven for ID: ${heavenId || "fallback"}:`, error);
       heaven = await Heaven.create(null, getFallbackHeavenData(), true);
-      this.setState({ heaven, manifestationHistory: [], loadingProgress: 50 });
+      this.setState({
+        heaven,
+        manifestationHistory: heaven.getManifestationHistory() || [],
+        loadingProgress: 50,
+      });
     }
 
     const script = heaven.getScript();
@@ -136,7 +117,7 @@ class ConnectedCustomerWorkstation extends Component {
           loadingProgress: 100,
         });
       } catch (err) {
-        console.error('Script initialization error:', err);
+        console.error("Script initialization error:", err);
         this.setState({ loadingProgress: 100 });
       }
     } else {
@@ -156,11 +137,17 @@ class ConnectedCustomerWorkstation extends Component {
 
   handleGoalSelect = async (goalId) => {
     const { heaven } = this.state;
-    const lines = heaven.getLines();
-    if (!lines[goalId]) return;
-    const line = lines[goalId];
-    const place = line.coordinates ? `(${line.coordinates.x}, ${line.coordinates.y}, ${line.coordinates.z})` : "default";
-    const sceneId = this.state.scenes.find(scene => scene.name === place || scene.name === "default")?.id || this.state.scenes[0]?.id;
+    const lines = heaven?.getLines() || {};
+    if (!lines[goalId]) {
+      console.warn(`Goal ID ${goalId} not found`);
+      return;
+    }
+    const place = lines[goalId].coordinates
+      ? `(${lines[goalId].coordinates.x}, ${lines[goalId].coordinates.y}, ${lines[goalId].coordinates.z})`
+      : "default";
+    const sceneId =
+      this.state.scenes.find((scene) => scene.name === place || scene.name === "default")?.id ||
+      this.state.scenes[0]?.id;
     this.setState({
       selectedSceneId: sceneId,
       manifestationActions: [],
@@ -169,83 +156,93 @@ class ConnectedCustomerWorkstation extends Component {
     try {
       await heaven.setCurrentGoalInProgress(goalId);
     } catch (error) {
-      console.error("Error saving currentGoalInProgress:", error);
+      console.error(`Error saving currentGoalInProgress ${goalId}:`, error);
     }
   };
 
-  manifest = async () => {
-    const { heaven, script, stateSnapshots } = this.state;
+  manifest = async (customerCoords = {}) => {
+    const { heaven, manifestationActions, selectedSceneId } = this.state;
     const selectedGoalId = heaven.getCurrentGoalInProgress();
-    if (selectedGoalId === null || !heaven.getLines()[selectedGoalId]) {
-      alert('Please select a goal.');
+    if (selectedGoalId === null) {
+      alert("Please select a goal.");
       return;
     }
 
     this.setState({ isValidating: true });
 
     try {
-      const gptResponse = {
-        choices: [{
-          message: {
-            content: JSON.stringify(staticManifestResponse)
-          }
-        }]
-      };
+      const result = await heaven.manifest(
+        selectedGoalId,
+        customerCoords,
+        manifestationActions,
+        selectedSceneId || "scene-1"
+      );
 
-      const parsed = parseOpenAIManifestResponse(gptResponse);
+      this.setState({
+        manifestationHistory: result.newHistory || this.state.manifestationHistory,
+        manifestationActions: result.success ? [] : manifestationActions,
+        selectedCastId: result.success ? null : this.state.selectedCastId,
+        selectedSceneId: result.success ? null : this.state.selectedSceneId,
+        activeAction: null,
+        isValidating: false,
+      });
 
-      if (parsed.response === 'accept' && parsed.probability >= 0.7) {
-        const newHistory = [
-          ...this.state.manifestationHistory,
-          {
-            goalId: selectedGoalId,
-            actions: this.state.manifestationActions,
-            timestamp: Math.floor(Date.now() / 1000),
-            sceneId: this.state.selectedSceneId
-          },
-        ];
-        this.setState({
-          manifestationHistory: newHistory,
-          manifestationActions: [],
-          selectedCastId: null,
-          selectedSceneId: null,
-          activeAction: null,
-        });
-        heaven.updateManifestationHistory(newHistory);
-        await heaven.setCurrentGoalInProgress(null);
-        await this.saveStateToJson();
-        
+      // Always save state to ensure persistence
+      await this.saveStateToJson();
+
+      if (result.success) {
         confetti({
-          particleCount: 50,
+          particleCount: 100,
           spread: 50,
           origin: { y: 0.6 },
         });
-        alert(`Goal has manifested! Probability: ${parsed.probability.toFixed(2)}, Reasoning: ${parsed.reasoning}`);
+        alert(
+          `Goal has manifested! Probability: ${result.probability.toFixed(2)}, Alignment: ${result.alignment.toFixed(
+            2
+          )}, Total Length: ${result.totalLength.toFixed(2)}`
+        );
       } else {
-        alert(`Goal did not manifest. Probability: ${parsed.probability.toFixed(2)}, Reasoning: ${parsed.reasoning}`);
+        alert(
+          result.error ||
+            `Goal did not manifest. Probability: ${result.probability.toFixed(2)}, Alignment: ${result.alignment.toFixed(
+              2
+            )}, Total Length: ${result.totalLength.toFixed(2)}`
+        );
       }
-      this.setState({ isValidating: false, activeAction: null });
     } catch (error) {
-      console.error('Error manifesting goal:', error);
-      alert('Failed to manifest goal.');
+      console.error("Error manifesting goal:", error);
       this.setState({ isValidating: false, activeAction: null });
+      await this.saveStateToJson();
+      alert("Failed to manifest goal.");
     }
   };
 
   saveStateToJson = async () => {
-    const { heaven, script, stateSnapshots, manifestationHistory, heavenId } = this.state;
-    heaven.updateStateSnapshots(stateSnapshots);
-    heaven.updateManifestationHistory(manifestationHistory);
-    await heaven.updateHeavenFirebase();
-    await saveHeavenData(heaven.getAllData(), heavenId);
+    const { heaven, stateSnapshots, manifestationHistory } = this.state;
+    try {
+      heaven.updateStateSnapshots(stateSnapshots);
+      heaven.updateManifestationHistory(manifestationHistory);
+      await heaven.updateHeavenFirebase();
+      await heaven.saveHeavenData(heaven.getAllData());
+      console.debug("Saved state to Firebase:", { manifestationHistory });
+    } catch (error) {
+      console.error("Failed to save state to Firebase:", error);
+      throw error;
+    }
   };
 
   saveScriptToJson = async () => {
-    const { heaven, script, stateSnapshots, manifestationHistory, heavenId } = this.state;
-    heaven.updateStateSnapshots(stateSnapshots);
-    heaven.updateManifestationHistory(manifestationHistory);
-    await heaven.updateHeavenFirebase();
-    await saveHeavenData(heaven.getAllData(), heavenId);
+    const { heaven, stateSnapshots, manifestationHistory } = this.state;
+    try {
+      heaven.updateStateSnapshots(stateSnapshots);
+      heaven.updateManifestationHistory(manifestationHistory);
+      await heaven.updateHeavenFirebase();
+      await heaven.saveHeavenData(heaven.getAllData());
+      console.debug("Saved script to Firebase:", { manifestationHistory });
+    } catch (error) {
+      console.error("Failed to save script to Firebase:", error);
+      throw error;
+    }
   };
 
   render() {
@@ -293,7 +290,7 @@ class ConnectedCustomerWorkstation extends Component {
         <GoalManager
           heaven={heaven}
           script={script}
-          selectedGoalId={heaven.getCurrentGoalInProgress()}
+          selectedGoalId={heaven?.getCurrentGoalInProgress()}
           manifestationActions={manifestationActions}
           isValidating={isValidating}
           allMessages={allMessages}
@@ -318,36 +315,4 @@ const mapStateToProps = (state) => {
   return {};
 };
 
-let CustomerWorkstation = withRouter(connect(mapStateToProps)(ConnectedCustomerWorkstation));
-export default withRouter(CustomerWorkstation);
-
-// const openai = await getOpenAIInstance();
-
-      // const prompt = MANIFEST_PROMPT
-      //   .replace('{{TIME_TRAVEL_CODE}}', localTimeTravelCode)
-      //   .replace('{{GOAL_TEXT}}', line.text)
-      //   .replace('{{PRIMARY_EMOTION}}', line.primaryEmotion)
-      //   .replace('{{SECONDARY_EMOTION}}', line.secondaryEmotion)
-      //   .replace('{{COORD_X}}', line.coordinates.x)
-      //   .replace('{{COORD_Y}}', line.coordinates.y)
-      //   .replace('{{COORD_Z}}', line.coordinates.z)
-      //   .replace('{{END_X}}', line.endX)
-      //   .replace('{{END_Y}}', line.endY)
-      //   .replace('{{END_Z}}', line.endZ)
-      //   .replace('{{OBJECT_STATES}}', line.objectStates.join(", "))
-      //   .replace('{{STATE_SNAPSHOTS}}', JSON.stringify(stateSnapshots, null, 2));
-
-      // const payload = {
-      //   model: 'gpt-3.5-turbo',
-      //   messages: [
-      //     {
-      //       role: 'system',
-      //       content: 'You are a narrative design expert for time-travel stories.',
-      //     },
-      //     {
-      //       role: 'user',
-      //       content: prompt,
-      //     },
-      //   ],
-      //   temperature: 0.5,
-      // };
+export default withRouter(connect(mapStateToProps)(ConnectedCustomerWorkstation));
