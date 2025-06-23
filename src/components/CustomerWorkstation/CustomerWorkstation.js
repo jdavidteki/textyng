@@ -52,6 +52,7 @@ class ConnectedCustomerWorkstation extends Component {
       movementHistory: [],
       heavenId: null,
       loadingProgress: 0,
+      selectedTimestamp: new Date().toISOString().slice(0, 16),
     };
   }
 
@@ -135,7 +136,7 @@ class ConnectedCustomerWorkstation extends Component {
     }
   }
 
-  handleGoalSelect = async (goalId) => {
+  handleGoalSelect = async (goalId, characterId, timestamp) => {
     const { heaven } = this.state;
     const lines = heaven?.getLines() || {};
     if (!lines[goalId]) {
@@ -161,10 +162,15 @@ class ConnectedCustomerWorkstation extends Component {
   };
 
   manifest = async (customerCoords = {}) => {
-    const { heaven, manifestationActions, selectedSceneId } = this.state;
+    const { heaven, manifestationActions, selectedSceneId, selectedTimestamp } = this.state;
     const selectedGoalId = heaven.getCurrentGoalInProgress();
     if (selectedGoalId === null) {
       alert("Please select a goal.");
+      return;
+    }
+    const timestamp = new Date(selectedTimestamp).getTime();
+    if (timestamp < Date.now()) {
+      alert("Timestamp cannot be in the past.");
       return;
     }
 
@@ -175,7 +181,8 @@ class ConnectedCustomerWorkstation extends Component {
         selectedGoalId,
         customerCoords,
         manifestationActions,
-        selectedSceneId || "scene-1"
+        selectedSceneId || "scene-1",
+        timestamp
       );
 
       this.setState({
@@ -187,7 +194,6 @@ class ConnectedCustomerWorkstation extends Component {
         isValidating: false,
       });
 
-      // Always save state to ensure persistence
       await this.saveStateToJson();
 
       if (result.success) {
@@ -197,23 +203,19 @@ class ConnectedCustomerWorkstation extends Component {
           origin: { y: 0.6 },
         });
         alert(
-          `Goal has manifested! Probability: ${result.probability.toFixed(2)}, Alignment: ${result.alignment.toFixed(
-            2
-          )}, Total Length: ${result.totalLength.toFixed(2)}`
+          `Goal has manifested! Probability: ${result.probability.toFixed(2)}, Alignment: ${result.alignment.toFixed(2)}, Total Length: ${result.totalLength.toFixed(2)}`
         );
       } else {
         alert(
           result.error ||
-            `Goal did not manifest. Probability: ${result.probability.toFixed(2)}, Alignment: ${result.alignment.toFixed(
-              2
-            )}, Total Length: ${result.totalLength.toFixed(2)}`
+            `Goal did not manifest. Probability: ${result.probability.toFixed(2)}, Alignment: ${result.alignment.toFixed(2)}, Total Length: ${result.totalLength.toFixed(2)}`
         );
       }
     } catch (error) {
       console.error("Error manifesting goal:", error);
       this.setState({ isValidating: false, activeAction: null });
       await this.saveStateToJson();
-      alert("Failed to manifest goal.");
+      alert(`Failed to manifest goal: ${error.message}`);
     }
   };
 

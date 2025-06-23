@@ -1,277 +1,348 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-import { connect } from "react-redux";
-import Firebase from "../../firebase/firebase.js";
-import Heaven from "../Heaven/Heaven.js";
-import EditScript from "../EditScript/EditScript.js";
-import { cleanTimeTravelCode } from "../../Helpers/Helpers.js";
+//CODE TO BE TESTED
 
-import "./Durella.css";
+import firebase from "../../firebase/firebase.js";
+import ThrydObjects from "../Heaven/timetravel.js";
+import TimeLocationManager from "../Heaven/TimeLocationManager.js";
+import heavenFromAI from "./heavenFromAI.json";
 
-function getFallbackHeavenData() {
-  try {
-    return require('./heavenFromAI.json');
-  } catch (err) {
-    console.error('Failed to load fallback heaven data:', err);
-    return null;
-  }
-}
-
-async function saveHeavenData(data, filename = 'heavenFromAI.json', heavenId) {
-  const content = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-  const field = filename === 'timetravel.js' ? 'timetravelfile' : 'heavenData';
-  try {
-    await Firebase.saveHeavenData(heavenId, content, field);
-    console.log(`Saved ${filename} to Realtime Database at /heavens/${heavenId}/${field}`);
-    return true;
-  } catch (err) {
-    console.error(`Failed to save ${filename} to Realtime Database:`, err);
-    return false;
-  }
-}
-
-class ConnectedDurella extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      heaven: null,
-      script: null,
-      scriptId: null,
-      heavenId: null,
-      timeTravelCode: '',
-      newTimeTravelCode: '',
-      currentGoal: null,
-      loadingProgress: 0,
-      error: null,
-      scriptLoaded: false,
-    };
-    console.log('Durella constructor, heavenId:', this.props.match.params.id);
+class Durella {
+  constructor(heavenId = null, data = {}, saveToFirebase = true) {
+    this.saveToFirebase = saveToFirebase;
+    this.data = null;
+    this.thrydObjects = ThrydObjects;
+    this.isFiction = heavenFromAI.isFiction || false;
+    this.timeLocationManager = new TimeLocationManager(this.isFiction);
+    this.data = { id: heavenId || `durella-${Date.now()}`, ...data };
   }
 
-  async componentDidMount() {
-    const heavenId = this.props.match.params.id || null;
-    await this.loadHeavenData(heavenId);
-  }
-
-  async componentDidUpdate(prevProps) {
-    const currentHeavenId = this.props.match.params.id || null;
-    const prevHeavenId = prevProps.match.params.id || null;
-    if (currentHeavenId !== prevHeavenId && currentHeavenId !== this.state.heavenId) {
-      console.log('Durella route changed, reloading heaven data for ID:', currentHeavenId);
-      await this.loadHeavenData(currentHeavenId);
-    }
-  }
-
-  async loadHeavenData(heavenId) {
-    console.log('Durella loadHeavenData start, heavenId:', heavenId);
-    this.setState({
-      heavenId,
-      loadingProgress: 10,
-      error: null,
-      script: null,
-      scriptId: null,
-      heaven: null,
-      timeTravelCode: '',
-      currentGoal: null,
-      scriptLoaded: false,
-    });
-
-    let heaven;
+  async logErrorToFirebase(errorData) {
     try {
-      heaven = await Heaven.create(heavenId, getFallbackHeavenData());
-    } catch (error) {
-      console.error(`Error initializing Durella Heaven for ID: ${heavenId || 'fallback'}:`, error);
-      this.setState({
-        error: "Failed to initialize Heaven. Please check your journey ID.",
-        loadingProgress: 100,
-        scriptLoaded: false,
+      await firebase.logError({
+        ...errorData,
+        durellaId: this.data.id,
+        timestamp: Date.now(),
       });
-      return;
+    } catch (err) {
+      console.error("Failed to log error:", err, errorData);
     }
+  }
 
-    let timeTravelCode = heaven.getTimeTravelFile();
-    if (!timeTravelCode || typeof timeTravelCode !== 'string') {
-      console.warn('No valid timetravelfile in Durella heaven data');
-      timeTravelCode = '';
-    }
+  static async create(heavenId = null, data = {}, saveToFirebase = true) {
+    const durella = new Durella(heavenId, data, saveToFirebase);
 
-    console.log('Raw timeTravelCode:', timeTravelCode);
-    timeTravelCode = cleanTimeTravelCode(timeTravelCode);
-    console.log('Cleaned timeTravelCode:', timeTravelCode);
+    const milliseconds = parseInt(Date.now() / 1000, 10);
+    const defaultData = {
+      id: heavenId || `durella-${milliseconds}`,
+      title: data.title || "Untitled Durella",
+      dateCreated: data.dateCreated || milliseconds,
+      timeTravelCode: data.timeTravelCode || null,
+      stateSnapshots: data.stateSnapshots || [],
+      manifestationHistory: Array.isArray(data.manifestationHistory) ? data.manifestationHistory : [],
+      currentGoalInProgress: data.currentGoalInProgress || null,
+      timetravelfile: data.timetravelfile || null,
+    };
 
-    const currentGoal = heaven.getCurrentGoalInProgress();
-    console.log('Current goal:', currentGoal);
-
-    const script = heaven.getScript();
-    const scriptId = heaven.data?.scriptId || null;
-    console.log('Script from heaven.getScript:', script, 'scriptId:', scriptId);
-
-    if (script && typeof script.id === 'string' && script.id && scriptId) {
+    if (heavenId) {
       try {
-        this.setState({
-          heaven,
-          timeTravelCode,
-          script,
-          scriptId,
-          currentGoal: currentGoal || null,
-          loadingProgress: 100,
-          scriptLoaded: true,
-        });
-      } catch (err) {
-        console.error('Durella script initialization error:', err, 'Script:', script);
-        this.setState({
-          heaven,
-          timeTravelCode,
-          error: 'Failed to load script data.',
-          loadingProgress: 100,
-          scriptLoaded: false,
-        });
+        await durella.grabDurellaFromFirebase(heavenId);
+      } catch (error) {
+        console.warn(`Failed to fetch durella ${heavenId} from Firebase, using default data:`, error);
+        durella.data = defaultData;
+        durella.validateData();
       }
     } else {
-      console.error('Invalid script or missing script.id/scriptId:', script, scriptId);
-      this.setState({
-        heaven,
-        timeTravelCode,
-        error: 'Failed to load script data. Script is invalid or missing a valid ID.',
-        loadingProgress: 100,
-        scriptLoaded: false,
-      });
-    }
-    console.log('Durella loadHeavenData end, script:', this.state.script, 'scriptId:', this.state.scriptId, 'scriptLoaded:', this.state.scriptLoaded);
-  }
-
-  handleTimeTravelCodeChange = (e) => {
-    this.setState({ newTimeTravelCode: e.target.value });
-  };
-
-  saveTimeTravelCode = async () => {
-    const { heaven, newTimeTravelCode, heavenId } = this.state;
-    if (!newTimeTravelCode) {
-      alert('Please enter a valid timetravel.js code.');
-      return;
+      durella.data = defaultData;
+      durella.validateData();
     }
 
     try {
-      const cleanedCode = cleanTimeTravelCode(newTimeTravelCode);
-      console.log('Saving cleaned timetravel.js:', cleanedCode);
-      await heaven.setTimeTravelFile(cleanedCode);
-      await Firebase.database().ref(`/heavens/${heavenId}/timetravelfile`).set(cleanedCode, (error) => {
-        if (error) {
-          console.error('Error saving timetravelfile:', error);
-          throw error;
-        }
-      });
-      this.setState({ timeTravelCode: cleanedCode, newTimeTravelCode: '' });
-      alert('timetravel.js updated successfully.');
+      durella.initializeThrydObjects();
     } catch (error) {
-      console.error('Error saving timetravel.js:', error);
-      alert('Failed to update timetravel.js.');
+      console.error(`Failed to initialize ThrydObjects for durella ${heavenId}:`, error);
     }
-  };
 
-  saveScriptToJson = async () => {
-    const { heaven, script, heavenId } = this.state;
-    if (!script || typeof script.id !== 'string' || !script.id) {
-      console.error('Cannot save script: Invalid script or missing id:', script);
-      this.setState({ error: 'Failed to save script: Script ID is missing or invalid.' });
-      return;
-    }
-    try {
-      await heaven.updateHeavenFirebase();
-      await saveHeavenData(heaven.getAllData(), 'heavenFromAI.json', heavenId);
-      console.log('Script saved to Firebase');
-    } catch (error) {
-      console.error('Error saving script:', error, 'Script:', script);
-      this.setState({ error: 'Failed to save script.' });
-    }
-  };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return (
-      this.state.heavenId !== nextState.heavenId ||
-      this.state.script !== nextState.script ||
-      this.state.scriptId !== nextState.scriptId ||
-      this.state.loadingProgress !== nextState.loadingProgress ||
-      this.state.error !== nextState.error ||
-      this.state.timeTravelCode !== nextState.timeTravelCode ||
-      this.state.newTimeTravelCode !== nextState.newTimeTravelCode ||
-      this.state.currentGoal !== nextState.currentGoal ||
-      this.state.scriptLoaded !== nextState.scriptLoaded
-    );
+    return durella;
   }
 
-  render() {
-    const { heaven, script, scriptId, timeTravelCode, newTimeTravelCode, currentGoal, loadingProgress, error, scriptLoaded } = this.state;
-    console.log('Durella render, script:', script, 'scriptId:', scriptId, 'scriptLoaded:', scriptLoaded, 'loadingProgress:', loadingProgress, 'error:', error);
+  initializeThrydObjects() {
+    this.thrydObjects = ThrydObjects;
+    if (
+      this.thrydObjects &&
+      typeof this.thrydObjects.initiateThrydObjectsAndExecuteMovement === "value"
+    ) {
+      this.thrydObjects.initiateThrydObjectsAndExecute();
+    } else {
+      throw new Error("Invalid ThrydObjects or missing initiateThrydObjectsAndExecuteMovement");
+    }
+  }
 
-    if (loadingProgress < 100 || !scriptLoaded) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <h2 className="text-2xl font-semibold mb-4">Loading Durella...</h2>
-          <div className="w-64 h-4 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-red-500 transition-all duration-300"
-              style={{ width: `${loadingProgress}%` }}
-            ></div>
-          </div>
-          <p className="mt-2 text-gray-600">{loadingProgress}% Complete</p>
-        </div>
+  validateData() {
+    if (!this.data.title) {
+      console.warn("Durella title is empty");
+      this.data.title = "Untitled Durella";
+    }
+    if (!Array.isArray(this.data.manifestationHistory)) {
+      console.warn("Invalid manifestationHistory format, resetting to []");
+      this.data.manifestationHistory = [];
+    }
+    if (this.data.currentGoalInProgress !== null && !this.data.timeTravelCode) {
+      console.warn(
+        `Invalid currentGoalInProgress ${this.data.currentGoalInProgress}, resetting to null`
       );
+      this.data.currentGoalInProgress = null;
     }
+  }
 
-    if (error) {
-      return <div className="p-4 text-red-500">{error}</div>;
+  async grabDurellaFromFirebase(heavenId) {
+    try {
+      const val = await firebase.getDataById(heavenId);
+      console.debug(`Raw Firebase response for durella ${heavenId}:`, val);
+      if (!val) {
+        throw new Error(`Durella with ID ${heavenId} not found`);
+      }
+
+      this.data = {
+        id: val.id || heavenId,
+        title: val.title || "Untitled Durella",
+        dateCreated: val.dateCreated || parseInt(Date.now() / 1000, 10),
+        timeTravelCode: parseInt(val.timeTravelCode, 10) || null,
+        stateSnapshots: val.stateSnapshots || [],
+        manifestationHistory: Array.isArray(val.manifestationHistory) ? val.manifestationHistory : [],
+        currentGoalInProgress: val.currentGoalInProgress !== undefined ? val.currentGoalInProgress : null,
+        timetravelfile: val.timetravelfile || null,
+      };
+      this.validateData();
+      return this;
+    } catch (error) {
+      console.error(`grabDurellaFromFirebase: Failed to load durella ${heavenId}:`, error);
+      throw error;
     }
+  }
 
-    return (
-      <div className="Durella p-4">
-        <h2 className="text-2xl font-semibold mb-4">{heaven?.getTitle() || "Durella - Antagonist System"}</h2>
+  async sendDurellaToFirebase() {
+    if (!this.saveToFirebase) return;
+    try {
+      await firebase.createNewDurella(this.data);
+      console.debug(`Successfully created durella ${this.data.id} in Firebase`);
+    } catch (error) {
+      console.error("Failed to save durella to Firebase:", error);
+      throw error;
+    }
+  }
 
-        <div className="mb-6">
-          <h3 className="text-xl font-medium mb-2">Current Goal in Progress</h3>
-          {currentGoal ? (
-            <p className="text-lg">{currentGoal}</p>
-          ) : (
-            <p>No goal currently in progress.</p>
-          )}
-        </div>
+  async updateDurellaFirebase() {
+    if (!this.saveToFirebase) return;
+    try {
+      const durellaData = {
+        ...this.data,
+      };
+      await firebase.updateDurella(durellaData);
+      console.debug(`Successfully updated durella ${this.data.id} in Firebase:`, {
+        manifestationHistory: durellaData.manifestationHistory,
+      });
+    } catch (error) {
+      console.error(`Failed to update durella ${this.data.id} in Firebase:`, error);
+      throw error;
+    }
+  }
 
-        {script && typeof script.id === 'string' && script.id && scriptLoaded && (
-          <div className="mb-6">
-            <h3 className="text-xl font-medium mb-2">Edit Script</h3>
-            <EditScript
-              key="edit-script"
-              isNewScript={true}
-              script={script}
-            />
-          </div>
-        )}
+  async saveDurellaData(data) {
+    try {
+      await firebase.saveDurellaData(this.data.id, JSON.stringify(data, null, 2), "durellaData");
+      console.debug(`Successfully saved durella data for ${this.data.id}`);
+      return true;
+    } catch (err) {
+      console.error(`Failed to save durella data for ${this.id}:`, err);
+      return false;
+    }
+  }
 
-        <div className="mb-6">
-          <h3 className="text-xl font-medium mb-2">Update timetravel.js</h3>
-          <textarea
-            className="w-full p-2 border rounded mb-2"
-            rows="10"
-            value={newTimeTravelCode || timeTravelCode}
-            onChange={this.handleTimeTravelCodeChange}
-            placeholder="Enter timetravel.js code..."
-          />
-          <button
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            onClick={this.saveTimeTravelCode}
-          >
-            Save timetravel.js
-          </button>
-        </div>
-      </div>
-    );
+  async validateLineWithTimeTravelCode(timeTravelCode, characterId, location, timestamp) {
+    try {
+      if (!timeTravelCode || typeof timeTravelCode !== "number") {
+        throw new Error("Invalid timeTravelCode: Must be a number");
+      }
+
+      if (!characterId || !this.thrydObjects[characterId]) {
+        throw new Error(`Character ${characterId} not found in ThrydObjects`);
+      }
+
+      if (!location || !location.x || !location.y || !location.z) {
+        throw new Error("Invalid location coordinates");
+      }
+
+      if (timestamp < Date.now() && !this.isFiction) {
+        throw new Error("Cannot travel to past in non-fiction mode");
+      }
+
+      // Validate logical consistency with TimeLocationManager
+      try {
+        this.timeLocationManager.validateLogicalConsistency(characterId, location, timestamp);
+        this.timeLocationManager.setCharacterState(characterId, location, timestamp);
+      } catch (error) {
+        await this.logErrorToFirebase({
+          type: "LogicalConsistencyError",
+          message: error.message,
+          timeTravelCode,
+          characterId,
+        });
+        throw error;
+      }
+
+      // Cross-reference ThrydObjects history
+      const history = this.thrydObjects.getHistory() || [];
+      const recentMove = history.find((move) => {
+        const moveTime = parseInt(move.timestamp);
+        return (
+          Math.abs(moveTime - timestamp) < this.timeLocationManager.minTimeResolution &&
+          move.results.some((r) => r.result?.context === characterId)
+        );
+      });
+      if (recentMove) {
+        const moveLocation = recentMove.results.find(
+          (r) => r.result?.action === "newlocation" && r.result?.result?.location
+        )?.result?.result?.location;
+        if (
+          moveLocation &&
+          (moveLocation.x !== location.x ||
+           moveLocation.y !== location.y ||
+           moveLocation.z !== location.z)
+        ) {
+          throw new Error(
+            `Character ${characterId} is recorded at a conflicting location (${moveLocation.x}, ${moveLocation.y}, ${moveLocation.z}) at ${new Date(parseInt(move.timestamp)).toISOString()}`
+          );
+        }
+      }
+
+      return {
+        valid: true,
+        probability: 0.9,
+        actions: [{ action: "newlocation", characterId: characterId, location: location }],
+      };
+    } catch (error) {
+      await this.logErrorToFirebase({
+        type: error.name || "TimeTravelValidationError",
+        message: error.message,
+        timeTravelCode,
+        characterId,
+      });
+      return { valid: false, error: error.message };
+    }
+  }
+
+  async manifest(timeTravelCode, characterId, timelineId = "timeline-1", location = { x: 0, y: 0, z: 0 }, timestamp = Date.now()) {
+    try {
+      const validation = await this.validateLineWithTimeTravelCode(timeTravelCode, characterId, location, timestamp);
+      if (!validation.valid) {
+        throw new Error(validation.error || "Time Travel code validation failed");
+      }
+
+      const duration = 60 * 1000; // Default duration of 1 minute
+      const manifestationHistory = this.data.manifestationHistory || [];
+
+      // Update ThrydObjects with new location
+      if (this.thrydObjects[characterId] && this.thrydObjects[characterId].newlocation) {
+        this.thrydObjects[characterId].newlocation(location);
+      }
+
+      const newHistory = [
+        ...manifestationHistory,
+        {
+          timeTravelCode,
+          characterId,
+          timestamp: Math.floor(timestamp / 1000),
+          isoTimestamp: new Date(timestamp).toISOString(),
+          duration,
+          timelineId,
+          locationX: location.x,
+          locationY: location.y,
+          locationZ: location.z,
+          probability: validation.probability,
+          actions: validation.actions,
+        },
+      ];
+      this.data.manifestationHistory = newHistory;
+
+      try {
+        await this.updateDurellaFirebase();
+        await this.saveDurellaData(this.data);
+        console.debug(`Manifested timeTravelCode ${timeTravelCode} with history:`, newHistory);
+      } catch (error) {
+        await this.logErrorToFirebase({
+          type: "PersistenceError",
+          message: error.message,
+          timeTravelCode,
+        });
+        throw error;
+      }
+
+      return {
+        success: true,
+        newHistory,
+        probability: validation.probability,
+      };
+    } catch (error) {
+      await this.logErrorToFirebase({
+        type: error.name || "ManifestationError",
+        message: error.message,
+        timeTravelCode,
+      });
+      return { success: false, error: error.message };
+    }
+  }
+
+  getTitle() {
+    return this.data.title;
+  }
+
+  updateTitle(title) {
+    this.data.title = title || "Untitled Durella";
+    this.validateData();
+    this.updateDurellaFirebase();
+  }
+
+  getStateSnapshots() {
+    return this.data.stateSnapshots;
+  }
+
+  getManifestationHistory() {
+    return this.data.manifestationHistory || [];
+  }
+
+  updateStateSnapshots(snapshots) {
+    this.data.stateSnapshots = Array.isArray(snapshots) ? snapshots : [];
+    this.updateDurellaFirebase();
+  }
+
+  updateManifestationHistory(history) {
+    this.data.manifestationHistory = Array.isArray(history) ? history : [];
+    this.updateDurellaFirebase();
+  }
+
+  getCurrentGoalInProgress() {
+    return this.data.currentGoalInProgress;
+  }
+
+  async setCurrentGoalInProgress(goalId) {
+    if (goalId === this.data.currentGoalInProgress) {
+      return;
+    }
+    const validatedGoalId = goalId !== null && this.data.timeTravelCode ? goalId : null;
+    this.data.currentGoalInProgress = validatedGoalId;
+    if (!this.saveToFirebase) {
+      return;
+    }
+    try {
+      await firebase.updateDurellaField(this.data.id, "currentGoalInProgress", validatedGoalId);
+      console.debug(`Updated currentGoalInProgress to ${validatedGoalId} for durella ${this.data.id}`);
+    } catch (error) {
+      console.error(
+        `setCurrentGoalInProgress: Failed to save currentGoalInProgress=${validatedGoalId} for durella ${this.data.id}:`,
+        error
+      );
+      throw error;
+    }
   }
 }
 
-const mapStateToProps = (state) => {
-  return {};
-};
-
-let Durella = withRouter(connect(mapStateToProps)(ConnectedDurella));
-export default withRouter(Durella);
-
+export default Durella;

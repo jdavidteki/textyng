@@ -2,15 +2,16 @@ import firebase from "../../firebase/firebase.js";
 import Script from "../Script/Script.js";
 import ThrydObjects from "./timetravel.js";
 import { staticManifestResponse } from "./responses.js";
+import TimeLocationManager from "./TimeLocationManager.js";
 
 class Heaven {
   constructor(heavenId = null, data = {}, saveToFirebase = true) {
     this.saveToFirebase = saveToFirebase;
     this.script = null;
     this.data = null;
-    this.thrydObjects = null;
-
-    this.data = { id: heavenId || `heaven-${Date.now()}` };
+    this.thrydObjects = ThrydObjects;
+    this.timeLocationManager = new TimeLocationManager();
+    this.data = { id: heavenId || `heaven-${Date.now()}`, ...data };
   }
 
   safeStringify(obj) {
@@ -31,7 +32,15 @@ class Heaven {
   }
 
   async logErrorToFirebase(errorData) {
-    console.error("Failed to log error to Firebase:", errorData);
+    try {
+      await firebase.logError({
+        ...errorData,
+        heavenId: this.data.id,
+        timestamp: Date.now(),
+      });
+    } catch (err) {
+      console.error("Failed to log error:", err, errorData);
+    }
   }
 
   static async create(heavenId = null, data = {}, saveToFirebase = true) {
@@ -286,19 +295,44 @@ class Heaven {
     };
   }
 
-  async manifest(selectedGoalId, customerCoords = {}, manifestationActions = [], sceneId = "scene-1") {
+  async manifest(selectedGoalId, customerCoords = {}, manifestationActions = [], sceneId = "scene-1", timestamp = Date.now()) {
     try {
       const goalLine = this.data.lines[selectedGoalId];
       if (!goalLine) {
         throw new Error(`Goal ID ${selectedGoalId} not found in lines.`);
       }
 
+      const duration = 60 * 1000; // Default 1 minute
+      const defaultStart = goalLine.coordinates || { x: 0, y: 0, z: 0 };
+      const defaultEnd = { x: goalLine.endX || 5, y: goalLine.endY || 5, z: goalLine.endZ || 5 };
+      const startPos = customerCoords.startX !== undefined
+        ? { x: customerCoords.startX, y: customerCoords.startY, z: customerCoords.startZ }
+        : defaultStart;
+      const endPos = customerCoords.endX !== undefined
+        ? { x: customerCoords.endX, y: customerCoords.endY, z: customerCoords.endZ }
+        : defaultEnd;
+
+      // Validate logical consistency
+      try {
+        if (ThrydObjects[characterId]) {
+          this.timeLocationManager.validateLogicalConsistency(startPos, timestamp, duration);
+          this.timeLocationManager.setCharacterState(startPos, timestamp, duration);
+        } else {
+          this.timeLocationManager.setCharacterState(startPos, timestamp, duration);
+        }
+      } catch (error) {
+        await this.logErrorToFirebase({
+          type: error.name || "LogicalConsistencyError",
+          message: error.message,
+          goalId: selectedGoalId,
+        });
+        throw error;
+      }
+
       const lineKeys = Object.keys(this.data.lines).map(Number);
       const nextGoalId = selectedGoalId === 4 ? 5 : lineKeys[lineKeys.indexOf(selectedGoalId) + 1] || null;
       const nextGoal = nextGoalId ? this.data.lines[nextGoalId] : null;
 
-      const defaultStart = goalLine.coordinates || { x: 0, y: 0, z: 0 };
-      const defaultEnd = { x: goalLine.endX || 5, y: goalLine.endY || 5, z: goalLine.endZ || 5 };
       let targetStart = nextGoal ? nextGoal.coordinates || { x: 10, y: 10, z: 10 } : null;
       let targetEnd = nextGoal ? { x: nextGoal.endX || 20, y: nextGoal.endY || 20, z: nextGoal.endZ || 20 } : null;
 
@@ -313,15 +347,6 @@ class Heaven {
       } else if (!nextGoal) {
         targetStart = { x: -10, y: -10, z: -10 };
       }
-
-      const startPos =
-        customerCoords.startX !== undefined
-          ? { x: customerCoords.startX, y: customerCoords.startY, z: customerCoords.startZ }
-          : defaultStart;
-      const endPos =
-        customerCoords.endX !== undefined
-          ? { x: customerCoords.endX, y: customerCoords.endY, z: customerCoords.endZ }
-          : defaultEnd;
 
       const actions = this.thrydObjects?.getHistory().slice(-5).map((entry) => entry.results[0]) || [];
       const validation = await this.validateLineWithOpenAI(goalLine.text, startPos, endPos, actions);
@@ -365,8 +390,7 @@ class Heaven {
         target2 = { x: 10, y: 10, z: 10 };
       }
 
-      let length1 = 0; // Initialize fallback
-      console.debug("Before Line 1 calculation, length1:", length1);
+      let length1 = 0;
       try {
         if (!pathStart1 || !target1) {
           throw new Error("pathStart1 or target1 is undefined");
@@ -384,12 +408,6 @@ class Heaven {
           y: pathStart1.y,
           z: pathStart1.z + distance * Math.sin(finalAngleRad),
         };
-        if (
-          Math.abs(adjustedTarget1.x - target1.x) > 0.01 ||
-          Math.abs(adjustedTarget1.z - target1.z) > 0.01
-        ) {
-          adjustedTarget1 = { x: target1.x, y: target1.y, z: target1.z };
-        }
         adjustedTarget1.x = Math.max(0, Math.min(100, adjustedTarget1.x));
         adjustedTarget1.z = Math.max(0, Math.min(100, adjustedTarget1.z));
         length1 = Math.min(
@@ -401,23 +419,15 @@ class Heaven {
           )
         );
         pathEnd1 = adjustedTarget1;
-        console.debug("Line 1 calculated:", {
-          pathStart1,
-          pathEnd1: adjustedTarget1,
-          length1,
-          probability: probability * 0.6,
-        });
         paths.push({ start: pathStart1, end: pathEnd1, probability: probability * 0.6, length: length1 });
       } catch (error) {
-        console.error("Error calculating Line 1:", error);
+        await this.logErrorToFirebase({ type: "PathCalculationError", message: error.message, goalId: selectedGoalId });
         pathEnd1 = { x: 0, y: 0, z: 0 };
         paths.push({ start: pathStart1 || { x: 0, y: 0, z: 0 }, end: pathEnd1, probability: 0, length: 0 });
       }
-      console.debug("After Line 1 calculation, length1:", length1);
 
       let adjustedTarget2 = { x: 0, y: 0, z: 0 };
-      let length2 = 0; // Initialize fallback
-      console.debug("Before Line 2 calculation, adjustedTarget2:", adjustedTarget2, "length2:", length2);
+      let length2 = 0;
       try {
         if (!pathStart2 || !target2) {
           throw new Error("pathStart2 or target2 is undefined");
@@ -435,12 +445,6 @@ class Heaven {
           y: pathStart2.y,
           z: pathStart2.z + distance * Math.sin(finalAngleRad),
         };
-        if (
-          Math.abs(adjustedTarget2.x - target2.x) > 0.01 ||
-          Math.abs(adjustedTarget2.z - target2.z) > 0.01
-        ) {
-          adjustedTarget2 = { x: target2.x, y: target2.y, z: target2.z };
-        }
         adjustedTarget2.x = Math.max(0, Math.min(100, adjustedTarget2.x));
         adjustedTarget2.z = Math.max(0, Math.min(100, adjustedTarget2.z));
         length2 = Math.min(
@@ -452,20 +456,13 @@ class Heaven {
           )
         );
         pathEnd2 = adjustedTarget2;
-        console.debug("Line 2 calculated:", {
-          pathStart2,
-          pathEnd2: adjustedTarget2,
-          length2,
-          probability: probability * 0.4,
-        });
         paths.push({ start: pathStart2, end: pathEnd2, probability: probability * 0.4, length: length2 });
       } catch (error) {
-        console.error("Error calculating Line 2:", error);
+        await this.logErrorToFirebase({ type: "PathCalculationError", message: error.message, goalId: selectedGoalId });
         adjustedTarget2 = { x: 0, y: 0, z: 0 };
         pathEnd2 = adjustedTarget2;
         paths.push({ start: pathStart2 || { x: 0, y: 0, z: 0 }, end: pathEnd2, probability: 0, length: 0 });
       }
-      console.debug("After Line 2 calculation, adjustedTarget2:", adjustedTarget2, "length2:", length2);
 
       if (probPercent < 50 && nextGoalId) {
         this.data.lines[nextGoalId].coordinates = {
@@ -485,9 +482,12 @@ class Heaven {
         ...manifestationHistory,
         {
           goalId: selectedGoalId,
+          characterId,
           actions: manifestationActions,
-          timestamp: Math.floor(Date.now() / 1000),
-          sceneId: sceneId,
+          timestamp: Math.floor(timestamp / 1000),
+          isoTimestamp: new Date(timestamp).toISOString(),
+          duration,
+          sceneId,
           startX: pathStart1?.x || 0,
           startY: pathStart1?.y || 0,
           startZ: pathStart1?.z || 0,
@@ -507,7 +507,7 @@ class Heaven {
         await this.saveHeavenData(this.data);
         console.debug(`Manifested goal ${selectedGoalId} with history:`, newHistory);
       } catch (error) {
-        console.error(`Failed to persist manifestation for goal ${selectedGoalId}:`, error);
+        await this.logErrorToFirebase({ type: "PersistenceError", message: error.message, goalId: selectedGoalId });
         throw error;
       }
 
@@ -532,7 +532,7 @@ class Heaven {
         };
       }
     } catch (error) {
-      console.error("Error manifesting goal:", error);
+      await this.logErrorToFirebase({ type: error.name || "ManifestationError", message: error.message, goalId: selectedGoalId });
       return { success: false, error: error.message };
     }
   }

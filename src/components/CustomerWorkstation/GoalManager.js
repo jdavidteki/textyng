@@ -6,6 +6,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Text, Html, Line } from "@react-three/drei";
 import * as THREE from "three";
 import ManifestButton from "./ManifestButton.js";
+import ThrydObjects from "../Heaven/timetravel.js";
 
 import "./GoalManager.css";
 
@@ -56,6 +57,8 @@ class GoalManager extends React.Component {
       endX: "",
       endY: "",
       endZ: "",
+      timestampInput: new Date().toISOString().slice(0, 16),
+      errorMessage: null,
     };
   }
 
@@ -111,13 +114,14 @@ class GoalManager extends React.Component {
   };
 
   handleGoalSelect = async (goalId) => {
+    const { timestampInput } = this.state;
     const { heaven } = this.props;
     const lines = heaven?.getLines() || {};
     if (!lines[goalId]) {
       console.warn(`Goal ID ${goalId} not found in lines`);
       return;
     }
-    this.props.onGoalSelect(goalId);
+    this.props.onGoalSelect(goalId, new Date(timestampInput).getTime());
     try {
       await heaven.setCurrentGoalInProgress(goalId);
     } catch (err) {
@@ -133,6 +137,17 @@ class GoalManager extends React.Component {
     this.setState({ [field]: event.target.value });
   };
 
+  handleTimestampChange = (event) => {
+    const timestamp = event.target.value;
+    const timestampDate = new Date(timestamp).getTime();
+    if (timestampDate < Date.now()) {
+      this.setState({ errorMessage: "Timestamp cannot be in the past." });
+    } else {
+      this.setState({ timestampInput: timestamp, errorMessage: null });
+      this.props.onGoalSelect(this.props.selectedGoalId, this.state.selectedCharacterId, timestampDate);
+    }
+  };
+
   handleManifest = () => {
     const { startX, startY, startZ, endX, endY, endZ } = this.state;
     const coords = {};
@@ -144,6 +159,7 @@ class GoalManager extends React.Component {
       coords.endY = parseFloat(endY);
       coords.endZ = parseFloat(endZ);
     }
+    this.setState({ errorMessage: null });
     this.props.onManifest(coords);
   };
 
@@ -232,7 +248,7 @@ class GoalManager extends React.Component {
   }
 
   handleLineClick = async (index) => {
-    this.props.onGoalSelect(index);
+    this.props.onGoalSelect(index, new Date(this.state.timestampInput).getTime());
     try {
       await this.props.heaven?.setCurrentGoalInProgress(index);
     } catch (err) {
@@ -250,6 +266,44 @@ class GoalManager extends React.Component {
     ));
   };
 
+  renderTimeline = () => {
+    const { manifestationHistory, cast } = this.props;
+    const thrydHistory = ThrydObjects.getHistory() || [];
+    const events = [
+      ...manifestationHistory.map((entry) => ({
+        timestamp: new Date(entry.isoTimestamp),
+        location: `(${entry.startX}, ${entry.startY}, ${entry.startZ})`,
+        duration: entry.duration / 1000 / 60,
+        source: "Manifestation",
+      })),
+      ...thrydHistory
+        .filter((move) => move.results.some((r) => r.result?.action === "newlocation"))
+        .map((move) => ({
+          timestamp: new Date(parseInt(move.timestamp)),
+          location: `(${move.results[0]?.result?.result?.location?.x || 0}, ${move.results[0]?.result?.result?.location?.y || 0}, ${move.results[0]?.result?.result?.location?.z || 0})`,
+          duration: 1,
+          source: "ThrydObjects",
+        })),
+    ].sort((a, b) => a.timestamp - b.timestamp);
+
+    return (
+      <div className="timeline">
+        <h3>Timeline</h3>
+        {events.length > 0 ? (
+          <ul>
+            {events.map((event, index) => (
+              <li key={`event-${index}`}>
+                {event.location} on {event.timestamp.toLocaleString()} for {event.duration} minutes ({event.source})
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No events in timeline.</p>
+        )}
+      </div>
+    );
+  };
+
   render() {
     const {
       heaven,
@@ -265,8 +319,20 @@ class GoalManager extends React.Component {
       onSaveScriptToJson,
     } = this.props;
 
-    const { activeTab, searchQuery, carouselIndex, hoveredLineIndex, startX, startY, startZ, endX, endY, endZ } =
-      this.state;
+    const {
+      activeTab,
+      searchQuery,
+      carouselIndex,
+      hoveredLineIndex,
+      startX,
+      startY,
+      startZ,
+      endX,
+      endY,
+      endZ,
+      timestampInput,
+      errorMessage,
+    } = this.state;
 
     const lines = heaven?.getLines() || {};
     const lineKeys = Object.keys(lines).map(Number);
@@ -277,12 +343,22 @@ class GoalManager extends React.Component {
           <Tab label="Goals" />
           <Tab label="Details" />
           <Tab label="Canvas" />
+          <Tab label="Timeline" />
         </Tabs>
 
         {activeTab === 0 && (
           <div className="GoalManager--goals">
             <h3>Available Goals</h3>
             <div className="GoalManager--goal-list">
+              <div>
+                <input
+                  type="datetime-local"
+                  value={timestampInput}
+                  onChange={this.handleTimestampChange}
+                  className="timestamp-input"
+                />
+                {errorMessage && <p className="error">{errorMessage}</p>}
+              </div>
               {lineKeys.map((key) => (
                 <div key={key} className="GoalManager--goal-item">
                   <Checkbox
@@ -414,7 +490,7 @@ class GoalManager extends React.Component {
                             <strong>Date:</strong> {new Date(entry.timestamp * 1000).toLocaleString()}
                           </p>
                           <p>
-                            <strong>Emotions:</strong> {goal.emotion || "N/A"}
+                            <strong>Emotions:</strong> {goal.primaryEmotion || "N/A"}
                             {goal.secondaryEmotion ? `, ${goal.secondaryEmotion}` : ""}
                           </p>
                           <p>
@@ -436,7 +512,7 @@ class GoalManager extends React.Component {
                             <strong>Total Length:</strong> {entry.length ? entry.length.toFixed(2) : "N/A"}
                           </p>
                           <p>
-                            <strong>Objects:</strong> {goal.objects?.join(", ") || "None"}
+                            <strong>Objects:</strong> {goal.objectStates?.join(", ") || "None"}
                           </p>
                           <p>
                             <strong>Messages:</strong>{" "}
@@ -478,8 +554,11 @@ class GoalManager extends React.Component {
         {activeTab === 2 && (
           <div className="GoalManager--canvas">
             <h3>Visualization</h3>
-            <Canvas camera={{ position: [150, 150, 150], fov: 60 }} style={{ height: "500px", background: "#000" }}>
-              <ambientLight />
+            <Canvas
+              camera={{ position: [150, 100, 150], fov: 60 }}
+              style={{ height: "500px", background: "#000" }}
+            >
+              <ambientLight intensity={0.5} />
               <pointLight position={[100, 100, 100]} />
               <OrbitControls />
               {lineKeys.map((key) => {
@@ -489,15 +568,22 @@ class GoalManager extends React.Component {
                   parseFloat(line.coordinates?.y) || 0,
                   parseFloat(line.coordinates?.z) || 0,
                 ];
-                const end = [parseFloat(line.endX) || 0, parseFloat(line.endY) || 0, parseFloat(line.endZ) || 0];
+                const end = [
+                  parseFloat(line.endX) || 0,
+                  parseFloat(line.endY) || 0,
+                  parseFloat(line.endZ) || 0,
+                ];
                 const nodeColor =
                   selectedGoalId === key
                     ? "yellow"
                     : manifestationHistory.some((entry) => entry.goalId === key)
                     ? "green"
-                    : this.getEmotionColor(line.emotion);
-                const textColor = selectedGoalId === key ? "green" : "gray";
-                const midPoint = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2, (start[2] + end[2]) / 2];
+                    : this.getEmotionColor(line.primaryEmotion);
+                const textColor = selectedGoalId === key ? "green" : "white";
+                const midPoint = [
+                  (start[0] + end[0]) / 2,
+                  (start[1] + end[1]) / 2,
+                  (start[2] + end[2]) / 2];
                 const direction = new THREE.Vector3()
                   .subVectors(new THREE.Vector3(...end), new THREE.Vector3(...start))
                   .normalize();
@@ -509,15 +595,14 @@ class GoalManager extends React.Component {
                 return (
                   <React.Fragment key={`fragment-${key}`}>
                     <Line points={[start, end]} color={nodeColor} lineWidth={2} />
-                    <mesh key={`node-${key}`} position={end} onClick={() => this.handleLineClick(key)}>
+                    <mesh position={end} onClick={() => this.handleLineClick(key)}>
                       <sphereGeometry args={[1.5, 16, 16]} />
                       <meshStandardMaterial color={nodeColor} />
                     </mesh>
                     <Text
-                      key={`text-${key}`}
                       position={midPoint}
                       quaternion={quaternion}
-                      fontSize={2}
+                      fontSize={0.5}
                       color={textColor}
                       anchorX="center"
                       anchorY="middle"
@@ -538,41 +623,21 @@ class GoalManager extends React.Component {
               {manifestationHistory.map((entry, index) => {
                 if (!entry.path?.length) return null;
                 return entry.path.map((subPath, i) => {
-                  const color = subPath.probability >= 0.7 ? "green" : subPath.probability >= 0.3 ? "blue" : "red";
+                  const color =
+                    entry.probability >= 0.7 ? "green" :
+                    entry.probability >= 0.3 ? "blue" : "red";
                   return (
-                    <React.Fragment key={`line-${index}-${i}`}>
-                      <Line
-                        points={[
-                          [subPath.start.x, subPath.start.y, subPath.start.z],
-                          [subPath.end.x, subPath.end.y, subPath.end.z],
-                        ]}
-                        color={color}
-                        lineWidth={3}
-                        dashed={true}
-                        opacity={0.8 - index * 0.1}
-                      />
-                      <Html
-                        position={[
-                          (subPath.start.x + subPath.end.x) / 2,
-                          subPath.start.y,
-                          (subPath.start.z + subPath.end.z) / 2,
-                        ]}
-                      >
-                        <div
-                          style={{
-                            background: "rgba(0, 0, 0, 0.75)",
-                            color: "#fff",
-                            padding: "5px 10px",
-                            borderRadius: "4px",
-                            fontSize: "10px",
-                          }}
-                        >
-                          Line {i + 1}: {(subPath.probability * 100).toFixed(2)}%
-                          <br />
-                          Length: {subPath.length ? subPath.length.toFixed(2) : "N/A"}
-                        </div>
-                      </Html>
-                    </React.Fragment>
+                    <Line
+                      key={`path-${index}-${i}`}
+                      points={[
+                        [subPath.start.x, subPath.start.y, subPath.start.z],
+                        [subPath.end.x, subPath.end.y, subPath.end.z],
+                      ]}
+                      color={color}
+                      lineWidth={3}
+                      dashed={true}
+                      opacity={0.8 - index * 0.05}
+                    />
                   );
                 });
               })}
@@ -580,18 +645,11 @@ class GoalManager extends React.Component {
           </div>
         )}
 
-        <div className="GoalManager--actions">
-          {script && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={onSaveScriptToJson}
-              style={{ marginTop: "10px" }}
-            >
-              Save Script
-            </Button>
-          )}
-        </div>
+        {activeTab === 3 && (
+          <div className="GoalManager--timeline">
+            {this.renderTimeline()}
+          </div>
+        )}
       </div>
     );
   }
