@@ -7,8 +7,54 @@ import { OrbitControls, Text, Html, Line } from "@react-three/drei";
 import * as THREE from "three";
 import ManifestButton from "./ManifestButton.js";
 import ThrydObjects from "../Heaven/timetravel.js";
+import firebase from "../../firebase/firebase.js";
 
 import "./GoalManager.css";
+
+
+// Client-side GIF rendering with gif.js and Firebase upload
+const renderGif = (images, heavenId, goalId, timestamp, callback) => {
+  const GIF = window.GIF;
+  const gif = new GIF({
+    workers: 2,
+    quality: 10,
+    workerScript: "https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js",
+  });
+
+  let loadedImages = 0;
+  images.forEach((url) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      gif.addFrame(img, { delay: 1000 });
+      loadedImages++;
+      if (loadedImages === images.length) {
+        gif.on("finished", async (blob) => {
+          try {
+            const storageRef = firebase.storage().ref();
+            const filePath = `/heavens/${heavenId}/visuals/${goalId}-${timestamp}.gif`;
+            const fileRef = storageRef.child(filePath);
+            await fileRef.put(blob, { contentType: 'image/gif' });
+            const downloadUrl = await fileRef.getDownloadURL();
+            callback(downloadUrl);
+          } catch (error) {
+            console.error("Failed to upload GIF:", error);
+            callback(URL.createObjectURL(blob)); // Fallback to local blob URL
+          }
+        });
+        gif.render();
+      }
+    };
+    img.onerror = () => {
+      console.error(`Failed to load image: ${url}`);
+      loadedImages++;
+      if (loadedImages === images.length) {
+        gif.render();
+      }
+    };
+    img.src = url;
+  });
+};
 
 class GoalManager extends React.Component {
   static propTypes = {
@@ -57,8 +103,10 @@ class GoalManager extends React.Component {
       endX: "",
       endY: "",
       endZ: "",
+      selectedCharacterId: null,
       timestampInput: new Date().toISOString().slice(0, 16),
       errorMessage: null,
+      gifUrls: {},
     };
   }
 
@@ -107,6 +155,33 @@ class GoalManager extends React.Component {
         });
       }
     }
+
+    // Render GIFs for new manifestation entries
+    if (prevProps.manifestationHistory !== manifestationHistory) {
+      manifestationHistory.forEach((entry) => {
+        if (entry.visualType === "gif" && entry.visualImages && !this.state.gifUrls[entry.goalId]) {
+          renderGif(
+            entry.visualImages,
+            this.props.heaven?.data?.id || `heaven-${Date.now()}`,
+            entry.goalId,
+            entry.timestamp,
+            (gifUrl) => {
+              this.setState((prevState) => ({
+                gifUrls: { ...prevState.gifUrls, [entry.goalId]: gifUrl },
+              }));
+              // Update Firebase with GIF URL
+              const updatedHistory = this.props.manifestationHistory.map((hist) =>
+                hist.goalId === entry.goalId && hist.timestamp === entry.timestamp
+                  ? { ...hist, visual: gifUrl }
+                  : hist
+              );
+              this.props.heaven?.updateManifestationHistory(updatedHistory);
+              this.props.heaven?.updateHeavenFirebase();
+            }
+          );
+        }
+      });
+    }
   }
 
   handleTabChange = (event, newValue) => {
@@ -114,14 +189,14 @@ class GoalManager extends React.Component {
   };
 
   handleGoalSelect = async (goalId) => {
-    const { timestampInput } = this.state;
+    const { selectedCharacterId, timestampInput } = this.state;
     const { heaven } = this.props;
     const lines = heaven?.getLines() || {};
     if (!lines[goalId]) {
       console.warn(`Goal ID ${goalId} not found in lines`);
       return;
     }
-    this.props.onGoalSelect(goalId, new Date(timestampInput).getTime());
+    this.props.onGoalSelect(goalId, selectedCharacterId, new Date(timestampInput).getTime());
     try {
       await heaven.setCurrentGoalInProgress(goalId);
     } catch (err) {
@@ -230,7 +305,7 @@ class GoalManager extends React.Component {
     const start = allMessages.indexOf(goalMessages[0]);
     const end = allMessages.indexOf(goalMessages[goalMessages.length - 1]);
     return { start, end };
-  }
+  };
 
   getEmotionColor(emotion) {
     const colors = {
@@ -245,10 +320,10 @@ class GoalManager extends React.Component {
       reverence: "violet",
     };
     return colors[emotion?.toLowerCase()] || "white";
-  }
+  };
 
   handleLineClick = async (index) => {
-    this.props.onGoalSelect(index, new Date(this.state.timestampInput).getTime());
+    this.props.onGoalSelect(index, this.state.selectedCharacterId, new Date(this.state.timestampInput).getTime());
     try {
       await this.props.heaven?.setCurrentGoalInProgress(index);
     } catch (err) {
@@ -268,9 +343,10 @@ class GoalManager extends React.Component {
 
   renderTimeline = () => {
     const { manifestationHistory, cast } = this.props;
-    const thrydHistory = ThrydObjects.getHistory() || [];
+    const thrydHistory = ThrydObjects.getHistory().slice(-10) || []; // Cap history
     const events = [
       ...manifestationHistory.map((entry) => ({
+        character: cast.find((c) => c.id === entry.characterId)?.name || "Unknown",
         timestamp: new Date(entry.isoTimestamp),
         location: `(${entry.startX}, ${entry.startY}, ${entry.startZ})`,
         duration: entry.duration / 1000 / 60,
@@ -279,6 +355,7 @@ class GoalManager extends React.Component {
       ...thrydHistory
         .filter((move) => move.results.some((r) => r.result?.action === "newlocation"))
         .map((move) => ({
+          character: move.results[0]?.result?.context || "Unknown",
           timestamp: new Date(parseInt(move.timestamp)),
           location: `(${move.results[0]?.result?.result?.location?.x || 0}, ${move.results[0]?.result?.result?.location?.y || 0}, ${move.results[0]?.result?.result?.location?.z || 0})`,
           duration: 1,
@@ -293,7 +370,7 @@ class GoalManager extends React.Component {
           <ul>
             {events.map((event, index) => (
               <li key={`event-${index}`}>
-                {event.location} on {event.timestamp.toLocaleString()} for {event.duration} minutes ({event.source})
+                ${event.character} at ${event.location} on ${event.timestamp.toLocaleString()} for ${event.duration} minutes (${event.source})
               </li>
             ))}
           </ul>
@@ -330,8 +407,10 @@ class GoalManager extends React.Component {
       endX,
       endY,
       endZ,
+      selectedCharacterId,
       timestampInput,
       errorMessage,
+      gifUrls,
     } = this.state;
 
     const lines = heaven?.getLines() || {};
@@ -357,7 +436,7 @@ class GoalManager extends React.Component {
                   onChange={this.handleTimestampChange}
                   className="timestamp-input"
                 />
-                {errorMessage && <p className="error">{errorMessage}</p>}
+                {errorMessage && <p className="error">${errorMessage}</p>}
               </div>
               {lineKeys.map((key) => (
                 <div key={key} className="GoalManager--goal-item">
@@ -368,8 +447,8 @@ class GoalManager extends React.Component {
                     disabled={selectedGoalId === key}
                   />
                   <span onClick={() => this.handleGoalSelect(key)}>
-                    {key}: {lines[key].text}
-                    {this.renderGoalMarks(key)}
+                    ${key}: ${lines[key].text}
+                    ${this.renderGoalMarks(key)}
                   </span>
                   {selectedGoalId === key && (
                     <div className="GoalManager--controls">
@@ -426,7 +505,7 @@ class GoalManager extends React.Component {
                           <ul>
                             {manifestationActions.map((action, i) => (
                               <li key={i}>
-                                {action.character} says: "{action.content}"
+                                ${action.character} says: "${action.content}"
                               </li>
                             ))}
                           </ul>
@@ -437,7 +516,7 @@ class GoalManager extends React.Component {
                       <ManifestButton
                         onManifest={this.handleManifest}
                         isValidating={isValidating}
-                        disabled={selectedGoalId === null}
+                        disabled={selectedGoalId === null || !selectedCharacterId}
                       />
                     </div>
                   )}
@@ -484,39 +563,39 @@ class GoalManager extends React.Component {
                       return (
                         <div key={index} className="GoalManager--past-goal">
                           <p>
-                            <strong>Goal:</strong> {goal.text}
+                            <strong>Goal:</strong> ${goal.text}
                           </p>
                           <p>
-                            <strong>Date:</strong> {new Date(entry.timestamp * 1000).toLocaleString()}
+                            <strong>Date:</strong> ${new Date(entry.timestamp * 1000).toLocaleString()}
                           </p>
                           <p>
-                            <strong>Emotions:</strong> {goal.primaryEmotion || "N/A"}
-                            {goal.secondaryEmotion ? `, ${goal.secondaryEmotion}` : ""}
+                            <strong>Emotions:</strong> ${goal.primaryEmotion || "N/A"}
+                            ${goal.secondaryEmotion ? `, ${goal.secondaryEmotion}` : ""}
                           </p>
                           <p>
                             <strong>Start:</strong>{" "}
-                            {entry.startX !== undefined
+                            ${entry.startX !== undefined
                               ? `(${entry.startX}, ${entry.startY}, ${entry.startZ})`
                               : "N/A"}
                           </p>
                           <p>
                             <strong>End:</strong>{" "}
-                            {entry.endX !== undefined
+                            ${entry.endX !== undefined
                               ? `(${entry.endX}, ${entry.endY}, ${entry.endZ})`
                               : "N/A"}
                           </p>
                           <p>
-                            <strong>Probability:</strong> {(entry.probability * 100).toFixed(2)}%
+                            <strong>Probability:</strong> ${(entry.probability * 100).toFixed(2)}%
                           </p>
                           <p>
-                            <strong>Total Length:</strong> {entry.length ? entry.length.toFixed(2) : "N/A"}
+                            <strong>Total Length:</strong> ${entry.length ? entry.length.toFixed(2) : "N/A"}
                           </p>
                           <p>
-                            <strong>Objects:</strong> {goal.objectStates?.join(", ") || "None"}
+                            <strong>Objects:</strong> ${goal.objectStates?.join(", ") || "None"}
                           </p>
                           <p>
                             <strong>Messages:</strong>{" "}
-                            {start !== null && end >= start ? `Messages ${start}-${end}` : "No messages"}
+                            ${start !== null && end >= start ? `Messages ${start}-${end}` : "No messages"}
                           </p>
                           <p>
                             <strong>Actions:</strong>
@@ -525,13 +604,40 @@ class GoalManager extends React.Component {
                             {entry.actions?.length > 0 ? (
                               entry.actions.map((action, i) => (
                                 <li key={i}>
-                                  {action.character} says: "{action.content}"
+                                  ${action.character} says: "${action.content}"
                                 </li>
                               ))
                             ) : (
                               <li>No actions</li>
                             )}
                           </ul>
+                          {entry.visual && (
+                            <p>
+                              <strong>Visual Snapshot:</strong>
+                              {entry.visualType === "video" ? (
+                                <video
+                                  src={entry.visual}
+                                  controls
+                                  style={{ maxWidth: "300px", maxHeight: "200px" }}
+                                  title={`Snapshot for ${goal.text}`}
+                                />
+                              ) : entry.visualType === "gif" && gifUrls[entry.goalId] ? (
+                                <img
+                                  src={gifUrls[entry.goalId]}
+                                  alt={`Snapshot for ${goal.text}`}
+                                  style={{ maxWidth: "300px", maxHeight: "200px" }}
+                                />
+                              ) : entry.visualType === "image" ? (
+                                <img
+                                  src={entry.visual}
+                                  alt={`Snapshot for ${goal.text}`}
+                                  style={{ maxWidth: "300px", maxHeight: "200px" }}
+                                />
+                              ) : (
+                                <span>No visual available</span>
+                              )}
+                            </p>
+                          )}
                         </div>
                       );
                     })}
@@ -583,7 +689,8 @@ class GoalManager extends React.Component {
                 const midPoint = [
                   (start[0] + end[0]) / 2,
                   (start[1] + end[1]) / 2,
-                  (start[2] + end[2]) / 2];
+                  (start[2] + end[2]) / 2,
+                ];
                 const direction = new THREE.Vector3()
                   .subVectors(new THREE.Vector3(...end), new THREE.Vector3(...start))
                   .normalize();
@@ -610,11 +717,11 @@ class GoalManager extends React.Component {
                       onPointerOver={() => this.setState({ hoveredLineIndex: key })}
                       onPointerOut={() => this.setState({ hoveredLineIndex: null })}
                     >
-                      {line.text}
+                      ${line.text}
                     </Text>
                     {hoveredLineIndex === key && (
                       <Html position={end}>
-                        <div className="tooltip">{line.text}</div>
+                        <div className="tooltip">${line.text}</div>
                       </Html>
                     )}
                   </React.Fragment>
@@ -647,7 +754,7 @@ class GoalManager extends React.Component {
 
         {activeTab === 3 && (
           <div className="GoalManager--timeline">
-            {this.renderTimeline()}
+            ${this.renderTimeline()}
           </div>
         )}
       </div>

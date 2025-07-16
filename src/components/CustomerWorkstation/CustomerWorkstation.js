@@ -5,6 +5,7 @@ import EditScript from "../EditScript/EditScript.js";
 import confetti from "canvas-confetti";
 import Heaven from "../Heaven/Heaven.js";
 import GoalManager from "./GoalManager.js";
+import firebase from "../../firebase/firebase.js";
 
 import "./CustomerWorkstation.css";
 
@@ -52,7 +53,11 @@ class ConnectedCustomerWorkstation extends Component {
       movementHistory: [],
       heavenId: null,
       loadingProgress: 0,
+      selectedCharacterId: null,
       selectedTimestamp: new Date().toISOString().slice(0, 16),
+      commandInput: "",
+      error: null,
+      visualData: { url: null, type: null, images: null },
     };
   }
 
@@ -90,17 +95,21 @@ class ConnectedCustomerWorkstation extends Component {
       this.setState({
         heaven,
         manifestationHistory,
-        movementHistory: heaven.thrydObjects ? heaven.thrydObjects.getHistory() : [],
+        movementHistory: await heaven.thrydObjects.getHistory(heavenId, 10),
         timeMachineDestination: heaven.thrydObjects?.timeMachine?.getDestination() || null,
         loadingProgress: 50,
       });
     } catch (error) {
       console.error(`Error initializing Heaven for ID: ${heavenId || "fallback"}:`, error);
+      this.setState({
+        error: `Initialization failed: ${error.message}`,
+        loadingProgress: 50,
+      });
       heaven = await Heaven.create(null, getFallbackHeavenData(), true);
       this.setState({
         heaven,
         manifestationHistory: heaven.getManifestationHistory() || [],
-        loadingProgress: 50,
+        movementHistory: await heaven.thrydObjects.getHistory(null, 10),
       });
     }
 
@@ -119,7 +128,7 @@ class ConnectedCustomerWorkstation extends Component {
         });
       } catch (err) {
         console.error("Script initialization error:", err);
-        this.setState({ loadingProgress: 100 });
+        this.setState({ loadingProgress: 100, error: `Script initialization failed: ${err.message}` });
       }
     } else {
       this.setState({ loadingProgress: 100 });
@@ -127,12 +136,17 @@ class ConnectedCustomerWorkstation extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { script, allMessages } = this.state;
-    if (script) {
-      const currentMessages = script.getAllMessagesAsNodes();
-      if (currentMessages.length > allMessages.length) {
-        this.setState({ allMessages: currentMessages });
-      }
+    const { script, allMessages, heaven } = this.state;
+    if (script && script.getAllMessagesAsNodes().length > allMessages.length) {
+      this.setState({ allMessages: script.getAllMessagesAsNodes() });
+    }
+    if (heaven && prevState.heaven !== heaven) {
+      heaven.thrydObjects.getHistory(this.state.heavenId, 10).then(history => {
+        this.setState({ movementHistory: history });
+      }).catch(error => {
+        console.error("Failed to update movement history:", error);
+        this.setState({ error: `Failed to update movement history: ${error.message}` });
+      });
     }
   }
 
@@ -141,6 +155,7 @@ class ConnectedCustomerWorkstation extends Component {
     const lines = heaven?.getLines() || {};
     if (!lines[goalId]) {
       console.warn(`Goal ID ${goalId} not found`);
+      this.setState({ error: `Goal ID ${goalId} not found` });
       return;
     }
     const place = lines[goalId].coordinates
@@ -153,24 +168,68 @@ class ConnectedCustomerWorkstation extends Component {
       selectedSceneId: sceneId,
       manifestationActions: [],
       activeAction: null,
+      selectedTimestamp: timestamp ? new Date(timestamp).toISOString().slice(0, 16) : this.state.selectedTimestamp,
     });
     try {
       await heaven.setCurrentGoalInProgress(goalId);
+      this.setState({ currentGoalInProgress: goalId });
     } catch (error) {
       console.error(`Error saving currentGoalInProgress ${goalId}:`, error);
+      this.setState({ error: `Failed to select goal: ${error.message}` });
+    }
+  };
+
+  handleCommandSubmit = async () => {
+    const { heaven, commandInput, selectedSceneId, heavenId, currentGoalInProgress } = this.state;
+    if (!heaven || !commandInput) {
+      this.setState({ error: "No command provided or system not ready." });
+      return;
+    }
+    try {
+      const commandRegex = /^\w+\.\w+\(.*\);?$/;
+      if (!commandRegex.test(commandInput)) {
+        this.setState({ error: "Invalid command format. Use: context.action(params);" });
+        return;
+      }
+      await heaven.executeY5Command(commandInput, heaven.getScript(), selectedSceneId || "scene-1");
+      this.setState({
+        commandInput: "",
+        movementHistory: await heaven.thrydObjects.getHistory(heavenId, 10),
+      });
+      const result = await heaven.manifest(currentGoalInProgress, {}, [], selectedSceneId || "scene-1");
+      this.setState({
+        visualData: {
+          url: result.visual,
+          type: result.visualType,
+          images: result.visualImages,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to execute command:", err);
+      this.setState({ error: `Command execution failed: ${err.message}` });
+      await firebase.logError({
+        type: "CommandExecutionError",
+        message: `Failed to execute command: ${err.message}`,
+        heavenId,
+        timestamp: Date.now(),
+      });
     }
   };
 
   manifest = async (customerCoords = {}) => {
-    const { heaven, manifestationActions, selectedSceneId, selectedTimestamp } = this.state;
+    const { heaven, manifestationActions, selectedSceneId, selectedCharacterId, selectedTimestamp, heavenId } = this.state;
     const selectedGoalId = heaven.getCurrentGoalInProgress();
     if (selectedGoalId === null) {
-      alert("Please select a goal.");
+      this.setState({ error: "Please select a goal." });
+      return;
+    }
+    if (!selectedCharacterId) {
+      this.setState({ error: "Please select a character." });
       return;
     }
     const timestamp = new Date(selectedTimestamp).getTime();
     if (timestamp < Date.now()) {
-      alert("Timestamp cannot be in the past.");
+      this.setState({ error: "Timestamp cannot be in the past." });
       return;
     }
 
@@ -182,6 +241,7 @@ class ConnectedCustomerWorkstation extends Component {
         customerCoords,
         manifestationActions,
         selectedSceneId || "scene-1",
+        selectedCharacterId,
         timestamp
       );
 
@@ -192,6 +252,12 @@ class ConnectedCustomerWorkstation extends Component {
         selectedSceneId: result.success ? null : this.state.selectedSceneId,
         activeAction: null,
         isValidating: false,
+        movementHistory: await heaven.thrydObjects.getHistory(heavenId, 10),
+        visualData: {
+          url: result.visual,
+          type: result.visualType,
+          images: result.visualImages,
+        },
       });
 
       await this.saveStateToJson();
@@ -213,14 +279,19 @@ class ConnectedCustomerWorkstation extends Component {
       }
     } catch (error) {
       console.error("Error manifesting goal:", error);
-      this.setState({ isValidating: false, activeAction: null });
+      this.setState({ isValidating: false, activeAction: null, error: `Failed to manifest goal: ${error.message}` });
       await this.saveStateToJson();
-      alert(`Failed to manifest goal: ${error.message}`);
+      await firebase.logError({
+        type: "ManifestationError",
+        message: `Failed to manifest goal: ${error.message}`,
+        heavenId,
+        timestamp: Date.now(),
+      });
     }
   };
 
   saveStateToJson = async () => {
-    const { heaven, stateSnapshots, manifestationHistory } = this.state;
+    const { heaven, stateSnapshots, manifestationHistory, heavenId } = this.state;
     try {
       heaven.updateStateSnapshots(stateSnapshots);
       heaven.updateManifestationHistory(manifestationHistory);
@@ -229,12 +300,18 @@ class ConnectedCustomerWorkstation extends Component {
       console.debug("Saved state to Firebase:", { manifestationHistory });
     } catch (error) {
       console.error("Failed to save state to Firebase:", error);
-      throw error;
+      this.setState({ error: `Failed to save state: ${error.message}` });
+      await firebase.logError({
+        type: "FirebaseSaveError",
+        message: `Failed to save state: ${error.message}`,
+        heavenId,
+        timestamp: Date.now(),
+      });
     }
   };
 
   saveScriptToJson = async () => {
-    const { heaven, stateSnapshots, manifestationHistory } = this.state;
+    const { heaven, stateSnapshots, manifestationHistory, heavenId } = this.state;
     try {
       heaven.updateStateSnapshots(stateSnapshots);
       heaven.updateManifestationHistory(manifestationHistory);
@@ -243,7 +320,13 @@ class ConnectedCustomerWorkstation extends Component {
       console.debug("Saved script to Firebase:", { manifestationHistory });
     } catch (error) {
       console.error("Failed to save script to Firebase:", error);
-      throw error;
+      this.setState({ error: `Failed to save script: ${error.message}` });
+      await firebase.logError({
+        type: "FirebaseSaveError",
+        message: `Failed to save script: ${error.message}`,
+        heavenId,
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -263,6 +346,10 @@ class ConnectedCustomerWorkstation extends Component {
       selectedSceneId,
       loadingProgress,
       manifestationHistory,
+      commandInput,
+      error,
+      visualData,
+      currentGoalInProgress,
     } = this.state;
 
     if (loadingProgress < 100) {
@@ -275,24 +362,43 @@ class ConnectedCustomerWorkstation extends Component {
               style={{ width: `${loadingProgress}%` }}
             ></div>
           </div>
-          <p className="mt-2 text-gray-600">{loadingProgress}% Complete</p>
+          <p className="mt-2 text-gray-600">${loadingProgress}% Complete</p>
         </div>
       );
     }
 
     return (
       <div className="CustomerWorkstation">
+        {error && <div className="text-red-500 mb-4">{error}</div>}
         {script && (
           <EditScript
             isNewScript={true}
             script={script}
-            executeY5Command={heaven.executeY5Command.bind(heaven)}
+            executeY5Command={(command, script, sceneId) =>
+              heaven.executeY5Command(command, script, sceneId || selectedSceneId || "scene-1")
+            }
           />
         )}
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">Execute Command</h2>
+          <input
+            type="text"
+            value={commandInput}
+            onChange={(e) => this.setState({ commandInput: e.target.value })}
+            placeholder="e.g., tunde.newlocation({ x: 2, y: 3, z: 0 });"
+            className="border p-2 mr-2"
+          />
+          <button
+            onClick={this.handleCommandSubmit}
+            className="bg-blue-500 text-white p-2 rounded"
+          >
+            Execute
+          </button>
+        </div>
         <GoalManager
           heaven={heaven}
           script={script}
-          selectedGoalId={heaven?.getCurrentGoalInProgress()}
+          selectedGoalId={currentGoalInProgress}
           manifestationActions={manifestationActions}
           isValidating={isValidating}
           allMessages={allMessages}
@@ -303,6 +409,7 @@ class ConnectedCustomerWorkstation extends Component {
           movementHistory={movementHistory}
           selectedSceneId={selectedSceneId}
           manifestationHistory={manifestationHistory}
+          visualData={visualData}
           onGoalSelect={this.handleGoalSelect}
           onManifest={this.manifest}
           onSaveScriptToJson={this.saveScriptToJson}

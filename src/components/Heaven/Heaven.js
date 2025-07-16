@@ -3,6 +3,122 @@ import Script from "../Script/Script.js";
 import ThrydObjects from "./timetravel.js";
 import { staticManifestResponse } from "./responses.js";
 import TimeLocationManager from "./TimeLocationManager.js";
+import heavenFromAI from "./heavenFromAI.json";
+
+// Initialize OpenAI client
+let openai = null;
+async function initializeOpenAI() {
+  if (!openai) {
+    const openAIAPI = await firebase.getOpenAIAPI();
+    const openaiApiKey = Array.isArray(openAIAPI) ? openAIAPI.join('') : openAIAPI;
+    const OpenAI = require('openai');
+    openai = new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true });
+  }
+  return openai;
+}
+
+// Upload GIF blob to Firebase Storage
+async function uploadGifToFirebase(heavenId, goalId, timestamp, gifBlob) {
+  try {
+    const storageRef = firebase.storage().ref();
+    const filePath = `/heavens/${heavenId}/visuals/${goalId}-${timestamp}.gif`;
+    const fileRef = storageRef.child(filePath);
+    await fileRef.put(gifBlob, { contentType: 'image/gif' });
+    const downloadUrl = await fileRef.getDownloadURL();
+    return downloadUrl;
+  } catch (error) {
+    console.error("Failed to upload GIF to Firebase:", error);
+    throw error;
+  }
+}
+
+// Generate video or image/GIF from goal and ThrydObjects commands
+async function generateVisualFromGoal(goal, historyEntry, scriptMessage = null, lastManifestationTimestamp = null) {
+  const character = historyEntry.characterId || "unknown character";
+  const action = scriptMessage ? scriptMessage.content : goal.text;
+  const heavenId = historyEntry.heavenId || `heaven-${Date.now()}`;
+  const goalId = historyEntry.goalId || 0;
+  const timestamp = historyEntry.timestamp || Math.floor(Date.now() / 1000);
+
+  // Fetch commands from Firebase
+  let commands = [];
+  try {
+    commands = await ThrydObjects.getHistory(heavenId, 10); // Cap at last 10 commands
+    commands = commands.filter((entry) => {
+      const entryTimestamp = parseInt(entry.timestamp);
+      const goalTimestamp = historyEntry.timestamp;
+      return lastManifestationTimestamp
+        ? entryTimestamp > lastManifestationTimestamp
+        : Math.abs(entryTimestamp - goalTimestamp) <= 60;
+    });
+  } catch (error) {
+    console.error("Failed to fetch commands for visual generation:", error);
+  }
+
+  // Join commands into a single string
+  const commandString = commands.map(({ command }) => command).join('');
+
+  const prompt = `
+            Generate a 10-second video snapshot depicting "${action}" performed by ${character}.
+            Style: ${heavenFromAI.isFiction ? 'fantasy, vibrant colors' : 'realistic, natural lighting'}.
+            Context: ${goal.text}.
+            Use your discretion to interpret the following sequence of code-like commands as actions or state changes to visualize the scene. Commands represent actions like moving to a location (e.g., newlocation), opening a door (e.g., openDoor), or setting a destination (e.g., setTimeMachineDestination):
+            ${commandString || "No commands available"}
+          `;
+
+  try {
+    await initializeOpenAI();
+    // Placeholder: OpenAI video generation API (replace with actual endpoint when available)
+    const videoResponse = await openai.video.generations.create({
+      model: "video-gen-1", // Hypothetical model
+      prompt: prompt,
+      duration: 10,
+      format: "mp4",
+      response_format: "url",
+    });
+    const videoUrl = videoResponse.data.url;
+    return { url: videoUrl, type: "video" };
+  } catch (videoError) {
+    console.error("Video generation failed:", videoError);
+    try {
+      // Generate multiple images for GIF
+      const imagePrompts = commands
+        .slice(0, 3) // Limit to 3 frames
+        .map(({ command }, index) => `
+              Generate a still image depicting "${action}" performed by ${character}.
+              Style: ${heavenFromAI.isFiction ? 'fantasy' : 'realistic'}.
+              Context: ${goal.text}. Frame ${index + 1} of ${commands.length}.
+              Use your discretion to interpret the following code-like command as an action or state change:
+              ${command || "No command available"}
+              Background: transparent. Quality: high.
+              `);
+
+      const imageUrls = await Promise.all(
+        imagePrompts.map(async (subPrompt) => {
+          const imageResponse = await openai.images.generate({
+            model: "dall-e-3",
+            prompt: subPrompt,
+            n: 1,
+            size: "1024x1024",
+            response_format: "url",
+            quality: "high",
+          });
+          return imageResponse.data[0].url;
+        })
+      );
+
+      if (imageUrls.length > 1) {
+        // Defer GIF rendering to GoalManager for client-side processing
+        return { url: null, type: "gif", images: imageUrls, heavenId, goalId, timestamp };
+      } else {
+        return { url: imageUrls[0] || null, type: "image", error: imageUrls.length === 0 ? "No images generated" : null };
+      }
+    } catch (imageError) {
+      console.error("Image/GIF generation failed:", imageError);
+      return { url: null, type: null, error: imageError.message };
+    }
+  }
+}
 
 class Heaven {
   constructor(heavenId = null, data = {}, saveToFirebase = true) {
@@ -10,8 +126,10 @@ class Heaven {
     this.script = null;
     this.data = null;
     this.thrydObjects = ThrydObjects;
-    this.timeLocationManager = new TimeLocationManager();
+    this.isFiction = heavenFromAI.isFiction || false;
+    this.timeLocationManager = new TimeLocationManager(this.isFiction);
     this.data = { id: heavenId || `heaven-${Date.now()}`, ...data };
+    this.lastManifestationTimestamp = null;
   }
 
   safeStringify(obj) {
@@ -32,15 +150,7 @@ class Heaven {
   }
 
   async logErrorToFirebase(errorData) {
-    try {
-      await firebase.logError({
-        ...errorData,
-        heavenId: this.data.id,
-        timestamp: Date.now(),
-      });
-    } catch (err) {
-      console.error("Failed to log error:", err, errorData);
-    }
+    console.error("Failed to log error:", err, errorData);
   }
 
   static async create(heavenId = null, data = {}, saveToFirebase = true) {
@@ -74,7 +184,7 @@ class Heaven {
     }
 
     try {
-      heaven.initializeThrydObjects();
+      await heaven.initializeThrydObjects();
     } catch (error) {
       console.error(`Failed to initialize ThrydObjects for heaven ${heavenId}:`, error);
     }
@@ -90,13 +200,13 @@ class Heaven {
     return heaven;
   }
 
-  initializeThrydObjects() {
+  async initializeThrydObjects() {
     this.thrydObjects = ThrydObjects;
     if (
       this.thrydObjects &&
       typeof this.thrydObjects.initiateThrydObjectsAndExecuteMovement === "function"
     ) {
-      this.thrydObjects.initiateThrydObjectsAndExecuteMovement();
+      await this.thrydObjects.initiateThrydObjectsAndExecuteMovement(this.data.id);
     } else {
       throw new Error("Invalid ThrydObjects or missing initiateThrydObjectsAndExecuteMovement");
     }
@@ -210,6 +320,10 @@ class Heaven {
       await this.script.grabScriptFromFirebase(this.data.scriptId);
     } catch (error) {
       console.error(`Failed to load script ${this.data.scriptId}:`, error);
+      await this.logErrorToFirebase({
+        type: "FirebaseFetchError",
+        message: `Failed to load script ${this.data.scriptId}: ${error.message}`,
+      });
       this.script = null;
     }
   }
@@ -221,6 +335,10 @@ class Heaven {
       console.debug(`Successfully created heaven ${this.data.id} in Firebase`);
     } catch (error) {
       console.error("Failed to save heaven to Firebase:", error);
+      await this.logErrorToFirebase({
+        type: "FirebaseSaveError",
+        message: `Failed to save heaven ${this.data.id}: ${error.message}`,
+      });
       throw error;
     }
   }
@@ -238,6 +356,10 @@ class Heaven {
       });
     } catch (error) {
       console.error(`Failed to update heaven ${this.data.id} in Firebase:`, error);
+      await this.logErrorToFirebase({
+        type: "FirebaseUpdateError",
+        message: `Failed to update heaven ${this.data.id}: ${error.message}`,
+      });
       throw error;
     }
   }
@@ -249,6 +371,10 @@ class Heaven {
       return true;
     } catch (err) {
       console.error(`Failed to save heaven data for ${this.data.id}:`, err);
+      await this.logErrorToFirebase({
+        type: "FirebaseSaveError",
+        message: `Failed to save heaven data: ${err.message}`,
+      });
       return false;
     }
   }
@@ -295,14 +421,17 @@ class Heaven {
     };
   }
 
-  async manifest(selectedGoalId, customerCoords = {}, manifestationActions = [], sceneId = "scene-1", timestamp = Date.now()) {
+  async manifest(selectedGoalId, customerCoords = {}, manifestationActions = [], sceneId = "scene-1", characterId = null, timestamp = Date.now()) {
     try {
       const goalLine = this.data.lines[selectedGoalId];
       if (!goalLine) {
         throw new Error(`Goal ID ${selectedGoalId} not found in lines.`);
       }
+      if (!characterId || !this.script?.getAllCast().find((c) => c.id === characterId)) {
+        throw new Error(`Character ${characterId} not found in cast.`);
+      }
 
-      const duration = 60 * 1000; // Default 1 minute
+      const duration = 60 * 1000;
       const defaultStart = goalLine.coordinates || { x: 0, y: 0, z: 0 };
       const defaultEnd = { x: goalLine.endX || 5, y: goalLine.endY || 5, z: goalLine.endZ || 5 };
       const startPos = customerCoords.startX !== undefined
@@ -312,13 +441,12 @@ class Heaven {
         ? { x: customerCoords.endX, y: customerCoords.endY, z: customerCoords.endZ }
         : defaultEnd;
 
-      // Validate logical consistency
       try {
-        if (ThrydObjects[characterId]) {
-          this.timeLocationManager.validateLogicalConsistency(startPos, timestamp, duration);
-          this.timeLocationManager.setCharacterState(startPos, timestamp, duration);
+        if (this.thrydObjects[characterId]) {
+          this.timeLocationManager.validateLogicalConsistency(characterId, startPos, timestamp, duration);
+          this.timeLocationManager.setCharacterState(characterId, startPos, timestamp, duration);
         } else {
-          this.timeLocationManager.setCharacterState(startPos, timestamp, duration);
+          this.timeLocationManager.setCharacterState(characterId, startPos, timestamp, duration);
         }
       } catch (error) {
         await this.logErrorToFirebase({
@@ -348,7 +476,23 @@ class Heaven {
         targetStart = { x: -10, y: -10, z: -10 };
       }
 
-      const actions = this.thrydObjects?.getHistory().slice(-5).map((entry) => entry.results[0]) || [];
+      // Fetch recent commands from Firebase
+      let actions = [];
+      try {
+        const commands = await ThrydObjects.getHistory(this.data.id, 10);
+        actions = commands.map(({ command }) => {
+          const parsed = ThrydObjects.parseCommand(command.replace(/;$/, ''));
+          return parsed.error ? null : { action: parsed.action, result: parsed.result };
+        }).filter(Boolean);
+      } catch (error) {
+        console.error("Failed to fetch actions for manifest:", error);
+        await this.logErrorToFirebase({
+          type: "FirebaseFetchError",
+          message: `Failed to fetch actions for manifest: ${error.message}`,
+          goalId: selectedGoalId,
+        });
+      }
+
       const validation = await this.validateLineWithOpenAI(goalLine.text, startPos, endPos, actions);
       const overallAlignment = parseFloat(validation.overallAlignment) || 0.4;
 
@@ -421,7 +565,11 @@ class Heaven {
         pathEnd1 = adjustedTarget1;
         paths.push({ start: pathStart1, end: pathEnd1, probability: probability * 0.6, length: length1 });
       } catch (error) {
-        await this.logErrorToFirebase({ type: "PathCalculationError", message: error.message, goalId: selectedGoalId });
+        await this.logErrorToFirebase({
+          type: "PathCalculationError",
+          message: error.message,
+          goalId: selectedGoalId,
+        });
         pathEnd1 = { x: 0, y: 0, z: 0 };
         paths.push({ start: pathStart1 || { x: 0, y: 0, z: 0 }, end: pathEnd1, probability: 0, length: 0 });
       }
@@ -458,8 +606,11 @@ class Heaven {
         pathEnd2 = adjustedTarget2;
         paths.push({ start: pathStart2, end: pathEnd2, probability: probability * 0.4, length: length2 });
       } catch (error) {
-        await this.logErrorToFirebase({ type: "PathCalculationError", message: error.message, goalId: selectedGoalId });
-        adjustedTarget2 = { x: 0, y: 0, z: 0 };
+        await this.logErrorToFirebase({
+          type: "PathCalculationError",
+          message: error.message,
+          goalId: selectedGoalId,
+        });
         pathEnd2 = adjustedTarget2;
         paths.push({ start: pathStart2 || { x: 0, y: 0, z: 0 }, end: pathEnd2, probability: 0, length: 0 });
       }
@@ -477,6 +628,35 @@ class Heaven {
           z: adjustedTarget2.z || 0,
         };
       }
+
+      // Find relevant y5Command message
+      const scriptMessages = this.script ? this.script.getAllMessagesAsNodes() : [];
+      const relevantMessage = scriptMessages.find(
+        (msg) => msg.msgType === "y5Command" && msg.senderId === characterId && msg.timestamp >= Math.floor(timestamp / 1000) - 60
+      );
+
+      // Generate visual
+      const visualData = await generateVisualFromGoal(goalLine, {
+        startX: pathStart1?.x || 0,
+        startY: pathStart1?.y || 0,
+        startZ: pathStart1?.z || 0,
+        probability,
+        characterId,
+        timestamp: Math.floor(timestamp / 1000),
+        heavenId: this.data.id,
+        goalId: selectedGoalId,
+      }, relevantMessage, this.lastManifestationTimestamp);
+
+      if (visualData.error) {
+        await this.logErrorToFirebase({
+          type: "VisualGenerationError",
+          message: visualData.error,
+          goalId: selectedGoalId,
+        });
+      }
+
+      // Update last manifestation timestamp
+      this.lastManifestationTimestamp = Math.floor(timestamp / 1000);
 
       const newHistory = [
         ...manifestationHistory,
@@ -498,16 +678,26 @@ class Heaven {
           alignment: overallAlignment,
           probability,
           length: length1 + length2,
+          visual: visualData.url,
+          visualType: visualData.type,
+          visualImages: visualData.images || null,
         },
       ];
       this.data.manifestationHistory = newHistory;
+      this.data.lines[selectedGoalId].visual = visualData.url;
+      this.data.lines[selectedGoalId].visualType = visualData.type;
+      this.data.lines[selectedGoalId].visualImages = visualData.images || null;
 
       try {
         await this.updateHeavenFirebase();
         await this.saveHeavenData(this.data);
         console.debug(`Manifested goal ${selectedGoalId} with history:`, newHistory);
       } catch (error) {
-        await this.logErrorToFirebase({ type: "PersistenceError", message: error.message, goalId: selectedGoalId });
+        await this.logErrorToFirebase({
+          type: "PersistenceError",
+          message: error.message,
+          goalId: selectedGoalId,
+        });
         throw error;
       }
 
@@ -520,6 +710,9 @@ class Heaven {
           alignment: overallAlignment,
           totalLength: length1 + length2,
           paths,
+          visual: visualData.url,
+          visualType: visualData.type,
+          visualImages: visualData.images || null,
         };
       } else {
         return {
@@ -529,10 +722,17 @@ class Heaven {
           alignment: overallAlignment,
           totalLength: length1 + length2,
           paths,
+          visual: visualData.url,
+          visualType: visualData.type,
+          visualImages: visualData.images || null,
         };
       }
     } catch (error) {
-      await this.logErrorToFirebase({ type: error.name || "ManifestationError", message: error.message, goalId: selectedGoalId });
+      await this.logErrorToFirebase({
+        type: error.name || "ManifestationError",
+        message: error.message,
+        goalId: selectedGoalId,
+      });
       return { success: false, error: error.message };
     }
   }
@@ -685,6 +885,10 @@ class Heaven {
       await this.updateHeavenFirebase();
     } catch (error) {
       console.error("Failed to batch update heaven:", error);
+      await this.logErrorToFirebase({
+        type: "BatchUpdateError",
+        message: `Failed to batch update heaven: ${error.message}`,
+      });
       throw error;
     }
   }
@@ -727,11 +931,15 @@ class Heaven {
         `setCurrentGoalInProgress: Failed to save currentGoalInProgress=${validatedGoalId} for heaven ${this.data.id}:`,
         error
       );
+      await this.logErrorToFirebase({
+        type: "FirebaseUpdateError",
+        message: `Failed to set currentGoalInProgress: ${error.message}`,
+      });
       throw error;
     }
   }
 
-  executeY5Command(command, script, castId, sceneId) {
+  async executeY5Command(command, script, sceneId) {
     if (!this.thrydObjects || !script) {
       console.error("ThrydObjects or script not initialized");
       alert("Failed to execute command: System not ready");
@@ -739,24 +947,41 @@ class Heaven {
     }
 
     const milliseconds = parseInt(Date.now() / 1000, 10);
+    const commandRegex = /^\w+\.\w+\(.*\);?$/;
+    if (!commandRegex.test(command.trim())) {
+      console.error("Invalid command format:", command);
+      script.addNewMessage({
+        id: milliseconds,
+        timeStamp: milliseconds,
+        content: `Error: ${command} (Invalid command format)`,
+        emotion: "y5:",
+        senderId: "thrydobjects",
+        msgType: "y5Command",
+        sceneId: sceneId,
+      });
+      await this.logErrorToFirebase({
+        type: "y5Command",
+        command,
+        error: "Invalid command format",
+      });
+      return;
+    }
 
     try {
-      const [context, actionStr] = command.trim().split(":").map((s) => s.trim());
-      const actionObj = { type: "executeCommand", command };
-      console.debug("Executing Y5 command:", {
-        command,
-        actionObj,
-        actionHandlers: Object.keys(this.thrydObjects.actionHandlers),
-      });
+      const actionObj = { command }; // Pass raw command, no context:action split
+      console.debug("Executing Y5 command:", { command, actionObj });
 
-      const result = this.thrydObjects.doMovement(milliseconds, actionObj);
-      const moveResult = result.results[0];
+      console.log("this.thrydObjects", this.thrydObjects)
+      
+      const result = await this.thrydObjects.doMovement(this.data.id, milliseconds, actionObj);
+      console.log("result", result);
+      const moveResult = Array.isArray(result.results) && result.results.length > 0 ? result.results[0] : { error: "No results returned" };
 
       let content;
       if (moveResult.error) {
         console.error(`Y5 command failed: ${moveResult.error}`);
         content = `Error: ${command} (${moveResult.error})`;
-        this.logErrorToFirebase({
+        await this.logErrorToFirebase({
           type: "y5Command",
           command,
           error: moveResult.error,
@@ -770,7 +995,7 @@ class Heaven {
         timeStamp: milliseconds,
         content,
         emotion: "y5:",
-        senderId: castId,
+        senderId: "thrydobjects",
         msgType: "y5Command",
         sceneId: sceneId,
       });
@@ -782,11 +1007,11 @@ class Heaven {
         timeStamp: milliseconds,
         content: `Error: ${command} (Unknown error: ${err.message})`,
         emotion: "y5:",
-        senderId: castId,
+        senderId: "thrydobjects",
         msgType: "y5Command",
         sceneId: sceneId,
       });
-      this.logErrorToFirebase({
+      await this.logErrorToFirebase({
         type: "y5Command",
         command,
         error: err.message,

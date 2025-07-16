@@ -15,7 +15,7 @@ class Firebase {
           }
         }
         updateObj[field] = JSON.stringify(parsedContent);
-        updateObj.timetravelfile = parsedContent.timetravelfile || null; // Sync timetravelfile
+        updateObj.timetravelfile = parsedContent.timetravelfile || null;
       } else {
         updateObj[field] = data;
       }
@@ -37,86 +37,83 @@ class Firebase {
   getScripts = () => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/scripts/')
-      .once('value')
-      .then(snapshot => {
-        if (snapshot.val()){
-          resolve(Object.values(snapshot.val()))
-        }else{
-          resolve({})
-        }
-      })
-    })
-  }
+        .ref('/scripts/')
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.val()) {
+            resolve(Object.values(snapshot.val()));
+          } else {
+            resolve({});
+          }
+        });
+    });
+  };
 
   getFylds = () => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/fylds/')
-      .once('value')
-      .then(snapshot => {
-        if (snapshot.val()){
-          resolve(Object.values(snapshot.val()))
-        }else{
-          resolve({})
-        }
-      })
-    })
-  }
+        .ref('/fylds/')
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.val()) {
+            resolve(Object.values(snapshot.val()));
+          } else {
+            resolve({});
+          }
+        });
+    });
+  };
 
   createFyld = (fyld) => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/fylds/' + fyld.name.replace(/\s/g, '') + '/')
-      .set(
-        {
+        .ref('/fylds/' + fyld.name.replace(/\s/g, '') + '/')
+        .set({
           name: fyld.name,
           dateCreated: fyld.dateCreated,
           description: fyld.description,
           image: fyld.image,
           friends: fyld.friends,
-        }
-      )
-      .then((response) => {
-        console.log("response", response)
-        resolve(true)
-      })
-      .catch(error => {
-        console.log("error", error)
-      })
-    })
-  }
+        })
+        .then(() => {
+          console.log("Fyld created");
+          resolve(true);
+        })
+        .catch(error => {
+          console.log("Error creating fyld:", error);
+          resolve(false);
+        });
+    });
+  };
 
   createGrypcht = (grypcht) => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/grypchts/' + grypcht.id + '/')
-      .set(
-        {
+        .ref('/grypchts/' + grypcht.id + '/')
+        .set({
           id: grypcht.id,
           groupName: grypcht.groupName,
           members: grypcht.members,
           dateCreated: grypcht.dateCreated,
           description: grypcht.description,
           isPrivateGrypcht: grypcht.isPrivateGrypcht,
-        }
-      )
-      .then((response) => {
-        console.log("response", response)
-        resolve(true)
-      })
-      .catch(error => {
-        console.log("error", error)
-      })
-    })
-  }
+        })
+        .then(() => {
+          console.log("Grypcht created");
+          resolve(true);
+        })
+        .catch(error => {
+          console.log("Error creating grypcht:", error);
+          resolve(false);
+        });
+    });
+  };
 
   createNewScript = (script) => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/scripts/' + script.id + '/')
-      .set(
-        {
+        .ref('/scripts/' + script.id + '/')
+        .set({
           id: script.id,
           name: script.name,
           dateCreated: script.dateCreated,
@@ -124,24 +121,23 @@ class Firebase {
           crew: script.crew,
           messages: script.messages,
           isPrivateScript: script.isPrivateScript,
-        }
-      )
-      .then((response) => {
-        console.log("response", response)
-        resolve(true)
-      })
-      .catch(error => {
-        console.log("error", error)
-      })
-    })
-  }
+        })
+        .then(() => {
+          console.log("Script created");
+          resolve(true);
+        })
+        .catch(error => {
+          console.log("Error creating script:", error);
+          resolve(false);
+        });
+    });
+  };
 
   updateScript = (script) => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/scripts/' + script.id + '/')
-      .update(
-        {
+        .ref('/scripts/' + script.id + '/')
+        .update({
           id: script.id,
           name: script.name,
           dateCreated: script.dateCreated,
@@ -151,17 +147,17 @@ class Firebase {
           scenes: script.scenes,
           readerReactionMap: script.readerReactionMap,
           isPrivateScript: script.isPrivateScript,
-        }
-      )
-      .then((response) => {
-        console.log("response", response)
-        resolve(true)
-      })
-      .catch(error => {
-        console.log("error", error)
-      })
-    })
-  }
+        })
+        .then(() => {
+          console.log("Script updated");
+          resolve(true);
+        })
+        .catch(error => {
+          console.log("Error updating script:", error);
+          resolve(false);
+        });
+    });
+  };
 
   createNewHeaven = (heaven) => {
     return new Promise(resolve => {
@@ -249,189 +245,258 @@ class Firebase {
   getOpenAIAPI = () => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/openAIAPI/')
-      .once('value')
-      .then(snapshot => {
-        if (snapshot.val()){
-          resolve(Object.values(snapshot.val()))
-        }else{
-          resolve({})
-        }
-      })
-    })
-  }
+        .ref('/openAIAPI/')
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.val()) {
+            resolve(Object.values(snapshot.val()));
+          } else {
+            resolve({});
+          }
+        });
+    });
+  };
 
   getConversationHistory = () => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/conversationHistory/')
-      .once('value')
-      .then(snapshot => {
-        if (snapshot.val()){
-          resolve(Object.values(snapshot.val()))
-        }else{
-          resolve({})
-        }
-      })
-    })
-  }
+        .ref('/conversationHistory/')
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.val()) {
+            resolve(Object.values(snapshot.val()));
+          } else {
+            resolve({});
+          }
+        });
+    });
+  };
 
   getRimiSenTitles = () => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/rimiLyrics/')
-      .once('value')
-      .then(snapshot => {
-        if (snapshot.val()){
-          resolve(Object.values(snapshot.val()))
-        }else{
-          resolve({})
-        }
-      })
-    })
-  }
+        .ref('/rimiLyrics/')
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.val()) {
+            resolve(Object.values(snapshot.val()));
+          } else {
+            resolve({});
+          }
+        });
+    });
+  };
 
   postChats = (seller, buyer, message, productId, senderID) => {
     return new Promise(resolve => {
-      firebase.database().
-      ref('/chats/' + seller + '/' + productId + '/' + buyer + '/').
-      push({
-        content: message,
-        timestamp: Date.now(),
-        uid: senderID,
-      }).
-      then(() => {
-        resolve(true)
-      }).catch(error => {
-        resolve({})
-      })
-    })
+      firebase.database()
+        .ref('/chats/' + seller + '/' + productId + '/' + buyer + '/')
+        .push({
+          content: message,
+          timestamp: Date.now(),
+          uid: senderID,
+        })
+        .then(() => {
+          resolve(true);
+        })
+        .catch(error => {
+          resolve({});
+        });
+    });
+  };
+
+  saveStateUpdateCommands = (heavenId, command, timestamp) => {
+    return new Promise(resolve => {
+      const commandHistoryRef = firebase.database().ref(`/heavens/${heavenId}/commandHistory`);
+      const formattedCommand = `[${timestamp}]:${command};`;
+
+      commandHistoryRef
+        .transaction(currentHistory => {
+          return currentHistory ? `${currentHistory}${formattedCommand}` : formattedCommand;
+        })
+        .then(result => {
+          if (!result.committed) {
+            resolve({});
+            return;
+          }
+          console.debug(`Concatenated command "${command}" to /heavens/${heavenId}/commandHistory`);
+          resolve(true);
+        })
+        .catch(error => {
+          console.error("Failed to save command to Firebase:", error);
+          resolve({});
+        });
+    });
   }
 
   storage = () => {
-    return firebase.storage()
-  }
+    return firebase.storage();
+  };
 
   getScriptById = (id) => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/scripts/'+id)
-      .once('value')
-      .then(snapshot => {
-        if (snapshot.val()){
-          resolve(Object(snapshot.val()))
-        }else{
-          resolve({})
-        }
-      })
-    })
+        .ref('/scripts/' + id)
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.val()) {
+            resolve(Object(snapshot.val()));
+          } else {
+            resolve({});
+          }
+        });
+    });
+  };
+
+  getHeavenById = (id) => {
+    return new Promise(resolve => {
+      firebase.database()
+        .ref('/heavens/' + id)
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.val()) {
+            const val = snapshot.val();
+            let heavenData = val.heavenData || {};
+            if (typeof heavenData === "string") {
+              try {
+                heavenData = JSON.parse(heavenData);
+              } catch (error) {
+                console.error(`Failed to parse heavenData for ID: ${id}`, error);
+                heavenData = {};
+              }
+            }
+            const resolvedData = {
+              ...heavenData,
+              id: val.id || id,
+              title: val.title || "Untitled Heaven",
+              dateCreated: val.dateCreated || Math.floor(Date.now() / 1000),
+              scriptId: val.scriptId || null,
+              tweets: val.tweets || [],
+              lines: val.lines || [],
+              stateSnapshots: val.stateSnapshots || [],
+              manifestationHistory: val.manifestationHistory || [],
+              timetravelfile: val.timetravelfile || null,
+              currentGoalInProgress: val.currentGoalInProgress !== undefined ? val.currentGoalInProgress : null,
+            };
+            resolve(resolvedData);
+          } else {
+            console.warn(`No data found for heaven ${id}`);
+            resolve({});
+          }
+        })
+        .catch(error => {
+          console.error(`Firebase fetch error for heaven ${id}:`, error);
+          resolve({});
+        });
+    });
+  };
+
+  getMoveHistory = (heavenId, limit = 50) => {
+    return new Promise((resolve, reject) => {
+      firebase.database()
+        .ref(`/heavens/${heavenId}/commandHistory`)
+        .once('value')
+        .then(snapshot => {
+          const commandHistory = snapshot.val() || '';
+
+          const entries = [];
+          const seen = new Set(); // Track command-timestamp pairs to avoid duplicates
+          const regex = /\[(\d+)\]:(.*?)(?=\[\d+\]:|$)/g;
+          let match;
+          while ((match = regex.exec(commandHistory)) !== null) {
+            const timestamp = parseInt(match[1], 10);
+            const commandSegment = match[2].trim();
+            const individualCommands = commandSegment.split(';').filter(cmd => cmd.trim());
+            individualCommands.forEach((cmd, cmdIndex) => {
+              const cleanCommand = cmd.trim();
+              if (cleanCommand.match(/^(\w+\.\w+\(.*\);?)$/)) {
+                const key = `${cleanCommand}|${timestamp + cmdIndex}`;
+                if (!seen.has(key)) {
+                  seen.add(key);
+                  entries.push({
+                    command: cleanCommand,
+                    timestamp: timestamp + cmdIndex,
+                  });
+                }
+              }
+            });
+          }
+
+          const history = entries
+            .sort((a, b) => a.timestamp - b.timestamp)
+            .slice(-limit);
+          resolve(history);
+        })
+        .catch(error => {
+          console.error("Failed to fetch move history:", error);
+          firebase.database()
+            .ref('/errors/')
+            .push({
+              type: "FirebaseFetchError",
+              message: `Failed to fetch move history: ${error.message}`,
+              heavenId,
+              timestamp: Date.now(),
+            })
+            .catch(err => console.error("Failed to log Firebase error:", err));
+          reject(error);
+        });
+    });
   }
 
-getHeavenById = (id) => {
-  return new Promise(resolve => {
-    firebase.database()
-      .ref('/heavens/' + id)
-      .once('value')
-      .then(snapshot => {
-        if (snapshot.val()) {
-          const val = snapshot.val();
-          let heavenData = val.heavenData || {};
-          if (typeof heavenData === "string") {
-            try {
-              heavenData = JSON.parse(heavenData);
-            } catch (error) {
-              console.error(`Failed to parse heavenData for ID: ${id}`, error);
-              heavenData = {};
-            }
-          }
-          const resolvedData = {
-            ...heavenData, // Spread heavenData first
-            id: val.id || id,
-            title: val.title || "Untitled Heaven",
-            dateCreated: val.dateCreated || Math.floor(Date.now() / 1000),
-            scriptId: val.scriptId || null,
-            tweets: val.tweets || [],
-            lines: val.lines || [],
-            stateSnapshots: val.stateSnapshots || [],
-            manifestationHistory: val.manifestationHistory || [],
-            timetravelfile: val.timetravelfile || null,
-            currentGoalInProgress: val.currentGoalInProgress !== undefined ? val.currentGoalInProgress : null, // Explicitly set
-          };
-          resolve(resolvedData);
-        } else {
-          console.warn(`No data found for heaven ${id}`);
-          resolve({});
-        }
-      })
-      .catch(error => {
-        console.error(`Firebase fetch error for heaven ${id}:`, error);
-        resolve({});
-      });
-  });
-};
 
   updateSenTitle = (update) => {
     return new Promise(resolve => {
       firebase.database()
-      .ref(`/rimis/${update.id}/`)
-      .update(
-        {
+        .ref(`/rimis/${update.id}/`)
+        .update({
           senTitle: update.newSenTitle,
-        },
-      )
-      .then((response) => {
-        return new Promise(resolve => {
-          firebase.database()
-          .ref(`/rimis/${update.id}/updates/${update.updateId}`)
-          .remove()
-          .then(() => {
-            resolve(true)
-          }).catch( (error) => {
-            console.log("error", error)
-          })
         })
-        .then((response) => {
-          resolve(true)
+        .then(() => {
+          return firebase.database()
+            .ref(`/rimis/${update.id}/updates/${update.updateId}`)
+            .remove();
+        })
+        .then(() => {
+          resolve(true);
         })
         .catch(error => {
-          console.log("error", error)
-        })
-      })
-      .catch(error => {
-        console.log("error", error)
-      })
-    })
-  }
+          console.log("Error updating senTitle:", error);
+          resolve(false);
+        });
+    });
+  };
 
   sendForApproval = (item) => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/rimis/'+item.id+'/updates/' + item.updateId + '/')
-      .set(item)
-      .then((response) => {
-        console.log("response", response)
-        resolve(true)
-      })
-      .catch(error => {
-        console.log("error", error)
-      })
-    })
-  }
+        .ref('/rimis/' + item.id + '/updates/' + item.updateId + '/')
+        .set(item)
+        .then(() => {
+          console.log("Item sent for approval");
+          resolve(true);
+        })
+        .catch(error => {
+          console.log("Error sending for approval:", error);
+          resolve(false);
+        });
+    });
+  };
 
   updateVideoSnippetURL = (orderId, snippetVideoURL) => {
     return new Promise(resolve => {
       firebase.database()
-      .ref('/orders/' + orderId + '/')
-      .update({snippetVideoURL})
-      .then((response) => {
-        console.log("response", response)
-        resolve(true)
-      })
-      .catch(error => {
-        console.log("error", error)
-      })
-    })
-  }
+        .ref('/orders/' + orderId + '/')
+        .update({ snippetVideoURL })
+        .then(() => {
+          console.log("Video snippet URL updated");
+          resolve(true);
+        })
+        .catch(error => {
+          console.log("Error updating video snippet URL:", error);
+          resolve(false);
+        });
+    });
+  };
 
   updateHeavenField = (heavenId, field, value) => {
     return new Promise((resolve, reject) => {
@@ -445,6 +510,23 @@ getHeavenById = (id) => {
         })
         .catch((error) => {
           console.error(`Failed to update ${field} for heaven ${heavenId}:`, error);
+          reject(error);
+        });
+    });
+  };
+
+  logError = (errorData) => {
+    return new Promise((resolve, reject) => {
+      firebase
+        .database()
+        .ref('/errors/')
+        .push(errorData)
+        .then(() => {
+          console.log("Error logged to Firebase");
+          resolve(true);
+        })
+        .catch(error => {
+          console.error("Failed to log error to Firebase:", error);
           reject(error);
         });
     });

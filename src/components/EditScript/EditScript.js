@@ -191,9 +191,8 @@ class ConnectedEditScript extends Component {
       // Call Heaven.js executeY5Command
       if (this.props.executeY5Command) {
         this.props.executeY5Command(
-          `y5: ${this.state.textMsg}`,
+          this.state.textMsg,
           this.state.script,
-          this.state.selectedCastId,
           this.state.selectedSceneId
         );
       }
